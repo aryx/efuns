@@ -6,24 +6,21 @@ description: """
 More stuff
 """
 
-maintainer: "Yoann Padioleau <pad@r2c.dev>"
-authors: [ "Yoann Padioleau <pad@r2c.dev>" ]
-license: "LGPL-2.1"
-homepage: "https://semgrep.dev"
+maintainer: "Yoann Padioleau <yoann.padioleau@gmail.com>"
+authors: [ "Yoann Padioleau <yoann.padioleau@gmail.com>" ]
+license: "LGPL-2.1-only WITH OCaml-LGPL-linking-exception"
+homepage: "https://github.com/aryx/fork-efuns"
 dev-repo: "git+https://github.com/aryx/fork-efuns"
 bug-reports: "https://github.com/aryx/fork-efuns/issues"
 
-# These are build dependencies.
-# Development-only dependencies are in 'dev/dev.opam'.
-#
+#TODO: there are also tons of dependencies to semgrep and also codemap!
 depends: [
-  "dune" {>= "2.7.0" }
+  "dune" {>= "3.7" }
   "logs"
   "lablgtk"
   "cairo2-gtk"
   "cairo2-pango"
-  "ppxlib" {= "0.20.0" }
+  # "ppxlib" {= "0.20.0" }
 ]
 
 build: [make]
-
