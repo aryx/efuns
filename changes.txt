@@ -1,14 +1,24 @@
 # -*- org -*-
 
-* 0.27 (Q2 2024)
+* TODO
 
-** TODO first public release on OPAM
+** package
+first public release on OPAM
 
-** TODO better merlin support
+** devinfra
+better merlin support
 automatic case-analysis code generation,
 
+* -----------------------------------------------------------
+
+
+* 0.26 (Q3 2025) (Dockerfile and GHA CI)
+
+** testinfra
+- Dockerfile and docker.yml GHA (GitHub Actions) CI check
+
 ** docs
-added Editor.nw in docs/literate/ from principia
+- added Editor.nw in docs/literate/ from principia
 
 * -----------------------------------------------------------
 

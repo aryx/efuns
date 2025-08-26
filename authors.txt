@@ -6,10 +6,12 @@ Yoann Padioleau: a few contributions
   * eshell (poor's man version, M-1, M-2, ...)
   * outline (poor's man version, C-M-1, C-M-2, ...)
   * org mode (poor's man version)
-  * pfff-based modes for OCaml/C/noweb/Tex (with many colors and outlines)
+  * pfff-based modes for OCaml/C/noweb/Tex/Jsonnet
+    (with many colors and outlines)
   * minimap instead of scrollbar (a la Sublime Text), with bigger font
     for important (outline) stuff (a la Code Thumbnails)
   * merlin minor mode for OCaml (C-c C-t, C-c C-d, ...)
   * Emacs's default behavior port: goal column, C-s C-w, M-w, Top|Bot|%, ...
   * Emacs's misc port: M-x align_char, rectangles (C-x r t, C-x r k)
   * pad's stuff: M-down/up/right/left scrolling, M-x gtd
+  * Emacs's macro! (C-x (, C-x ), C-x e)

@@ -1,6 +1,6 @@
 
 # dune
-_build
+/_build
 
 # OCaml object files
 *.cm*

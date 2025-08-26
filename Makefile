@@ -6,9 +6,12 @@
 # Main targets
 ###############################################################################
 
+#TODO: also test.bc
+default:
+	bash -c "dune build _build/install/default/bin/{efuns,efuns_client}"
+
 all:
 	dune build
-#	dune build ./_build/default/tests/test.bc
 clean:
 	dune clean
 test:
@@ -16,7 +19,10 @@ test:
 install:
 	dune install
 
-.PHONY: all clean install test dump
+.PHONY: all clean install test
+
+build-docker:
+	docker build -t "efuns" .
 
 ###############################################################################
 # Developer targets
@@ -25,6 +31,5 @@ install:
 # -filter semgrep
 visual:
 	codemap -screen_size 3 -efuns_client efuns_client -emacs_client /dev/null .
-
 sync:
 	@echo go to docs/literate/

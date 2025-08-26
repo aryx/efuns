@@ -17,11 +17,17 @@ set -eu # to debug this script add '-x'
 ###############################################################################
 
 #TODO:
+# - enable or disable tree-sitter based parsers and pfff stuff
+#   and detect OS for appropriate settings
+# - enable cairo or not. See my old Makefile.config with
+#   USE_PFFF=1
+#   USE_GTKCAIRO2=1
+#   as I can also compile for just the graphics.cma library
+
+#TODO:
 # - check opam is in PATH
 # - check opam was initialized
 # - use opam.locked
-# - enable or disable tree-sitter based parsers and pfff stuff
-#   and detect OS for appropriate settings
 
 #in theory we should also
 # - check the ocaml switch is a good version
