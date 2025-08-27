@@ -13,8 +13,6 @@
    ; now in codemap
    highlighters
    database_code
-
-   ; now in semgrep?
    graph_code
 
 )

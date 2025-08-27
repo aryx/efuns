@@ -5,8 +5,9 @@
 val colorize_and_set_outlines: 
   ('ast, 'token) Parse_and_highlight.t -> Efuns.buffer -> Fpath.t -> unit
 
-(* maintain some dir -> db information *)
+(* maintain some dir -> db information (useful for goto_def below) *)
 val load_database_code: Efuns.action
+(* DEAD? used by something? TODO? leverage? *)
 val load_graph_code: Efuns.action
 
 val goto_def: Efuns.action

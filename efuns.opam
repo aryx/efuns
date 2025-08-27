@@ -14,6 +14,7 @@ dev-repo: "git+https://github.com/aryx/fork-efuns"
 bug-reports: "https://github.com/aryx/fork-efuns/issues"
 
 #TODO: there are also tons of dependencies to semgrep and also codemap!
+# see Dockerfile and its 'dune install ...' command
 depends: [
   "dune" {>= "3.7" }
   "logs"

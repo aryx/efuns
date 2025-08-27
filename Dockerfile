@@ -35,7 +35,9 @@ RUN apt-get install -y libcairo2-dev libgtk2.0-dev
 RUN git clone --depth=1 https://github.com/aryx/codemap /codemap
 RUN ./configure
 RUN eval $(opam env) && make && make all
-RUN eval $(opam env) && dune install
+RUN eval $(opam env) && dune install \
+    commons2_ files-format \
+    visualization graph_code
 RUN rm -rf /codemap
 
 
