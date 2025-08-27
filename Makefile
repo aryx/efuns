@@ -35,3 +35,7 @@ visual:
 	codemap -screen_size 3 -efuns_client efuns_client -emacs_client /dev/null .
 sync:
 	@echo go to docs/literate/
+index:
+	$(MAKE) clean
+	$(MAKE)
+	codegraph_build -lang cmt .
