@@ -23,6 +23,8 @@ install:
 
 build-docker:
 	docker build -t "efuns" .
+build-docker-ocaml5:
+	docker build -t "efuns" --build-arg OCAML_VERSION=5.2.1 .
 
 ###############################################################################
 # Developer targets

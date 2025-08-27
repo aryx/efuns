@@ -20,7 +20,6 @@ depends: [
   "lablgtk"
   "cairo2-gtk"
   "cairo2-pango"
-  # "ppxlib" {= "0.20.0" }
 ]
 
 build: [make]
