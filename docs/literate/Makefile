@@ -80,3 +80,10 @@ SRC= \
 SRC_VIEWS=$(SRC:%=$(TOP)/%)
 
 include ~/github/semgrep-internals/Makefile.common
+
+index:
+	$(INDEXER) -lang cmt $(TOP) \
+    | grep -v 'TODO_NO_SOURCE_FOUND' \
+    | grep -v '_build/default' \
+    | sed -e 's#src/core/#core/#g' \
+    > defs_and_uses.list

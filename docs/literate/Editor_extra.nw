@@ -1,12 +1,17 @@
 \section{TODO}
 
-%TODO: to lpize 
+% this is for make index and syncweb_indexer to silence errors
 % (make pdf complains about those files if they are not listed here)
-<<graphics/xtypes.ml>>=
+%TODO: lpize those files for real
+
+<<config/pad.ml>>=
 @
-<<graphics/xdraw.ml>>=
+
+<<src/graphics/xtypes.ml>>=
 @
-<<graphics/xK.ml>>=
+<<src/graphics/xdraw.ml>>=
+@
+<<src/graphics/xK.ml>>=
 @
 
 
@@ -21,7 +26,7 @@
 <<graphics/gtk_cairo2/minimap.ml>>=
 @
 
-<<ppx/ppx_interactive.ml>>=
+<<ppx_interactive/ppx_interactive.ml>>=
 @
 
 <<commons/str2.ml>>=
@@ -43,71 +48,79 @@
 @
 <<features/message.ml>>=
 @
-<<minor_modes/minor_modes.ml>>=
+<<modes/minor_modes/minor_modes.ml>>=
 @
-<<major_modes/major_modes.ml>>=
-@
-
-<<text_modes/tex_mode.ml>>=
-@
-<<text_modes/tex_mode.mll>>=
-@
-<<text_modes/org_mode.ml>>=
-@
-<<text_modes/html_mode.ml>>=
-@
-<<text_modes/html_mode.mll>>=
+<<modes/major_modes/major_modes.ml>>=
 @
 
-<<prog_modes/pl_colors.ml>>=
+<<modes/text_modes/tex_mode.ml>>=
 @
-<<prog_modes/common_lexer.ml>>=
+<<modes/text_modes/tex_mode.mll>>=
 @
-<<prog_modes/common_indenter.ml>>=
+<<modes/text_modes/org_mode.ml>>=
 @
-<<prog_modes/bento.ml>>=
+<<modes/text_modes/html_mode.ml>>=
 @
-<<prog_modes/ocaml_mode.ml>>=
-@
-<<prog_modes/ocaml_lexer.ml>>=
-@
-<<prog_modes/ocaml_lexer.mll>>=
-@
-<<prog_modes/lisp_mode.ml>>=
-@
-<<prog_modes/lisp_lexer.ml>>=
-@
-<<prog_modes/lisp_lexer.mll>>=
-@
-<<prog_modes/c_mode.ml>>=
-@
-<<prog_modes/c_lexer.ml>>=
-@
-<<prog_modes/c_lexer.mll>>=
-@
-<<prog_modes/ocaml_merlin.ml>>=
-@
-<<prog_modes/ocaml_ocp_indent.ml>>=
+<<modes/text_modes/html_mode.mll>>=
 @
 
-<<major_modes/shell.ml>>=
+<<modes/prog_modes/pl_colors.ml>>=
 @
-<<major_modes/outline_mode.ml>>=
+<<modes/prog_modes/common_lexer.ml>>=
 @
-<<major_modes/buffer_menu.ml>>=
+<<modes/prog_modes/common_indenter.ml>>=
+@
+<<modes/prog_modes/bento.ml>>=
+@
+<<modes/prog_modes/ocaml_mode.ml>>=
+@
+<<modes/prog_modes/ocaml_lexer.ml>>=
+@
+<<modes/prog_modes/ocaml_lexer.mll>>=
+@
+<<modes/prog_modes/lisp_mode.ml>>=
+@
+<<modes/prog_modes/lisp_lexer.ml>>=
+@
+<<modes/prog_modes/lisp_lexer.mll>>=
+@
+<<modes/prog_modes/c_mode.ml>>=
+@
+<<modes/prog_modes/c_lexer.ml>>=
+@
+<<modes/prog_modes/c_lexer.mll>>=
+@
+<<modes/prog_modes/ocaml_merlin.ml>>=
+@
+<<modes/prog_modes/ocaml_ocp_indent.ml>>=
 @
 
-<<pfff_modes/pfff_modes.ml>>=
+<<modes/major_modes/shell.ml>>=
 @
-<<pfff_modes/noweb_mode.ml>>=
+<<modes/major_modes/outline_mode.ml>>=
 @
-<<pfff_modes/cpp_mode.ml>>=
+<<modes/major_modes/buffer_menu.ml>>=
 @
-<<pfff_modes/caml_mode.ml>>=
+
+<<modes/pfff_modes/pfff_modes.ml>>=
 @
-<<pfff_modes/python_mode.ml>>=
+<<modes/pfff_modes/noweb_mode.ml>>=
 @
-<<pfff_modes/javascript_mode.ml>>=
+<<modes/pfff_modes/cpp_mode.ml>>=
+@
+<<modes/pfff_modes/caml_mode.ml>>=
+@
+<<modes/pfff_modes/python_mode.ml>>=
+@
+<<modes/pfff_modes/javascript_mode.ml>>=
+@
+<<modes/pfff_modes/scala_mode.ml>>=
+@
+<<modes/pfff_modes/rust_mode.ml>>=
+@
+<<modes/pfff_modes/jsonnet_mode.ml>>=
+@
+<<modes/pfff_modes/bash_mode.ml>>=
 @
 
 \section{[[commons/]]}
@@ -3922,7 +3935,7 @@ open Efuns
 
 %-------------------------------------------------------------
 
-<<minor_modes/minor_mode_sample.ml>>=
+<<modes/minor_modes/minor_mode_sample.ml>>=
 <<copyright header2>>
 open Efuns
           
@@ -4000,7 +4013,7 @@ let _ =
 
 %-------------------------------------------------------------
 
-<<minor_modes/abbrevs_mode.ml>>=
+<<modes/minor_modes/abbrevs_mode.ml>>=
 <<copyright header2>>
 open Options
 open Abbrevs
@@ -4295,7 +4308,7 @@ let _ =
 
 %-------------------------------------------------------------
 
-<<minor_modes/fill_mode.ml>>=
+<<modes/minor_modes/fill_mode.ml>>=
 <<copyright header2>>
 open Options
 open Efuns
@@ -4405,7 +4418,7 @@ let _ =
 
 %-------------------------------------------------------------
 
-<<minor_modes/tab_mode.ml>>=
+<<modes/minor_modes/tab_mode.ml>>=
 <<copyright header2>>
 open Efuns
 
@@ -4556,7 +4569,7 @@ let _ =
 
 %-------------------------------------------------------------
 
-<<prog_modes/makefile_mode.ml>>=
+<<modes/prog_modes/makefile_mode.ml>>=
 <<copyright header2>>
 open Options
 open Efuns

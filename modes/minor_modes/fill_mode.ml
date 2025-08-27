@@ -1,4 +1,4 @@
-(*s: minor_modes/fill_mode.ml *)
+(*s: modes/minor_modes/fill_mode.ml *)
 (*s: copyright header2 *)
 (***********************************************************************)
 (*                                                                     *)
@@ -49,4 +49,4 @@ let _ =
     (Minor_modes.toggle_minor mode)
 (*e: toplevel [[Fill_mode._2]] *)
     
-(*e: minor_modes/fill_mode.ml *)
+(*e: modes/minor_modes/fill_mode.ml *)

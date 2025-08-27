@@ -1,4 +1,4 @@
-(*s: minor_modes/tab_mode.ml *)
+(*s: modes/minor_modes/tab_mode.ml *)
 (*s: copyright header2 *)
 (***********************************************************************)
 (*                                                                     *)
@@ -32,4 +32,4 @@ let _ =
 let _ = 
   Action.define_action "tab_mode" (Minor_modes.toggle_minor mode)
 (*e: toplevel [[Tab_mode._2]] *)
-(*e: minor_modes/tab_mode.ml *)
+(*e: modes/minor_modes/tab_mode.ml *)

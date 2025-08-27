@@ -259,16 +259,7 @@ let core_map =
  ))) @
  (*x: [[core_map]] entries *)
  ([
- (*
-         (XK.xk_eacute, 'é');
-         (XK.xk_egrave, 'è');
-         (XK.xk_ccedilla, 'ç');
-         (XK.xk_agrave, 'à');
-         (XK.xk_ugrave, 'ù');
-         (XK.xk_mu, 'µ'); 
-         (XK.xk_sterling, '£');
-         (XK.xk_section, '§');
-         (XK.xk_degree,  '°');
+ (* see pbs_accent.txt in this directory
  *)
  ] |> List.map (fun (key, char) ->
      (* special for AZERTY keyboards *)

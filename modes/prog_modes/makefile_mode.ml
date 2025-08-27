@@ -1,4 +1,4 @@
-(*s: prog_modes/makefile_mode.ml *)
+(*s: modes/prog_modes/makefile_mode.ml *)
 (*s: copyright header2 *)
 (***********************************************************************)
 (*                                                                     *)
@@ -120,4 +120,4 @@ let _ =
     Parameter.add_option_parameter rules_color;
   )   
 (*e: toplevel [[Makefile_mode._4]] *)
-(*e: prog_modes/makefile_mode.ml *)
+(*e: modes/prog_modes/makefile_mode.ml *)

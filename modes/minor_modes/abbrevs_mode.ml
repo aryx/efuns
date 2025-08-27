@@ -1,4 +1,4 @@
-(*s: minor_modes/abbrevs_mode.ml *)
+(*s: modes/minor_modes/abbrevs_mode.ml *)
 (*s: copyright header2 *)
 (***********************************************************************)
 (*                                                                     *)
@@ -67,4 +67,4 @@ let _ =
   Action.define_action "abbrevs_mode" (Minor_modes.toggle_minor mode)
 (*e: toplevel [[Abbrevs_mode._3]] *)
 
-(*e: minor_modes/abbrevs_mode.ml *)
+(*e: modes/minor_modes/abbrevs_mode.ml *)
