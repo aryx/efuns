@@ -23,7 +23,21 @@ RUN git clone --depth=1 --recurse-submodules https://github.com/aryx/semgrep-lib
 RUN apt-get install -y pkg-config libpcre3-dev libpcre2-dev libgmp-dev libev-dev libcurl4-gnutls-dev
 RUN ./configure
 RUN eval $(opam env) && make && make dune-build-all
-RUN eval $(opam env) && dune install
+RUN eval $(opam env) && dune install \
+   TCB commons commons2 profiling tracing process_limits parallelism pcre2 \
+   testo testo-util testo-diff \
+   gitignore paths glob git_wrapper \
+   lib_parsing ast_generic tree-sitter lib_parsing_tree_sitter \
+   tree-sitter-lang \
+   parser_ocaml parser_scala parser_lisp \
+   parser_cpp parser_java \
+   parser_python parser_javascript parser_ruby parser_php \
+   parser_go parser_rust \
+   parser_yaml parser_jsonnet \
+   parser_dockerfile parser_bash \
+   pfff-lang_GENERIC-naming \
+   semgrep aliengrep spacegrep
+#TODO: remove semgrep aliengrep spacegrep
 #TODO: can't because then can't find -ltree-sitter
 # RUN rm -rf /semgrep
 
@@ -37,7 +51,10 @@ RUN ./configure
 RUN eval $(opam env) && make && make all
 RUN eval $(opam env) && dune install \
     commons2_ files-format \
-    visualization graph_code
+    visualization \
+    graph_code database_code \
+    highlight_code highlighters \
+    parser_nw parser_html
 RUN rm -rf /codemap
 
 
