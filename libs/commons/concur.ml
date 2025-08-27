@@ -59,7 +59,9 @@ let readers = ref []
       UCommon.pr2 "TODO: Thread.kill not available anymore";
       ignore to_kill;
       Mutex.unlock mu_actions;
-      if !me then Thread.exit ()
+      if !me then 
+        (* old: Thread.exit (), but deprecated in OCaml 5 => raise instead *)
+        raise Thread.Exit
 
     let add_timer time f =
       let _ = Thread.create (fun _ -> Thread.delay time; f ()) () in ()
@@ -67,7 +69,10 @@ let readers = ref []
     let fork () =
       let pid = Unix.fork () in
       if pid > 0 then
-        ignore (Thread.create (fun _ -> let _ = Thread.wait_pid pid in ()) ());
+        ignore (Thread.create (fun _ -> 
+                    (* old: let _ = Thread.wait_pid pid in, but deprecated Ocaml5 *)
+                    let _ = Unix.waitpid [] pid in
+                    ()) ());
       pid
 
   

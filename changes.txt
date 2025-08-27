@@ -7,28 +7,29 @@ first public release on OPAM
 
 ** devinfra
 better merlin support
-automatic case-analysis code generation,
+ automatic case-analysis code generation boilerplate (using merlin)
+Claude Code integration?
 
 * -----------------------------------------------------------
 
-
-* 0.26 (Q3 2025) (Dockerfile and GHA CI)
+* 0.26 (Q3 2025) (Dockerfile and GHA CI, OCaml5 ready)
 
 ** testinfra
-- Dockerfile and docker.yml GHA (GitHub Actions) CI check
+- Dockerfile and docker.yml GHA (GitHub Actions) CI working for
+  OCaml 4.14.2 and 5.2.1
 
 ** docs
 - added Editor.nw in docs/literate/ from principia
 
 * -----------------------------------------------------------
 
-* 0.26 (Q? 202?)
+* 0.26 (Q? 202?) (Mode:Jsonnet, generic highlighters)
 
 ** a new Jsonnet mode (based on ojsonnet parser in semgrep)
 
 ** added a generic highlighter using the generic AST in semgrep
 
-* Maintenance mode in 2020/2021/2022/2023
+* Maintenance mode in 2020/2021/2022/2023 as I was working on semgrep
 
 * -----------------------------------------------------------
 
@@ -37,7 +38,7 @@ automatic case-analysis code generation,
 ** a new Python mode
 based on the Python parser and highlighter in Pfff.
 
-** support for the bento code checker
+** support for the bento code checker (r2c)
 especially useful for Python and Javascript code
 
 * 0.24 (Q3 2019)
@@ -128,7 +129,7 @@ the support for Pango fonts that I needed).
 
 * -----------------------------------------------------------
 
-* 0.20 (Q2 2015)
+* 0.20 (Q2 2015) (Mode:Org/Outline/..., minimap, pad's stuff)
 
 ** a new Org mode
 
@@ -168,7 +169,7 @@ buffer menu C-M-Tab, C-M-l and right order
 - more use of with_dup_point, with_new_point, with_session
 - lots of renaming to make it easier to explain things in Efuns.nw
 
-* 0.19 (Q1 2015)
+* 0.19 (Q1 2015) (Fork, Mode:Dircolors/Buffer_menu/Shell, pfff-based highlighters)
 
 ** fork Efuns (after 15 years), and port it to gtk/cairo
 also use pfff/h_visualization/simple_color.ml for emacs style color names
