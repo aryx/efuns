@@ -1,6 +1,4 @@
-# Mostly a copy of mkfile
-# I use a Makefile for efuns because my mk/rc is currently broken
-# because kencc/bin/rc is compiled for 32 bits and I have no time to fix it
+#TODO: switch to principia/docs/latest/mkcommon ?
 
 SYNCFLAGS=-md5sum_in_auxfile -less_marks -lang ocaml
 
@@ -11,7 +9,7 @@ SRC_ORIG=Editor.nw Editor_extra.nw
 
 TOP=../..
 
-#todo: to lpize at some point:
+#TODO: to lpize at some point:
 # dircolors.ml, shell.ml, outline_mode.ml, prog_modes/*, etc
 
 #pad: I've indented some of the files I created and put them under the
