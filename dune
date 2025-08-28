@@ -6,7 +6,7 @@
  (release
   (flags (:standard -O3))))
 
-(dirs :standard \ external \ docs)
+(dirs :standard \ docs external)
 
 (executables
  (names main efuns_client)
