@@ -83,6 +83,9 @@ let main () =
     raise SigInt
   )) |> ignore;
   (*e: [[main()]] set signal handlers *)
+
+  let level = ref (Some Logs.Warning) in
+
   Arg.parse ([
     (*s: [[main()]] command line options *)
     "-width"  , Arg.Int (fun i -> width_opt := Some i), "<len>: Width in chars";
@@ -96,8 +99,16 @@ let main () =
       "-I",Arg.String (fun s -> Globals.load_path =:= 
           (Utils.string_to_path s) @ !!Globals.load_path), "<path>: Load Path";
     (*x: [[main()]] command line options *)
-    "-debug", Arg.Set Globals.debug, 
-    " for debugging";
+    "-v", Arg.Unit (fun () -> level := Some Logs.Info),
+     " verbose mode";
+    "-verbose", Arg.Unit (fun () -> level := Some Logs.Info),
+    " verbose mode";
+    "-debug", Arg.Unit (fun () -> 
+       Globals.debug := true;
+    ),
+    " debug mode";
+    "-quiet", Arg.Unit (fun () -> level := None),
+    " no logs";
     "-debug_graphics", Arg.Set Globals.debug_graphics, 
     " for debugging";
     "-debug_display", Arg.Set Globals.debug_display, 
@@ -116,6 +127,7 @@ let main () =
    (fun name -> initial_files := name :: !initial_files) 
    usage_str;
 
+  Logs_.setup ~level:!level ();
   Logs.info (fun m -> m "logging enabled");
 
   (*s: [[main()]] set options *)

@@ -11,7 +11,6 @@
 (*                                                                     *)
 (***********************************************************************)
 (*e: copyright header *)
-open Common
 open Unix
 open Efuns
   
@@ -84,7 +83,7 @@ let start () =
 
       if Sys.file_exists socket_name 
       then begin 
-        UCommon.pr2 (spf "socket file %s already exists; cancelling the server"
+        Logs.warn (fun m -> m "socket file %s already exists; cancelling the server"
               socket_name);
         (* alt: unlink here, so if you run multiple efuns, the last one wins*)
       end else begin
