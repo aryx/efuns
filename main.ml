@@ -105,6 +105,7 @@ let main () =
     " verbose mode";
     "-debug", Arg.Unit (fun () -> 
        Globals.debug := true;
+       level := Some Logs.Debug;
     ),
     " debug mode";
     "-quiet", Arg.Unit (fun () -> level := None),
