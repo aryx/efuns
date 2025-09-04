@@ -9,6 +9,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
+(* DEPRECATED: should use Logs instead *)
+
 (*
 let lock = ref false
 let discard = ref true

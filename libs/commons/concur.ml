@@ -13,16 +13,12 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(*         File written in the Objective-CAML language                 *)
+let readers : (Unix.file_descr * Thread.t) list ref = ref []
 
-(* external ioctl: Unix.file_descr -> int -> string -> 'a -> unit = "ml2c_ioctl" *)
-
-let readers = ref []
-    
-let actions = ref 0
-
-let mu_actions = Mutex.create ()
-let cond_actions = Condition.create ()
+(* protected-by: mu_actions *)    
+let actions : int ref = ref 0
+let mu_actions : Mutex.t = Mutex.create ()
+let cond_actions : Condition.t = Condition.create ()
 
 let add_reader fd f = readers := 
    (fd,
@@ -37,15 +33,16 @@ let add_reader fd f = readers :=
           try
             f ()
           with e -> 
-            print_string (Printexc.to_string e);
-            print_newline ()
+            Logs.err (fun m -> m "add_reader: exn %s"
+                  (Common.exn_to_s e))
         done) ()) :: !readers
+
 let remove_reader fd = 
   Mutex.lock mu_actions;
   let me = ref false in
   let rec iter list res to_kill =
     match list with
-      [] -> res, to_kill
+    | [] -> res, to_kill
     | ((fd',th) as ele):: tail ->
         if fd = fd' then 
           iter tail res 
@@ -95,5 +92,7 @@ let fork () =
   pid
 
 let poll () = false
+
+external ioctl: Unix.file_descr -> int -> string -> 'a -> unit = "ml2c_ioctl"
 
 *)
