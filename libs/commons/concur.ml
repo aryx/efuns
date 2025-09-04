@@ -19,64 +19,59 @@
 
 let readers = ref []
     
-    let actions = ref 0
-    let mu_actions = Mutex.create ()
-    let cond_actions = Condition.create ()
-    let add_reader fd f = readers := 
-       (fd,
-        Thread.create 
-          (fun () ->
-            while true do
-              Mutex.lock mu_actions;
-              incr actions;
-              Condition.signal cond_actions;
-              Mutex.unlock mu_actions;
-              let _ = Unix.select [fd] [] [] (-0.1) in
-              try
-                f ()
-              with e -> 
-                print_string (Printexc.to_string e);
-                print_newline ()
-            done) ()) :: !readers
-    let remove_reader fd = 
-      Mutex.lock mu_actions;
-      let me = ref false in
-      let rec iter list res to_kill =
-        match list with
-          [] -> res, to_kill
-        | ((fd',th) as ele):: tail ->
-            if fd = fd' then 
-              iter tail res 
-                (if th == Thread.self () then
-                  (me := true; to_kill)
-                else th :: to_kill)
-            else 
-              iter tail (ele :: res) to_kill
-      in
-      let (res, to_kill) = iter !readers [] [] in
-      readers := res;
-      (* List.iter Thread.kill to_kill; *)
-      UCommon.pr2 "TODO: Thread.kill not available anymore";
-      ignore to_kill;
-      Mutex.unlock mu_actions;
-      if !me then 
-        (* old: Thread.exit (), but deprecated in OCaml 5 => raise instead *)
-        raise Thread.Exit
+let actions = ref 0
 
-    let add_timer time f =
-      let _ = Thread.create (fun _ -> Thread.delay time; f ()) () in ()
+let mu_actions = Mutex.create ()
+let cond_actions = Condition.create ()
 
-    let fork () =
-      let pid = Unix.fork () in
-      if pid > 0 then
-        ignore (Thread.create (fun _ -> 
-                    (* old: let _ = Thread.wait_pid pid in, but deprecated Ocaml5 *)
-                    let _ = Unix.waitpid [] pid in
-                    ()) ());
-      pid
+let add_reader fd f = readers := 
+   (fd,
+    Thread.create 
+      (fun () ->
+        while true do
+          Mutex.lock mu_actions;
+          incr actions;
+          Condition.signal cond_actions;
+          Mutex.unlock mu_actions;
+          let _ = Unix.select [fd] [] [] (-0.1) in
+          try
+            f ()
+          with e -> 
+            print_string (Printexc.to_string e);
+            print_newline ()
+        done) ()) :: !readers
+let remove_reader fd = 
+  Mutex.lock mu_actions;
+  let me = ref false in
+  let rec iter list res to_kill =
+    match list with
+      [] -> res, to_kill
+    | ((fd',th) as ele):: tail ->
+        if fd = fd' then 
+          iter tail res 
+            (if th == Thread.self () then
+              (me := true; to_kill)
+            else th :: to_kill)
+        else 
+          iter tail (ele :: res) to_kill
+  in
+  let (res, to_kill) = iter !readers [] [] in
+  readers := res;
+  (* TODO: List.iter Thread.kill to_kill; 
+   * chatGPT says need to reorg the code to use a ref instead
+   *)
+  Logs.err (fun m -> m "TODO: Thread.kill not available anymore");
+  ignore to_kill;
+  Mutex.unlock mu_actions;
+  if !me then 
+    (* TODO: old: Thread.exit (), but deprecated in OCaml 5 => 
+     * raise Thread.Exit instead, but then get the Logs above displayed forever
+     * when I use efuns_client to open a file (via codemap middle-click)
+     *)
+    Thread.exit ()
 
-  
-  
+
+(* old: not used anymore inside efuns
 
 let iterator lst_it =
   Mutex.lock mu_actions;
@@ -86,5 +81,19 @@ let iterator lst_it =
   lst_it := !actions;
   Mutex.unlock mu_actions
 
+
+let add_timer time f =
+  let _ = Thread.create (fun _ -> Thread.delay time; f ()) () in ()
+
+let fork () =
+  let pid = Unix.fork () in
+  if pid > 0 then
+    ignore (Thread.create (fun _ -> 
+                (* old: let _ = Thread.wait_pid pid in, but deprecated Ocaml5 *)
+                let _ = Unix.waitpid [] pid in
+                ()) ());
+  pid
+
 let poll () = false
 
+*)

@@ -10042,10 +10042,12 @@ iter buf.buf_minor_modes
 
 
 
+%******************************************************************************
 \chapter{Extra Features}
+%******************************************************************************
 
-%todo: implement more features! especially good one in Atom/Sublime/VsCode/...
-% - multiple cursors (but does not work well with gap buffer)
+%todo: implement more features! especially the good one in Atom/Sublime/VsCode/...
+% - multiple cursors (but does not work well with gap buffer?)
 %   http://emacsrocks.com/e13.html
 
 \section{Running external commands}
