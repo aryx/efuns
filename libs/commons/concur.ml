@@ -1,7 +1,5 @@
 (***********************************************************************)
 (*                                                                     *)
-(*                    ______________                                   *)
-(*                                                                     *)
 (*      Fabrice Le Fessant, projet SOR/PARA INRIA Rocquencourt         *)
 (*                                                                     *)
 (*                 mail: fabrice.le_fessant@inria.fr                   *)
@@ -16,6 +14,13 @@
 type reader = {
   fd : Unix.file_descr;
   thread : Thread.t;
+  (* old: we were using Thread.exit() and Thread.kill() before but
+   * they got deprecated with OCaml 5 and OCaml 4.14 so we need
+   * to switch to different thread killing strategy hence this
+   * bool
+   * LATER: use Atomic.t bool at some point 
+   *)
+  stop : bool ref;
 }
 
 let readers : reader list ref = ref []
@@ -26,12 +31,13 @@ let mu_actions : Mutex.t = Mutex.create ()
 let cond_actions : Condition.t = Condition.create ()
 
 let add_reader fd f = 
+  let stop = ref false in
   let thread =
     Thread.create 
       (fun () ->
         Logs.debug (fun m -> m "add_reader started thread %d" 
               (Thread.id (Thread.self ())));
-        while true do
+        while not !stop do
           Mutex.lock mu_actions;
           incr actions;
           Condition.signal cond_actions;
@@ -50,31 +56,34 @@ let add_reader fd f =
                   (Common.exn_to_s e) (Thread.id (Thread.self ())))
         done) ()
   in
-  readers := { fd ; thread } :: !readers
+  readers := { fd ; thread; stop } :: !readers
 
 let remove_reader fd = 
   Logs.debug (fun m -> m "remove_reader (thread %d)" (Thread.id (Thread.self())));
   Mutex.lock mu_actions;
   let me = ref false in
-  let rec iter list res to_kill =
-    match list with
-    | [] -> res, to_kill
-    | ({ fd = fd'; thread = th } as ele):: tail ->
-        if fd = fd' then 
-          iter tail res 
-            (if th == Thread.self () then
-              (me := true; to_kill)
-            else th :: to_kill)
-        else 
-          iter tail (ele :: res) to_kill
+  let rec iter lst res to_stop =
+    match lst with
+    | [] -> res, to_stop
+    | r :: tail ->
+        if r.fd = fd then 
+          if r.thread == Thread.self () then (
+              me := true;
+              iter tail res to_stop
+           ) else
+              iter tail res (r :: to_stop)
+          else
+            iter tail ( r :: res ) to_stop
   in
-  let (res, to_kill) = iter !readers [] [] in
+  let (res, to_stop) = iter !readers [] [] in
   readers := res;
-  to_kill |> List.iter (fun _th ->
-    (* old: Thread.kill th
-     * TODO: chatGPT says need to reorg the code to use a ref instead
-    *)
-    Logs.err (fun m -> m "TODO: Thread.kill not available anymore");
+  to_stop |> List.iter (fun r ->
+    (* old: Thread.kill r.th
+     * but Thread.kill was deprecated in OCaml 4.14 and OCaml 5 and
+     * was apparently not reliable anyway before so thx to ChatGPT
+     * I switched to the stop boolean approach.
+     *)
+     r.stop := true     
   );
   Mutex.unlock mu_actions;
   if !me then 
