@@ -63,8 +63,13 @@ let read_command fd =
           Text.search_forward text regexp point |> ignore;
         end;
         Top_window.update_display () 
-  with
-    _ -> Concur.remove_reader fd 
+  with 
+  | End_of_file ->
+     Concur.remove_reader fd
+  | e ->
+    Logs.err (fun m -> m "server read_command exn: %s (thread %d)"
+          (Common.exn_to_s e) (Thread.id (Thread.self ())));
+    Concur.remove_reader fd 
 (*e: function [[Server.read_command]] *)
   
 (*s: function [[Server.module_accept]] *)
@@ -91,6 +96,8 @@ let start () =
         Unix.listen s 254;
         Unix.set_nonblock s;
         Unix.set_close_on_exec s;
+        Logs.info (fun m -> m "starting server listening on %s (thread %d)"
+                   socket_name (Thread.id (Thread.self ())));
         Concur.add_reader s (fun _ -> 
           started := true;
           module_accept s

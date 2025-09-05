@@ -20,10 +20,12 @@ let actions : int ref = ref 0
 let mu_actions : Mutex.t = Mutex.create ()
 let cond_actions : Condition.t = Condition.create ()
 
-let add_reader fd f = readers := 
-   (fd,
+let add_reader fd f = 
+  let th =
     Thread.create 
       (fun () ->
+        Logs.debug (fun m -> m "add_reader started thread %d" 
+              (Thread.id (Thread.self ())));
         while true do
           Mutex.lock mu_actions;
           incr actions;
@@ -32,12 +34,21 @@ let add_reader fd f = readers :=
           let _ = Unix.select [fd] [] [] (-0.1) in
           try
             f ()
-          with e -> 
-            Logs.err (fun m -> m "add_reader: exn %s"
-                  (Common.exn_to_s e))
-        done) ()) :: !readers
+          with 
+          | Thread.Exit as exn ->
+              let e = Exception.catch exn in
+              Logs.debug (fun m -> m "add_reader exiting (thread %d)"
+                  (Thread.id (Thread.self ())));
+              Exception.reraise e
+          | e -> 
+            Logs.err (fun m -> m "add_reader: exn %s (thread %d)"
+                  (Common.exn_to_s e) (Thread.id (Thread.self ())))
+        done) ()
+  in
+  readers := (fd, th) :: !readers
 
 let remove_reader fd = 
+  Logs.debug (fun m -> m "remove_reader (thread %d)" (Thread.id (Thread.self())));
   Mutex.lock mu_actions;
   let me = ref false in
   let rec iter list res to_kill =
@@ -54,18 +65,18 @@ let remove_reader fd =
   in
   let (res, to_kill) = iter !readers [] [] in
   readers := res;
-  (* TODO: List.iter Thread.kill to_kill; 
-   * chatGPT says need to reorg the code to use a ref instead
-   *)
-  Logs.err (fun m -> m "TODO: Thread.kill not available anymore");
-  ignore to_kill;
+  to_kill |> List.iter (fun _th ->
+    (* old: Thread.kill th
+     * TODO: chatGPT says need to reorg the code to use a ref instead
+    *)
+    Logs.err (fun m -> m "TODO: Thread.kill not available anymore");
+  );
   Mutex.unlock mu_actions;
   if !me then 
-    (* TODO: old: Thread.exit (), but deprecated in OCaml 5 => 
-     * raise Thread.Exit instead, but then get the Logs above displayed forever
-     * when I use efuns_client to open a file (via codemap middle-click)
+    (* old: Thread.exit (), but deprecated in OCaml 5 and incorrect in OCaml 4 => 
+     * raise Thread.Exit instead
      *)
-    Thread.exit ()
+    raise Thread.Exit
 
 
 (* old: not used anymore inside efuns

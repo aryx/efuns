@@ -129,7 +129,7 @@ let main () =
    usage_str;
 
   Logs_.setup ~level:!level ();
-  Logs.info (fun m -> m "logging enabled");
+  Logs.info (fun m -> m "starting logging");
 
   (*s: [[main()]] set options *)
   (*s: [[main()]] set options filename *)
