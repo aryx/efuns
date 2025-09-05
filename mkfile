@@ -48,10 +48,11 @@ SRC=\
  src/features/message.ml\
  src/features/move.ml\
  src/features/copy_paste.ml\
+ src/features/edit.ml\
+ src/features/electric.ml\
  src/features/mouse.ml\
  src/features/indent.ml\
  src/features/structure.ml\
- src/features/edit.ml\
  src/features/minibuffer.ml\
  src/features/multi_frames.ml\
  src/features/scroll.ml\
@@ -64,14 +65,15 @@ SRC=\
  src/features/dircolors.ml\
  src/features/compil.ml\
  src/features/search.ml\
-
-SRC2=\
  \
+ modes/minor_modes/minor_modes.ml\
  modes/minor_modes/minor_mode_sample.ml\
  modes/minor_modes/paren_mode.ml\
  modes/minor_modes/abbrevs_mode.ml\
  modes/minor_modes/fill_mode.ml\
  modes/minor_modes/tab_mode.ml\
+
+SRC2=\
  \
  modes/major_modes/dired.ml\
  modes/major_modes/buffer_menu.ml\
@@ -106,6 +108,7 @@ INCLUDES=\
  -I libs/commons \
  -I src/graphics \
  -I src/core -I src/features \
+ -I modes/minor_modes
 
 #TODO: factorize XIX_LIBS=lib_core/collections lib_core_commons
 LIBS=$XIX/lib_core/collections/lib.cma $XIX/lib_core/commons/lib.cma
