@@ -21,3 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t "efuns" --build-arg OCAML_VERSION=${{matrix.ocaml}} .
+
+  build-light:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f Dockerfile.light -t efuns-light .

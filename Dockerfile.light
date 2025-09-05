@@ -1,0 +1,17 @@
+# Build efuns (and xix) with OCaml 4.13.1 and xix mk on Ubuntu.
+# LATER: with ocaml-light
+
+FROM ubuntu:22.04
+# see https://github.com/aryx/ocaml-light/blob/main/Dockerfile
+#LATER: FROM padator/ocaml-light
+
+# Setup OCaml
+RUN apt-get update # needed otherwise can't find any package
+RUN apt-get install -y ocaml
+RUN ocamlc -version # with ubuntu:22.04 this is OCaml 4.13
+#alt: setup ocaml via opam but ultimately we want to use ocaml-light
+# so simpler to install raw ocaml without opam
+
+# Setup xix
+# 9base for rc (TODO: delete once we can bootstrap a working bin/rc)
+RUN apt-get install -y 9base

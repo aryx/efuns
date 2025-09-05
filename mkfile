@@ -91,7 +91,8 @@ SRC2=\
  graphics/libdraw/draw.ml \
  graphics/libdraw/graphics_efuns.ml \
  main.ml
-
+#alt: build separate libs and have split mkfile instead of a single one
+# but nothing depends on efuns (yet) so simpler to have a single mkfile
 
 #COBJS=commons/realpath.$O graphics/libdraw/draw.$O
 
