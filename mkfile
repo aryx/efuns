@@ -34,6 +34,7 @@ SRC=\
  src/core/efuns.ml\
  src/core/globals.ml\
  src/core/var.ml\
+ src/core/parameter_option.ml\
  src/core/attr.ml\
  src/core/action.ml\
  src/core/hooks.ml\
@@ -42,26 +43,29 @@ SRC=\
  src/core/window.ml\
  src/core/frame.ml\
  src/core/top_window.ml\
-
-SRC2=\
  \
- src/features/simple.ml\
- src/features/mouse.ml\
  src/features/highlight.ml\
- src/features/parameter.ml\
+ src/features/message.ml\
+ src/features/move.ml\
+ src/features/copy_paste.ml\
+ src/features/mouse.ml\
  src/features/indent.ml\
  src/features/structure.ml\
+ src/features/edit.ml\
  src/features/minibuffer.ml\
  src/features/multi_frames.ml\
+ src/features/scroll.ml\
  src/features/select.ml\
  src/features/interactive.ml\
  src/features/multi_buffers.ml\
- src/features/complexe.ml\
  src/features/abbrevs.ml\
  src/features/system.ml\
+ src/features/color.ml\
  src/features/dircolors.ml\
  src/features/compil.ml\
  src/features/search.ml\
+
+SRC2=\
  \
  modes/minor_modes/minor_mode_sample.ml\
  modes/minor_modes/paren_mode.ml\
@@ -98,11 +102,10 @@ SRC2=\
 
 
 INCLUDES=\
- -I $XIX/lib_core/collections \
- -I $XIX/lib_core/commons \
+ -I $XIX/lib_core/collections -I $XIX/lib_core/commons \
  -I libs/commons \
  -I src/graphics \
- -I src/core \
+ -I src/core -I src/features \
 
 #TODO: factorize XIX_LIBS=lib_core/collections lib_core_commons
 LIBS=$XIX/lib_core/collections/lib.cma $XIX/lib_core/commons/lib.cma

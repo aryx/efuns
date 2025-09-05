@@ -1,5 +1,6 @@
 (*s: features/system.ml *)
 open Common
+open Eq.Operators
 open Efuns
 open Unix
 

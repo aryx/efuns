@@ -12,6 +12,8 @@
 (***********************************************************************)
 (*e: copyright header2 *)
 open Common
+open Eq.Operators
+open Regexp_.Operators
 open Options
 open Efuns
 
@@ -169,7 +171,7 @@ let select frame request history start completion_fun prefix_fun action =
   let completions = ref [] in
   Keymap.add_binding map [NormalMap, XK.xk_Tab] (fun mini_frame ->
       (* TODO? was != but I think it should be <> *)
-      if (Common.phys_not_equal !completion !string) then begin
+      if (Eq.phys_not_equal !completion !string) then begin
         let text = mini_frame.frm_buffer.buf_text in
         completions := completion_fun !string;
         let suffix, n  = Utils.common_suffix !completions (prefix_fun !string)in
@@ -226,7 +228,7 @@ let dont_complete_regexps = ref ([],Str.regexp "")
 (*s: function [[Select.dont_complete_regexp]] *)
 let dont_complete_regexp () =
   let (old,reg) = !dont_complete_regexps in
-  if Common.phys_equal old !!dont_complete 
+  if Eq.phys_equal old !!dont_complete 
   then reg
   else
     let reg = Str2.regexp_from_list !!dont_complete in
@@ -267,7 +269,7 @@ let complete_filename frame good_file filename =
       | Unix.S_DIR -> file ^ "/"
       | _ -> file
     with exn -> 
-      UCommon.pr2 (spf "complete_filename: exn = %s" (Common.exn_to_s exn));
+      Logs.err (fun m -> m "complete_filename: exn = %s" (Printexc.to_string exn));
       file
   )
   in
@@ -293,7 +295,6 @@ let select_file frame request history start action =
   let map = Keymap.create () in
   let string = ref "" in
   Keymap.add_binding map [ControlMap, Char.code 'g'] (fun mini_frame ->
-    UCommon.pr2 "HERE";
     remove_completions mini_frame;
     Minibuffer.kill mini_frame frame
   );

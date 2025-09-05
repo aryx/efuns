@@ -12,6 +12,7 @@
 (***********************************************************************)
 (*e: copyright header2 *)
 open Common
+open Regexp_.Operators
 open Options
 open Efuns
 
@@ -76,7 +77,7 @@ let find_error_gen re text error_point =
 let expand_tilde s =
   if s =~ "^~/\\(.*\\)$"
   then
-    let rest = Common.matched1 s in
+    let rest = Regexp_.matched1 s in
     Filename.concat (Sys.getenv "HOME") rest
   else s
 
@@ -130,7 +131,7 @@ let next_error top_frame =
           let frame = 
             try Frame.find_buffer_frame buf 
             with Not_found ->
-                if Common.phys_equal frame top_frame then
+                if Eq.phys_equal frame top_frame then
                   let new_window = Top_window.create ()
                       (*Window.display top_window*) 
                   in
@@ -213,7 +214,7 @@ let compile frame =
       let cdir, cmd = 
         match () with
         | _ when cmd =~ "^cd +\\([^;]+\\);\\(.*\\)$" ->
-            let (dir, cmd) = Common.matched2 cmd in
+            let (dir, cmd) = Regexp_.matched2 cmd in
             let finaldir = expand_tilde dir in
             finaldir, cmd
         | _ when !!compile_find_makefile && cmd =~ "^make" ->

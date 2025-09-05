@@ -11,11 +11,12 @@
 (*                                                                     *)
 (***********************************************************************)
 (*e: copyright header2 *)
+open Common
 open Efuns
 
 (*s: function [[Simple.buffer_list]] *)
 let buffer_list () =
-  (Globals.editor()).edt_buffers |> Hashtbl_.hash_to_list |> List.map fst
+  (Globals.editor()).edt_buffers |> Hashtbl_.to_list |> List.map fst
 (*e: function [[Simple.buffer_list]] *)
 
 (*s: constant [[Select.prev_buffers]] *)
