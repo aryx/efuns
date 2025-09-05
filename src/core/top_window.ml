@@ -12,6 +12,7 @@
 (***********************************************************************)
 (*e: copyright header2 *)
 open Common
+open Eq.Operators
 open Options
 open Efuns
 
@@ -68,13 +69,13 @@ let try_map frame key =
         Action.actions |> Hashtbl.iter  (fun k v ->
           match v with
           (* subtle: this will work only if f2 was not a closure *)
-          | FrameAction f2 when Common.phys_equal f f2 ->
+          | FrameAction f2 when Eq.phys_equal f f2 ->
               found := true;
-              UCommon.pr2 (spf "action: %s" k)
+              Logs.debug (fun m -> m "action: %s" k)
           | _ -> ()
         );
         if not !found
-        then UCommon.pr2 ("action not found");
+        then Logs.err (fun m -> m "action not found");
       end;
       (*e: [[Top_window.try_map()]] if debug, print action name *)
       f frame; 
@@ -317,7 +318,7 @@ let handle_key top_window modifiers keysym =
         Text.insert_at_end text bt;
         Text.insert_at_end text "\n"
 
-    | (Common.UnixExit _) as x -> raise x
+    | (Exit.ExitCode _) as x -> raise x
     (*x: [[Top_window.handle_key()]] handle exception of [[try_map]] *)
     | e -> 
         (* bugfix: call get_backtrace() first! otherwise the code above
@@ -325,8 +326,7 @@ let handle_key top_window modifiers keysym =
          *)
         let bt = Printexc.get_backtrace () in
         let str = spf "Uncaught exception %s" (Utils.printexn e) in
-        if !Globals.debug
-        then UCommon.pr2 str;
+        Logs.err (fun m -> m "%s" str);
         message top_window  str;
         let buf = Ebuffer.default "*backtrace*" in
         let text = buf.buf_text in
@@ -361,10 +361,11 @@ let handle_key_and_macro top_window modifiers keysym =
 
   if !in_call_macro
   then begin
-   Common.finalize (fun () ->
-   !recorded_keys |> List.rev |> List.iter (fun (modifiers, keysym) ->
-     handle_key top_window modifiers keysym
-   )) (fun () -> in_call_macro := false)
+   Fun.protect ~finally:(fun () -> in_call_macro := false)
+    (fun () ->
+      !recorded_keys |> List.rev |> List.iter (fun (modifiers, keysym) ->
+       handle_key top_window modifiers keysym
+     )) 
   end
 
   (* We can receive events from different sources. In particular, some of

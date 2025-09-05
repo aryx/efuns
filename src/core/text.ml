@@ -198,7 +198,7 @@ let find_line_of_pos text pos =
 let point_line text point = 
   (* defensive: *)
   if (point.line <> find_line_of_pos text point.pos)
-  then UCommon.pr2 (Common.spf "TODO: point.line = %d != find_line ... = %d"
+  then Logs.err (fun m -> m "TODO: point.line = %d != find_line ... = %d"
                      point.line (find_line_of_pos text point.pos));
   point.line
 (*e: function [[Text.point_line]] *)
@@ -744,13 +744,13 @@ let remove_point text p =
 (*s: function [[Text.with_dup_point]] *)
 let with_dup_point text point f =
   let p = dup_point text point in
-  Common.finalize (fun () -> f p) (fun () -> remove_point text p)
+  Fun.protect ~finally:(fun () -> remove_point text p) (fun () -> f p)
 (*e: function [[Text.with_dup_point]] *)
 
 (*s: function [[Text.with_new_point]] *)
 let with_new_point text f =
   let p = new_point text in
-  Common.finalize (fun () -> f p) (fun () -> remove_point text p)
+  Fun.protect ~finally:(fun () -> remove_point text p) (fun () -> f p) 
 (*e: function [[Text.with_new_point]] *)
 
 

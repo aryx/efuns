@@ -590,7 +590,7 @@ let init2 init_files =
 
   GtkSignal.user_handler := (fun exn -> 
     (match exn with
-    | Common.UnixExit _ -> quit ()
+    | Exit.ExitCode _ -> quit ()
     | _ ->
         let s = Printexc.get_backtrace () in
         UCommon.pr2 "GtkSignal.user_handler: exception!";

@@ -29,8 +29,7 @@ SRC=\
  src/graphics/xdraw.ml\
  src/graphics/xK.ml\
  \
-
-XXX=\
+ src/core/error.ml\
  src/core/text.ml\
  src/core/efuns.ml\
  src/core/globals.ml\

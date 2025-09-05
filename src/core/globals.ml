@@ -34,7 +34,7 @@ let editor () =
 let with_lock f =
   let edt = editor () in
   Mutex.lock edt.edt_mutex;
-  Common.finalize f (fun () -> Mutex.unlock edt.edt_mutex)
+  Fun.protect ~finally:(fun () -> Mutex.unlock edt.edt_mutex) f
 (*e: function [[Efuns.with_lock]] *)
 
 (*************************************************************************)

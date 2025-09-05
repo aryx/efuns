@@ -12,6 +12,7 @@
 (***********************************************************************)
 (*e: copyright header2 *)
 open Common
+open Eq.Operators
 open Options
 
 open Efuns
@@ -82,8 +83,8 @@ let status_col frame col =
 let status_major_mode frame  =
   let buf = frame.frm_buffer in
   let status = frame.frm_status in
-  if not (Common.phys_equal status.stat_modes buf.buf_minor_modes &&
-           Common.phys_equal status.stat_mode buf.buf_major_mode
+  if not (Eq.phys_equal status.stat_modes buf.buf_minor_modes &&
+           Eq.phys_equal status.stat_mode buf.buf_major_mode
     ) then
     begin
       status.stat_modes <- buf.buf_minor_modes;
@@ -147,7 +148,7 @@ let install window frame =
 
   window |> Window.iter (fun f -> 
      (* TODO? != or <> ? *)
-     if (Common.phys_not_equal f frame) 
+     if (Eq.phys_not_equal f frame) 
      then kill f
   );
   window.win_down <- WFrame frame;
@@ -379,7 +380,7 @@ let point_to_xy_opt frame point =
   try
     for i = 0 to frame.frm_height - 1 do
       let line_repr = frame.frm_table.(i) in
-      if Common.phys_equal line_repr.frm_text_line line then
+      if Eq.phys_equal line_repr.frm_text_line line then
         let x,y =
           if x_nocut =|= 0 
           then 0,i
@@ -557,7 +558,7 @@ let display top_window frame =
   then begin
     (*s: [[Frame.display()]] redraw *)
     if !Globals.debug_display
-    then UCommon.pr2 "redraw";
+    then Logs.debug (fun m -> m "redraw");
     (*s: [[Frame.display()]] redraw, possibly update [[frm_y_offset]] *)
     let start = frame.frm_start in
     let start_c = point_to_x_when_no_cutline buf start in
@@ -615,8 +616,8 @@ let display top_window frame =
       (*s: [[Frame.display()]] redraw, draw line y if line changed *)
       let frm_line = frame.frm_table.(y) in
 
-      if not ((Common.phys_equal frm_line.prev_frmline_boxes frm_line.frmline_boxes) &&
-              (Common.phys_equal frm_line.repr_prev_offset frm_line.first_box_extra_offset)) 
+      if not ((Eq.phys_equal frm_line.prev_frmline_boxes frm_line.frmline_boxes) &&
+              (Eq.phys_equal frm_line.repr_prev_offset frm_line.first_box_extra_offset)) 
          || frame.frm_redraw
       then
         begin
@@ -732,7 +733,7 @@ let find_buffer_frame buf =
   try
     (Globals.editor()).top_windows |> List.iter (fun top_window ->
       top_window.window |> Window.iter (fun frame -> 
-        if Common.phys_equal frame.frm_buffer buf 
+        if Eq.phys_equal frame.frm_buffer buf 
         then raise (FoundFrame frame)
       )
     );

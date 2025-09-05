@@ -1,5 +1,6 @@
 (*s: core/error.ml *)
-open Common
+
+(* TODO: need flush after Logs.err ? *)
 
 (*s: function [[Efuns.error]] *)
 let error_exn s exn =
@@ -9,6 +10,7 @@ let error_exn s exn =
    * exn handlers/formatters
    *)
   (match exn with 
+(* TODO: to restore, but then depends on semgrep lib_parsing
   | Parsing_error.Lexical_error _ | Parsing_error.Syntax_error _ ->
      let ex = Exception.catch exn in
      (* TODO
@@ -16,14 +18,13 @@ let error_exn s exn =
      pr2 (Error_code.string_of_error err)
       *)
      UCommon.pr2 (Dumper.dump ex)
+*)
   | _ -> ()
   );
-  UCommon.pr2 (spf "error: %s (exn = %s). backtrace:\n%s" 
-        s (Common.exn_to_s exn) bt);
-  flush stderr
+  Logs.err (fun m -> m "error: %s (exn = %s). backtrace:\n%s" 
+                       s (Printexc.to_string exn) bt)
 (*e: function [[Efuns.error]] *)
 
 let error s =
-  UCommon.pr2 (spf "error: %s" s);
-  flush stderr
+  Logs.err (fun m -> m "error: %s" s)
 (*e: core/error.ml *)

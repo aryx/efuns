@@ -103,7 +103,7 @@ let exit frame =
   let hooks = Var.get_global exit_hooks in
   Hooks.exec_hooks hooks ();
   Multi_buffers.save_buffers_and_action frame buffers (fun _ -> 
-    raise (Common.UnixExit 0)
+    raise (Exit.ExitCode 0)
   )
 [@@interactive]
 (*e: function [[Complex.exit_efuns]] *)
