@@ -24,67 +24,68 @@ SRC=\
  libs/commons/options.ml\
  libs/commons/store.ml\
  libs/commons/concur.ml\
+ \
+ src/graphics/xtypes.ml\
+ src/graphics/xdraw.ml\
+ src/graphics/xK.ml\
+ \
 
+XXX=\
+ src/core/text.ml\
+ src/core/efuns.ml\
+ src/core/globals.ml\
+ src/core/var.ml\
+ src/core/attr.ml\
+ src/core/action.ml\
+ src/core/hooks.ml\
+ src/core/keymap.ml\
+ src/core/ebuffer.ml\
+ src/core/window.ml\
+ src/core/frame.ml\
+ src/core/top_window.ml\
 
 SRC2=\
  \
- graphics/xtypes.ml\
- graphics/xdraw.ml\
- graphics/xK.ml\
+ src/features/simple.ml\
+ src/features/mouse.ml\
+ src/features/highlight.ml\
+ src/features/parameter.ml\
+ src/features/indent.ml\
+ src/features/structure.ml\
+ src/features/minibuffer.ml\
+ src/features/multi_frames.ml\
+ src/features/select.ml\
+ src/features/interactive.ml\
+ src/features/multi_buffers.ml\
+ src/features/complexe.ml\
+ src/features/abbrevs.ml\
+ src/features/system.ml\
+ src/features/dircolors.ml\
+ src/features/compil.ml\
+ src/features/search.ml\
  \
- core/text.ml\
- core/efuns.ml\
-  core/globals.ml\
-  core/var.ml\
-  core/attr.ml\
-  core/action.ml\
-  core/hook.ml\
- core/keymap.ml\
- core/ebuffer.ml\
- core/window.ml\
- core/frame.ml\
- core/top_window.ml\
+ modes/minor_modes/minor_mode_sample.ml\
+ modes/minor_modes/paren_mode.ml\
+ modes/minor_modes/abbrevs_mode.ml\
+ modes/minor_modes/fill_mode.ml\
+ modes/minor_modes/tab_mode.ml\
  \
- features/simple.ml\
-  features/mouse.ml\
-  features/highlight.ml\
-  features/parameter.ml\
-  features/indent.ml\
-  features/structure.ml\
- features/minibuffer.ml\
- features/multi_frames.ml\
- features/select.ml\
- features/interactive.ml\
- features/multi_buffers.ml\
- features/complexe.ml\
- features/abbrevs.ml\
- features/system.ml\
- features/dircolors.ml\
- features/compil.ml\
- features/search.ml\
+ modes/major_modes/dired.ml\
+ modes/major_modes/buffer_menu.ml\
+ modes/major_modes/shell.ml\
+ modes/major_modes/outline_mode.ml\
  \
- minor_modes/minor_mode_sample.ml\
- minor_modes/paren_mode.ml\
- minor_modes/abbrevs_mode.ml\
- minor_modes/fill_mode.ml\
- minor_modes/tab_mode.ml\
+ modes/prog_modes/pl_colors.ml\
+ modes/prog_modes/makefile_mode.ml\
+ modes/prog_modes/ocaml_mode.ml\
+ modes/prog_modes/lisp_mode.ml\
+ modes/prog_modes/c_mode.ml\
  \
- major_modes/dired.ml\
- major_modes/buffer_menu.ml\
- major_modes/shell.ml\
- major_modes/outline_mode.ml\
+ modes/text_modes/org_mode.ml\
+ modes/text_modes/tex_mode.ml\
+ modes/text_modes/html_mode.ml\
  \
- prog_modes/pl_colors.ml\
- prog_modes/makefile_mode.ml\
- prog_modes/ocaml_mode.ml\
- prog_modes/lisp_mode.ml\
- prog_modes/c_mode.ml\
- \
- text_modes/org_mode.ml\
- text_modes/tex_mode.ml\
- text_modes/html_mode.ml\
- \
- ipc/server.ml \
+ src/ipc/server.ml \
  \
  std_efunsrc.ml\
  pad.ml\
@@ -100,7 +101,9 @@ SRC2=\
 INCLUDES=\
  -I $XIX/lib_core/collections \
  -I $XIX/lib_core/commons \
- -I libs/commons
+ -I libs/commons \
+ -I src/graphics \
+ -I src/core \
 
 #TODO: factorize XIX_LIBS=lib_core/collections lib_core_commons
 LIBS=$XIX/lib_core/collections/lib.cma $XIX/lib_core/commons/lib.cma
