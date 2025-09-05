@@ -13,7 +13,12 @@
 (*                                                                     *)
 (***********************************************************************)
 
-let readers : (Unix.file_descr * Thread.t) list ref = ref []
+type reader = {
+  fd : Unix.file_descr;
+  thread : Thread.t;
+}
+
+let readers : reader list ref = ref []
 
 (* protected-by: mu_actions *)    
 let actions : int ref = ref 0
@@ -21,7 +26,7 @@ let mu_actions : Mutex.t = Mutex.create ()
 let cond_actions : Condition.t = Condition.create ()
 
 let add_reader fd f = 
-  let th =
+  let thread =
     Thread.create 
       (fun () ->
         Logs.debug (fun m -> m "add_reader started thread %d" 
@@ -45,7 +50,7 @@ let add_reader fd f =
                   (Common.exn_to_s e) (Thread.id (Thread.self ())))
         done) ()
   in
-  readers := (fd, th) :: !readers
+  readers := { fd ; thread } :: !readers
 
 let remove_reader fd = 
   Logs.debug (fun m -> m "remove_reader (thread %d)" (Thread.id (Thread.self())));
@@ -54,7 +59,7 @@ let remove_reader fd =
   let rec iter list res to_kill =
     match list with
     | [] -> res, to_kill
-    | ((fd',th) as ele):: tail ->
+    | ({ fd = fd'; thread = th } as ele):: tail ->
         if fd = fd' then 
           iter tail res 
             (if th == Thread.self () then
