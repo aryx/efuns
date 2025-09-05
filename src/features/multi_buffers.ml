@@ -12,6 +12,7 @@
 (***********************************************************************)
 (*e: copyright header2 *)
 open Common
+open Eq.Operators
 open Efuns
 
 (*s: function [[Simple.buffer_list]] *)
@@ -70,7 +71,7 @@ let next_buffer buf =
     match list with
       [] -> raise Not_found 
     | (_name,b) :: tail ->
-        if b == buf 
+        if Eq.phys_equal b buf 
         then 
           match tail with
           | [] -> snd (List.hd buf_list) (* go back to head *)
@@ -99,7 +100,7 @@ let kill_buffer frame =
   in
 
   let _new_frame = Frame.create window None new_buf in
-  if buf.buf_shared = 0 
+  if buf.buf_shared =|= 0 
   then Ebuffer.kill buf
 [@@interactive]
 (*e: function [[Simple.kill_buffer]] *)
@@ -170,8 +171,8 @@ let rec save_buffers_and_action frame buffers action =
     [] -> let () = action frame in ()
   | (_,buf) :: buffers ->
       let text = buf.buf_text in
-      if buf.buf_last_saved = Text.version text  ||
-        buf.buf_name.[0] = '*'
+      if buf.buf_last_saved =|= Text.version text  ||
+        buf.buf_name.[0] =$= '*'
       then
         save_buffers_and_action frame buffers action
       else

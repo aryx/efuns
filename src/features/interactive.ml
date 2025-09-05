@@ -77,7 +77,7 @@ let all_vars = ref None
 let all_variables frame _ =
   let buf = frame.frm_buffer in
   match !all_vars with
-    Some (f,l) when f == frame -> l
+    Some (f,l) when Eq.phys_equal f frame -> l
   | _ ->
       let list = 
         (Store.list buf.buf_vars) @ 
