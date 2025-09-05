@@ -53,7 +53,7 @@ let add_reader fd f =
               Exception.reraise e
           | e -> 
             Logs.err (fun m -> m "add_reader: exn %s (thread %d)"
-                  (Common.exn_to_s e) (Thread.id (Thread.self ())))
+                  (Printexc.to_string e) (Thread.id (Thread.self ())))
         done) ()
   in
   readers := { fd ; thread; stop } :: !readers

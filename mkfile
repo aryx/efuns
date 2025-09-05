@@ -1,29 +1,32 @@
-#TODO: to port to plan9 you need to handle ppx [@@interactive]!
-# maybe simpler to begin with consider them as attribute
-# and generate a big file from Linux that store all the code
-# by those interactive and use this file under plan9
-#TODO: adapt to new dirs after I've reorged in libs/ src/ modes/
-
-
 #############################################################################
 # Configuration section
 #############################################################################
-</$objtype/mkfile
+< mkconfig
+
+#TODO: to port to ocaml-light (and plan9) you need to handle ppx [@@interactive]!
+# maybe simpler to begin with consider them as attribute
+# and generate a big file from Linux that store all the code
+# by those interactive and use this file for ocaml-light
+#</$objtype/mkfile
 
 #############################################################################
 # Variables
 #############################################################################
 
-BACKENDDIR=graphics/libdraw
+#BACKENDDIR=graphics/libdraw
+
+# commons/common.ml commons/file_type.ml commons/simple_color.ml \
 
 SRC=\
- commons/common.ml commons/file_type.ml commons/simple_color.ml \
  \
- commons/utils.ml commons/str2.ml\
- commons/log.ml\
- commons/options.ml\
- commons/local.ml\
- commons/concur.ml\
+ libs/commons/utils.ml libs/commons/str2.ml\
+ libs/commons/log.ml\
+ libs/commons/options.ml\
+ libs/commons/store.ml\
+ libs/commons/concur.ml\
+
+
+SRC2=\
  \
  graphics/xtypes.ml\
  graphics/xdraw.ml\
@@ -90,40 +93,36 @@ SRC=\
  main.ml
 
 
-COBJS=commons/realpath.$O graphics/libdraw/draw.$O
+#COBJS=commons/realpath.$O graphics/libdraw/draw.$O
+
+
+INCLUDES=\
+ -I $XIX/lib_core/collections \
+ -I $XIX/lib_core/commons \
+ -I libs/commons
+
+#TODO: factorize XIX_LIBS=lib_core/collections lib_core_commons
+LIBS=$XIX/lib_core/collections/lib.cma $XIX/lib_core/commons/lib.cma
+
+# -I $BACKENDDIR
 
 SYSLIBS=str.cma unix.cma  threads.cma
-
-#INCLUDEDIRS=commons core features graphics \
-# major_modes minor_modes prog_modes text_modes pfff_modes ipc
-#INCLUDES=${INCLUDEDIRS:%=-I  %} does not work :(
-INCLUDES=\
- -I commons \
- -I core -I features -I ipc \
- -I major_modes -I minor_modes -I prog_modes -I text_modes \
- -I graphics -I $BACKENDDIR
 
 ##############################################################################
 # Generic variables
 ##############################################################################
 
-BINDIR=/usr/local/bin
-LIBDIR=/usr/local/lib/ocaml
-
-OCAMLC=$BINDIR/ocamlrun $BINDIR/ocamlc -g -thread $INCLUDES
-OCAMLLEX=$BINDIR/ocamlrun $BINDIR/ocamllex
-OCAMLDEP=$BINDIR/ocamlrun $BINDIR/ocamldep
 
 OBJS=${SRC:%.ml=%.cmo}
 CMIS=${OBJS:%.cmo=%.cmi}
-SYSCLIBS=${SYSLIBS:%.cma=$LIBDIR/lib%.a}
+#SYSCLIBS=${SYSLIBS:%.cma=$LIBDIR/lib%.a}
 
-CC=pcc
-LD=pcc
-CINCLUDES= -I$LIBDIR
+#CC=pcc
+#LD=pcc
+#CINCLUDES= -I$LIBDIR
 # -B to disable the check for missing return, which is flagged
 # because of CAMLReturn
-CFLAGS=-FVB -D_POSIX_SOURCE -D_BSD_EXTENSION -D_PLAN9_SOURCE $CINCLUDES
+#CFLAGS=-FVB -D_POSIX_SOURCE -D_BSD_EXTENSION -D_PLAN9_SOURCE $CINCLUDES
 
 ##############################################################################
 # Top rules
@@ -136,10 +135,10 @@ all:V: efuns.byte
 #old:$OCAMLC str.cma unix.cma threads.cma  -custom -cclib -lstr -cclib -lunix -cclib -lthreads $COBJS  $OBJS -o $target
 
 efuns.byte: $OBJS $COBJS
-	$OCAMLC -verbose -custom $SYSLIBS $SYSCLIBS $COBJS  $OBJS -o $target
+	$OCAMLC $LINKFLAGS -custom $SYSLIBS $SYSCLIBS $LIBS $COBJS $OBJS -o $target
 
 clean:V:
-	rm -f $OBJS $CMIS $COBJS
+    rm -f $OBJS $CMIS $COBJS
     rm -f *.[58] *.byte
 
 
@@ -147,7 +146,9 @@ MODES= \
  prog_modes/ocaml_mode.ml prog_modes/c_mode.ml prog_modes/lisp_mode.ml \
  text_modes/tex_mode.ml text_modes/html_mode.ml
 
-beforedepend: $MODES
+#beforedepend: $MODES
+beforedepend:VQ:
+	echo nothing
 prog_modes/ocaml_mode.ml: prog_modes/ocaml_mode.mll
 	$OCAMLLEX $prereq
 prog_modes/c_mode.ml: prog_modes/c_mode.mll
@@ -162,8 +163,9 @@ text_modes/html_mode.ml: text_modes/html_mode.mll
 
 MLIS=${SRC:%.ml=%.mli}
 
-depend:V: $MODES
-	$OCAMLDEP $INCLUDES $SRC $MLIS  | grep -v -e '.* :$' > .depend2
+depend:V: beforedepend
+	$OCAMLDEP $INCLUDES $SRC $MLIS > .depend
+#  | grep -v -e '.* :$' > .depend
 
 ##############################################################################
 # Generic rules
@@ -172,13 +174,13 @@ depend:V: $MODES
 # do not use prereq or it will include also the .cmi in the command line
 # because of the .depend file that also define some rules
 %.cmo: %.ml
-	$OCAMLC -c $stem.ml
+	$OCAMLC $INCLUDES $COMPFLAGS -c $stem.ml
 
 %.cmi: %.mli
-	$OCAMLC -c $stem.mli
+	$OCAMLC $INCLUDES -c $stem.mli
 
-%.$O: %.c
-	$CC $CFLAGS -v -c $stem.c -o $stem.$O
+#%.$O: %.c
+#	$CC $CFLAGS -v -c $stem.c -o $stem.$O
 
 
-<.depend2
+<.depend

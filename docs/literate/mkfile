@@ -1,3 +1,5 @@
+#!!! DEPRECATED: this file is not up-to-date, look at ./Makefile instead!!!
+
 SYNCFLAGS=-md5sum_in_auxfile -less_marks -lang ocaml
 
 VERSION=4
