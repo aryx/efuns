@@ -13,7 +13,7 @@
 (***********************************************************************)
 (* Lexing *)
 (***********************************************************************)
-
+open Common
 open Lexing
 open Common_lexer
   
@@ -165,7 +165,7 @@ let keyword_table = [
   "label",LABEL;
   "static", STATIC;
   "extern", EXTERN;
- ] |> Hashtbl_.hash_of_list
+ ] |> Hashtbl_.of_list
 
   
 (* To store the position of the beginning of a string or comment *)

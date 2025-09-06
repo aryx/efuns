@@ -8,8 +8,9 @@
 (*  Automatique.  Distributed only by permission.                      *)
 (*                                                                     *)
 (***********************************************************************)
-open Efuns
 open Common
+open Eq.Operators
+open Efuns
 
 (*****************************************************************************)
 (* Prelude *)
@@ -101,13 +102,14 @@ let add indent eols indents =
 
 (* alt: use Common.dump, it should do a pretty good work *)
 let print_indentations list =
-  UCommon.pr "Indentations :"; 
+  Logs.debug (fun m -> m "Indentations :"); 
   list |> List.rev |> List.iter (fun (indent, list) ->
-    UCommon.pr (spf "indent: %d, eols at [%s]" indent
+    Logs.debug (fun m -> m "indent: %d, eols at [%s]" indent
           (list |> List.rev |> List.map string_of_int |> String.concat ", "))
   )
 
 
+(*
 let _print_stack tokens stack =
   print_string "Indentation stack:"; 
   print_newline ();
@@ -121,6 +123,7 @@ let _print_stack tokens stack =
         iter stack
   in
   iter stack
+*)
 
 (*
 let print_exc e s =

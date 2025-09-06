@@ -15,6 +15,10 @@
 
 #BACKENDDIR=graphics/libdraw
 
+LEXERS= \
+ modes/prog_modes/c_lexer.ml modes/prog_modes/lisp_lexer.ml modes/prog_modes/ocaml_lexer.ml \
+ modes/text_modes/tex_mode.ml modes/text_modes/html_mode.ml
+
 #alt: build separate libs and have split mkfile instead of a single one
 # but nothing depends on efuns (yet) so simpler to have a single mkfile
 # and a big SRC
@@ -66,6 +70,7 @@ SRC=\
  src/features/dircolors.ml\
  src/features/compil.ml\
  src/features/search.ml\
+ src/features/misc_features.ml\
  \
  modes/minor_modes/minor_modes.ml\
  modes/minor_modes/minor_mode_sample.ml\
@@ -79,18 +84,18 @@ SRC=\
  modes/major_modes/buffer_menu.ml\
  modes/major_modes/shell.ml\
  modes/major_modes/outline_mode.ml\
-
-SRC2=\
  \
  modes/prog_modes/pl_colors.ml\
+ modes/prog_modes/common_lexer.ml\
+ modes/prog_modes/common_indenter.ml\
+ $LEXERS \
  modes/prog_modes/makefile_mode.ml\
  modes/prog_modes/ocaml_mode.ml\
  modes/prog_modes/lisp_mode.ml\
  modes/prog_modes/c_mode.ml\
- \
  modes/text_modes/org_mode.ml\
- modes/text_modes/tex_mode.ml\
- modes/text_modes/html_mode.ml\
+
+SRC2=\
  \
  src/ipc/server.ml \
  \
@@ -107,7 +112,7 @@ INCLUDES=\
  -I libs/commons \
  -I src/graphics \
  -I src/core -I src/features \
- -I modes/minor_modes -I modes/major_modes
+ -I modes/minor_modes -I modes/major_modes -I modes/prog_modes
 # -I $BACKENDDIR
 
 #TODO: factorize XIX_LIBS=lib_core/collections lib_core_commons
@@ -147,25 +152,23 @@ clean:V:
     rm -f $OBJS $CMIS $COBJS
     rm -f *.[5678vij] *.byte
 
-LEX_MODES= \
- prog_modes/ocaml_mode.ml prog_modes/c_mode.ml prog_modes/lisp_mode.ml \
- text_modes/tex_mode.ml text_modes/html_mode.ml
+beforedepend:VQ: $LEXERS
 
-#beforedepend: $LEX_MODES
-beforedepend:VQ:
-	echo nothing
-#TODO: factorize with
+#ugly: factorize with % rule below but then get vacuous node detected
+# in mk hence the duplication for now
 #%.ml: %.mll
-# $OCAMLLEX $prereq
-prog_modes/ocaml_mode.ml: prog_modes/ocaml_mode.mll
+#	$OCAMLLEX $prereq
+
+modes/prog_modes/ocaml_lexer.ml: modes/prog_modes/ocaml_lexer.mll
 	$OCAMLLEX $prereq
-prog_modes/c_mode.ml: prog_modes/c_mode.mll
+modes/prog_modes/c_lexer.ml: modes/prog_modes/c_lexer.mll
 	$OCAMLLEX $prereq
-prog_modes/lisp_mode.ml: prog_modes/lisp_mode.mll
+modes/prog_modes/lisp_lexer.ml: modes/prog_modes/lisp_lexer.mll
 	$OCAMLLEX $prereq
-text_modes/tex_mode.ml: text_modes/tex_mode.mll
+
+modes/text_modes/tex_mode.ml: modes/text_modes/tex_mode.mll
 	$OCAMLLEX $prereq
-text_modes/html_mode.ml: text_modes/html_mode.mll
+modes/text_modes/html_mode.ml: modes/text_modes/html_mode.mll
 	$OCAMLLEX $prereq
 
 MLIS=${SRC:%.ml=%.mli}

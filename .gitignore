@@ -45,9 +45,9 @@
 
 
 # lex and yacc
-prog_modes/c_lexer.ml
-prog_modes/lisp_lexer.ml
-prog_modes/ocaml_lexer.ml
+modes/prog_modes/c_lexer.ml
+modes/prog_modes/lisp_lexer.ml
+modes/prog_modes/ocaml_lexer.ml
 
 tex_mode.ml
 html_mode.ml
