@@ -12,6 +12,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the file
  * license.txt for more details.
  *)
+open Common
 open Options
 
 open Efuns
@@ -118,7 +119,7 @@ let key_return frame =
   with exn ->
     Message.message frame
       (Common.spf "not valid entry in buffer list, exn = %s" 
-          (Common.exn_to_s exn))
+          (Printexc.to_string exn))
 
 
 (*****************************************************************************)

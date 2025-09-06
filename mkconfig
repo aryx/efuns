@@ -6,7 +6,7 @@ OCAMLLEX=ocamllex
 OCAMLDEP=ocamldep
 
 COMPFLAGS=-g -thread
-LINKFLAGS=-thread
+LINKFLAGS=-custom -thread
 
 # we need xix/lib_core/ if we can't depend on semgrep-libs/libs/commons
 XIX=../xix

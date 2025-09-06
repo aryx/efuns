@@ -3,7 +3,7 @@
 #############################################################################
 < mkconfig
 
-#TODO: to port to ocaml-light (and plan9) you need to handle ppx [@@interactive]!
+#TODO: port to ocaml-light (and plan9) but need to handle ppx [@@interactive]!
 # maybe simpler to begin with consider them as attribute
 # and generate a big file from Linux that store all the code
 # by those interactive and use this file for ocaml-light
@@ -15,8 +15,9 @@
 
 #BACKENDDIR=graphics/libdraw
 
-# commons/common.ml commons/file_type.ml commons/simple_color.ml \
-
+#alt: build separate libs and have split mkfile instead of a single one
+# but nothing depends on efuns (yet) so simpler to have a single mkfile
+# and a big SRC
 SRC=\
  \
  libs/commons/utils.ml libs/commons/str2.ml\
@@ -72,13 +73,14 @@ SRC=\
  modes/minor_modes/abbrevs_mode.ml\
  modes/minor_modes/fill_mode.ml\
  modes/minor_modes/tab_mode.ml\
-
-SRC2=\
  \
+ modes/major_modes/major_modes.ml\
  modes/major_modes/dired.ml\
  modes/major_modes/buffer_menu.ml\
  modes/major_modes/shell.ml\
  modes/major_modes/outline_mode.ml\
+
+SRC2=\
  \
  modes/prog_modes/pl_colors.ml\
  modes/prog_modes/makefile_mode.ml\
@@ -97,30 +99,25 @@ SRC2=\
  graphics/libdraw/draw.ml \
  graphics/libdraw/graphics_efuns.ml \
  main.ml
-#alt: build separate libs and have split mkfile instead of a single one
-# but nothing depends on efuns (yet) so simpler to have a single mkfile
 
 #COBJS=commons/realpath.$O graphics/libdraw/draw.$O
-
 
 INCLUDES=\
  -I $XIX/lib_core/collections -I $XIX/lib_core/commons \
  -I libs/commons \
  -I src/graphics \
  -I src/core -I src/features \
- -I modes/minor_modes
+ -I modes/minor_modes -I modes/major_modes
+# -I $BACKENDDIR
 
 #TODO: factorize XIX_LIBS=lib_core/collections lib_core_commons
 LIBS=$XIX/lib_core/collections/lib.cma $XIX/lib_core/commons/lib.cma
-
-# -I $BACKENDDIR
 
 SYSLIBS=str.cma unix.cma  threads.cma
 
 ##############################################################################
 # Generic variables
 ##############################################################################
-
 
 OBJS=${SRC:%.ml=%.cmo}
 CMIS=${OBJS:%.cmo=%.cmi}
@@ -144,20 +141,22 @@ all:V: efuns.byte
 #old:$OCAMLC str.cma unix.cma threads.cma  -custom -cclib -lstr -cclib -lunix -cclib -lthreads $COBJS  $OBJS -o $target
 
 efuns.byte: $OBJS $COBJS
-	$OCAMLC $LINKFLAGS -custom $SYSLIBS $SYSCLIBS $LIBS $COBJS $OBJS -o $target
+	$OCAMLC $LINKFLAGS $SYSLIBS $SYSCLIBS $LIBS $COBJS $OBJS -o $target
 
 clean:V:
     rm -f $OBJS $CMIS $COBJS
-    rm -f *.[58] *.byte
+    rm -f *.[5678vij] *.byte
 
-
-MODES= \
+LEX_MODES= \
  prog_modes/ocaml_mode.ml prog_modes/c_mode.ml prog_modes/lisp_mode.ml \
  text_modes/tex_mode.ml text_modes/html_mode.ml
 
-#beforedepend: $MODES
+#beforedepend: $LEX_MODES
 beforedepend:VQ:
 	echo nothing
+#TODO: factorize with
+#%.ml: %.mll
+# $OCAMLLEX $prereq
 prog_modes/ocaml_mode.ml: prog_modes/ocaml_mode.mll
 	$OCAMLLEX $prereq
 prog_modes/c_mode.ml: prog_modes/c_mode.mll
@@ -168,7 +167,6 @@ text_modes/tex_mode.ml: text_modes/tex_mode.mll
 	$OCAMLLEX $prereq
 text_modes/html_mode.ml: text_modes/html_mode.mll
 	$OCAMLLEX $prereq
-
 
 MLIS=${SRC:%.ml=%.mli}
 
@@ -191,5 +189,8 @@ depend:V: beforedepend
 #%.$O: %.c
 #	$CC $CFLAGS -v -c $stem.c -o $stem.$O
 
+##############################################################################
+# Automatic dependencies (ocamldep)
+##############################################################################
 
 <.depend

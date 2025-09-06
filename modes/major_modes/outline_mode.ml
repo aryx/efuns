@@ -13,6 +13,7 @@
  * license.txt for more details.
  *)
 open Common
+open Eq.Operators
 open Efuns
 
 (*****************************************************************************)

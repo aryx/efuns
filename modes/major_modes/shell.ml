@@ -13,6 +13,8 @@
  * license.txt for more details.
  *)
 open Common
+open Eq.Operators
+open Regexp_.Operators
 open Efuns
 
 (*****************************************************************************)
@@ -55,7 +57,7 @@ let prompt_color = "coral"
 
 (* for builtin_ls *)
 let columnize width xs =
-  let maxlen = xs |> List.map String.length |> Common2.maximum in
+  let maxlen = xs |> List.map String.length |> List.fold_left max 0 in
   (* need to account for extra spaces between columns *)
   let maxlen = maxlen + 2 in
   (* but don't need the extra space for the last col so compensate *)
@@ -79,7 +81,7 @@ let columnize width xs =
         with Invalid_argument 
             (* it's Array.get in ocaml light :) *)
             ("index out of bounds" | "Array.get") -> ""
-          | _ -> raise Impossible
+          | exn -> failwith (spf "Impossible: unexpected exn: %s" (Printexc.to_string exn))
       in
       let len = String.length s in
       Buffer.add_string buf s;
@@ -95,9 +97,9 @@ let columnize width xs =
 (* to filter them in ls *)
 let is_obj_file file =
   try
-    let typ = File_type.file_type_of_file file in
+    let typ = FType.of_file file in
     match typ with
-    | File_type.Obj _ -> true
+    | FType.Obj _ -> true
     | _ -> false
   with _ -> false
 
@@ -277,7 +279,7 @@ let builtin_ls (*?(show_dotfiles=false) ?(show_objfiles=false)*)
       | Unix.S_DIR -> file ^ "/"
       | _ -> file
     with exn -> 
-      UCommon.pr2 (spf "builtin_ls: exn = %s" (Common.exn_to_s exn));
+      Logs.err (fun m -> m "builtin_ls: exn = %s" (Printexc.to_string exn));
       file
   )
   in
@@ -302,7 +304,7 @@ let builtin_l frame =
            file);
 
     with exn -> 
-      UCommon.pr2 (spf "builtin_ls: exn = %s" (Common.exn_to_s exn))
+      Logs.err (fun m -> m "builtin_ls: exn = %s" (Printexc.to_string exn))
   );
   display_prompt frame
 
@@ -416,13 +418,13 @@ let interpret frame s =
 
   (* dir navig *)
   | "cd" -> builtin_cd frame Utils.homedir
-  | _ when s =~ "cd[ ]+\\(.*\\)" -> builtin_cd frame (Common.matched1 s)
+  | _ when s =~ "cd[ ]+\\(.*\\)" -> builtin_cd frame (Regexp_.matched1 s)
   (* pad: pad's style, nice shortcut *)
   | "s" -> builtin_cd frame ".."
 
   (* file editing *)
   | _ when s =~ "v[ ]+\\(.*\\)" -> 
-    builtin_v frame (Common.matched1 s);
+    builtin_v frame (Regexp_.matched1 s);
     Move.end_of_file frame;
   (* do not scroll_to_end() here! Indeed this will change frm_start
    * and frm_y_offset, but only frm_start is saved in the
