@@ -13,6 +13,7 @@
  * license.txt for more details.
  *)
 open Common
+open Eq.Operators
 open Options
 
 open Efuns
@@ -90,7 +91,7 @@ let menu frame =
     let buf = Ebuffer.default name in
     Text.insert_at_end text 
       (Common.spf " %s  %-17s%6d  %-13s%s\n"
-         (if (buf.buf_last_saved = Text.version buf.buf_text) then " " else "*")
+         (if (buf.buf_last_saved =|= Text.version buf.buf_text) then " " else "*")
          buf.buf_name
          (Text.size buf.buf_text)
          buf.buf_major_mode.maj_name
