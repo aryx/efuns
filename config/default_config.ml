@@ -12,6 +12,8 @@
 (***********************************************************************)
 (*e: copyright header2 *)
 open Efuns
+open Common
+open Eq.Operators
 module Parameter = Parameter_option
 
 (* pad: this used to be called config.ml, but this conflict with 
@@ -285,7 +287,7 @@ let global_map = define_option ["global_map"] ""
 
 (*s: function [[Config.init_global_map]] *)
 let init_global_map () = 
-  if !!global_map = [] 
+  if !!global_map =*= [] 
   then 
     (core_map @ standard_map) |> List.iter (fun (keys, action) ->
         Keymap.add_global_key keys action
@@ -314,7 +316,7 @@ let init_global_map () =
 (*s: toplevel [[Config]] menu settings *)
 let _ =
   (*s: [[Config]] file menu setup *)
-  if !!Top_window.file_menu = [] then begin
+  if !!Top_window.file_menu =*= [] then begin
     Top_window.file_menu =:= [
       "Open File", "load_buffer";
       "Save Buffer", "save_buffer";
@@ -329,7 +331,7 @@ let _ =
     end;
   (*e: [[Config]] file menu setup *)
   (*s: [[Config]] edit menu setup *)
-  if !!Top_window.edit_menu = [] then begin
+  if !!Top_window.edit_menu =*= [] then begin
       Top_window.edit_menu =:= [ 
         "Cut",    "kill_region";
         "Paste",  "insert_killed";

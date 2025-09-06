@@ -70,6 +70,9 @@ SRC=\
  src/features/dircolors.ml\
  src/features/compil.ml\
  src/features/search.ml\
+ src/features/transform.ml\
+ src/features/rectangle.ml\
+ src/features/macros.ml\
  src/features/misc_features.ml\
  \
  modes/minor_modes/minor_modes.ml\
@@ -94,24 +97,23 @@ SRC=\
  modes/prog_modes/lisp_mode.ml\
  modes/prog_modes/c_mode.ml\
  modes/text_modes/org_mode.ml\
-
-SRC2=\
  \
  src/ipc/server.ml \
  \
- std_efunsrc.ml\
- pad.ml\
- graphics/libdraw/draw.ml \
- graphics/libdraw/graphics_efuns.ml \
- main.ml
+ config/default_config.ml\
+ config/pad.ml\
 
+# std_efunsrc.ml\
+# main.ml
+# graphics/libdraw/draw.ml \
+# graphics/libdraw/graphics_efuns.ml \
 #COBJS=commons/realpath.$O graphics/libdraw/draw.$O
 
 INCLUDES=\
  -I $XIX/lib_core/collections -I $XIX/lib_core/commons \
  -I libs/commons \
  -I src/graphics \
- -I src/core -I src/features \
+ -I src/core -I src/features -I src/ipc \
  -I modes/minor_modes -I modes/major_modes -I modes/prog_modes
 # -I $BACKENDDIR
 
@@ -151,6 +153,9 @@ efuns.byte: $OBJS $COBJS
 clean:V:
     rm -f $OBJS $CMIS $COBJS
     rm -f *.[5678vij] *.byte
+
+nuke:V: clean
+    rm -f $LEXERS
 
 beforedepend:VQ: $LEXERS
 

@@ -68,7 +68,7 @@ let read_command fd =
      Concur.remove_reader fd
   | e ->
     Logs.err (fun m -> m "server read_command exn: %s (thread %d)"
-          (Common.exn_to_s e) (Thread.id (Thread.self ())));
+          (Printexc.to_string e) (Thread.id (Thread.self ())));
     Concur.remove_reader fd 
 (*e: function [[Server.read_command]] *)
   

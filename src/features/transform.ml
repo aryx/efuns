@@ -13,6 +13,7 @@
 (*e: copyright header2 *)
 open Efuns
 open Common
+open Eq.Operators
 
 (*****************************************************************************)
 (* Prelude *)
@@ -128,7 +129,7 @@ let align_char_string char str =
     with Not_found -> 
       failwith (spf "Character '%c' not found in line %s" char s)
   ) in
-  let max = ys |> List.map snd |> Common2.maximum in
+  let max = ys |> List.map snd |> List.fold_left max 0 in
   ys |> List.map (fun (s, idx) -> 
     String.sub s 0 idx ^
     String.make (max - idx) ' ' ^
