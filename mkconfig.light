@@ -1,0 +1,34 @@
+BINDIR=/usr/local/bin
+LIBDIR=/usr/local/lib/ocaml
+
+#BACKENDDIR=src/graphics/libdraw
+BACKENDDIR=src/graphics/ocamlgraphics
+EXTERNAL_INCLUDES=-I +graphics
+EXTERNAL_LIBS=graphics.cma
+# we need xix/lib_core/ if we can't depend on semgrep-libs/libs/commons
+XIX=../xix
+
+OCAMLC=ocamlc
+OCAMLLEX=ocamllex
+OCAMLDEP=ocamldep
+
+COMPFLAGS=-g -thread
+LINKFLAGS=-custom -thread -cclib -lunix -cclib -lstr -cclib -lgraphics -cclib -lX11 -cclib -lthreads
+
+#TODO: for ocaml-light (and plan9) need to handle ppx [@@interactive]!
+# maybe simpler to begin with consider them as attribute
+# and generate a big file from Linux that store all the code
+# by those interactive and use this file for ocaml-light
+#</$objtype/mkfile
+
+#SYSCLIBS=${SYSLIBS:%.cma=$LIBDIR/lib%.a}
+#CC=pcc
+#LD=pcc
+#CINCLUDES= -I$LIBDIR
+# -B to disable the check for missing return, which is flagged
+# because of CAMLReturn
+#CFLAGS=-FVB -D_POSIX_SOURCE -D_BSD_EXTENSION -D_PLAN9_SOURCE $CINCLUDES
+
+# currently pcc does not accept -L so I replaced -cclib -unix by
+# the more explicit /usr/local/lib/ocaml/libunix.a
+#old:$OCAMLC str.cma unix.cma threads.cma  -custom -cclib -lstr -cclib -lunix -cclib -lthreads $COBJS  $OBJS -o $target
