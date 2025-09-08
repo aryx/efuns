@@ -13,7 +13,7 @@ ocaml-light
 
 * -----------------------------------------------------------
 
-* 0.26 (Q3 2025) (Dockerfile and GHA CI, OCaml5 ready)
+* 0.26 (Q3 2025) (Dockerfile and GHA CI, OCaml5 ready, ocaml-light)
 
 ** testinfra
 - Dockerfile and docker.yml GHA (GitHub Actions) CI working for

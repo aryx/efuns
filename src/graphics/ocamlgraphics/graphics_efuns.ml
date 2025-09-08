@@ -1,5 +1,6 @@
 open Common
 open Efuns
+open Xdraw (* for fields for ocaml-light *)
 
 (*****************************************************************************)
 (* Draw API *)
@@ -17,8 +18,8 @@ let clear_eol col line len =
   move_to col line;
   let (w,h) = Graphics.text_size "d" in
   Graphics.set_color Graphics.white;
-  Graphics.fill_rect (Graphics.current_x()) (Graphics.current_y())
-    (w * len) h;
+  let (x, y) = Graphics.current_point () in
+  Graphics.fill_rect x y (w * len) h;
   ()
 
 let draw_string col line  str  offset len   attr =
@@ -27,8 +28,8 @@ let draw_string col line  str  offset len   attr =
   let (w,h) = Graphics.text_size "d" in
   move_to col line;
   Graphics.set_color Graphics.white;
-  Graphics.fill_rect (Graphics.current_x()) (Graphics.current_y())
-    (w * len) h;
+  let (x, y) = Graphics.current_point () in
+  Graphics.fill_rect x y (w * len) h;
   Graphics.set_color Graphics.black;
   move_to col line;
   Graphics.draw_string (String.sub str offset len);
@@ -37,9 +38,10 @@ let draw_string col line  str  offset len   attr =
 let update_display () =
   Logs.debug (fun m -> m "update_displays")
 
-let backend = { Xdraw. clear_eol; 
-                draw_string; 
-                update_display;
+(* TODO: use {x ; y } at some point when available in ocaml-light *)
+let backend = { clear_eol = clear_eol; 
+                draw_string = draw_string; 
+                update_display = update_display ;
                 update_window_title = (fun _ -> ());
                 get_clipboard = (fun () -> None);
                 set_clipboard = (fun _opt -> ());

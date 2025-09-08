@@ -12,6 +12,7 @@
 (***********************************************************************)
 (*e: copyright header *)
 open Options
+open Efuns (* for fields for ocaml-light *)
 
 (*s: constant [[Efuns.init_files]] *)
 let initial_files = ref []
@@ -69,7 +70,7 @@ let main () =
         Printf.sprintf "Unix error %s: %s %s" f (Unix.error_message error) arg
     | _ -> raise e
   );
-  Printexc.record_backtrace true;
+  (* TODO: not in ocaml-light: Printexc.record_backtrace true; *)
 
   Sys.signal Sys.sigint (Sys.Signal_handle (fun _ ->  
     (* Should auto-save all buffers, and then exit ... *)

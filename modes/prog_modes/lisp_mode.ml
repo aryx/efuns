@@ -12,6 +12,7 @@ open Efuns
 open Options
 open Lisp_lexer
 module I = Common_indenter
+open Compil (* for fields for ocaml-light *)
 
 (***********************************************************************)
 (*********************** colors ***********************)

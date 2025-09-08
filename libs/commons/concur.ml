@@ -56,7 +56,8 @@ let add_reader fd f =
                   (Printexc.to_string e) (Thread.id (Thread.self ())))
         done) ()
   in
-  readers := { fd ; thread; stop } :: !readers
+  (* TODO: backport { fd; thread; stop } to ocaml-light! *)
+  readers := { fd = fd ; thread = thread; stop = stop } :: !readers
 
 let remove_reader fd = 
   Logs.debug (fun m -> m "remove_reader (thread %d)" (Thread.id (Thread.self())));

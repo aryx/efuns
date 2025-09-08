@@ -32,9 +32,9 @@ let open_process pwd cmd =
       List.iter close [in_read;out_write];
       (* I prefer to do it here than in the caller *)
       Sys.chdir pwd;
-      execv "/bin/sh" [| "/bin/sh"; "-c"; cmd |]
+      execv "/bin/sh" [| "/bin/sh"; "-c"; cmd |];
       (* never here! *)
-      (* exit 127 (* for ocaml light *) *)
+      exit 127 (* for ocaml light *)
   | pid -> 
       Unix.close out_read;
       Unix.close in_write;

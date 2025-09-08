@@ -315,7 +315,7 @@ let builtin_cd frame s =
   let olddir = Var.get_local buf pwd_var in
   let newdir =
     if Filename.is_relative s
-    then Filename.concat olddir s |> Unix.realpath
+    then Filename.concat olddir s (* TODO ocaml-light |> Unix.realpath *)
     else s
   in
   let stat = Unix.stat newdir in

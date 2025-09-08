@@ -430,7 +430,13 @@ let normal_name curdir filename =
     then Filename.concat curdir filename
     else filename
   in
-(*
+
+(* alt: but ocaml-light (and plan9) don't have realpath
+   let name = Unix.realpath fullname in
+      if is_directory name 
+      then name ^ "/" 
+      else name
+*)
   let rec iter name list level =
     let b = Filename.basename name in
     let d = Filename.dirname name in
@@ -452,14 +458,13 @@ let normal_name curdir filename =
   in
   let list = iter fullname [] 0 in
   match list with
-    [] -> "/"
+  | [] -> "/"
   | _ -> 
       let name = List.fold_left (fun s name -> s ^ "/" ^ name ) "" list in
-*)
-   let name = Unix.realpath fullname in
-   if is_directory name 
-   then name ^ "/" 
-   else name
+      if is_directory name 
+      then name ^ "/" 
+      else name
+
         
         
 (*[to_regexp_string] replace a string with * and ? (shell regexps) to

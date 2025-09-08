@@ -147,7 +147,8 @@ let rec parse stream =
 
 and parse_id stream = 
   match S.next stream with
-  | Ident s | String s -> s
+  | Ident s -> s
+  | String s -> s
   | _ -> raise S.Failure
 
 and parse_option stream =

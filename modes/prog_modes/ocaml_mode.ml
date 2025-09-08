@@ -13,6 +13,7 @@ open Options
 open Ocaml_lexer
 module I = Common_indenter
 module Parameter = Parameter_option
+open Compil (* for fields for ocaml-light *)
 
 (***********************************************************************)
 (* Paths *)
