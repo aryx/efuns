@@ -3,23 +3,15 @@
 #############################################################################
 < mkconfig
 
-#TODO: port to ocaml-light (and plan9) but need to handle ppx [@@interactive]!
-# maybe simpler to begin with consider them as attribute
-# and generate a big file from Linux that store all the code
-# by those interactive and use this file for ocaml-light
-#</$objtype/mkfile
-
 #############################################################################
 # Variables
 #############################################################################
-
-#BACKENDDIR=graphics/libdraw
 
 LEXERS= \
  modes/prog_modes/c_lexer.ml modes/prog_modes/lisp_lexer.ml modes/prog_modes/ocaml_lexer.ml \
  modes/text_modes/tex_mode.ml modes/text_modes/html_mode.ml
 
-#alt: build separate libs and have split mkfile instead of a single one
+#alt: build separate lib.cma and have split mkfile instead of a single one
 # but nothing depends on efuns (yet) so simpler to have a single mkfile
 # and a big SRC
 SRC=\
@@ -109,6 +101,7 @@ SRC=\
 # graphics/libdraw/graphics_efuns.ml \
 #COBJS=commons/realpath.$O graphics/libdraw/draw.$O
 
+# we need xix-libs when we don't use semgrep-libs
 INCLUDES=\
  -I $XIX/lib_core/collections -I $XIX/lib_core/commons \
  -I libs/commons \
@@ -118,7 +111,7 @@ INCLUDES=\
  -I $EXTERNAL_DIRS
 # -I $BACKENDDIR
 
-#TODO: factorize XIX_LIBS=lib_core/collections lib_core_commons
+#LESS: factorize XIX_LIBS=lib_core/collections lib_core_commons
 LIBS=$XIX/lib_core/collections/lib.cma $XIX/lib_core/commons/lib.cma
 
 SYSLIBS=str.cma unix.cma  threads.cma
@@ -129,24 +122,12 @@ SYSLIBS=str.cma unix.cma  threads.cma
 
 OBJS=${SRC:%.ml=%.cmo}
 CMIS=${OBJS:%.cmo=%.cmi}
-#SYSCLIBS=${SYSLIBS:%.cma=$LIBDIR/lib%.a}
-
-#CC=pcc
-#LD=pcc
-#CINCLUDES= -I$LIBDIR
-# -B to disable the check for missing return, which is flagged
-# because of CAMLReturn
-#CFLAGS=-FVB -D_POSIX_SOURCE -D_BSD_EXTENSION -D_PLAN9_SOURCE $CINCLUDES
 
 ##############################################################################
 # Top rules
 ##############################################################################
 
 all:V: efuns.byte
-
-# currently pcc does not accept -L so I replaced -cclib -unix by
-# the more explicit /usr/local/lib/ocaml/libunix.a
-#old:$OCAMLC str.cma unix.cma threads.cma  -custom -cclib -lstr -cclib -lunix -cclib -lthreads $COBJS  $OBJS -o $target
 
 efuns.byte: $OBJS $COBJS
 	$OCAMLC $INCLUDES $LINKFLAGS $SYSLIBS $EXTERNAL_LIBS $SYSCLIBS $LIBS $COBJS $OBJS -o $target
@@ -187,7 +168,7 @@ depend:V: beforedepend
 # Generic rules
 ##############################################################################
 
-# do not use prereq or it will include also the .cmi in the command line
+# do not use $prereq or it will include also the .cmi in the command line
 # because of the .depend file that also define some rules
 %.cmo: %.ml
 	$OCAMLC $INCLUDES $COMPFLAGS -c $stem.ml
