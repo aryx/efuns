@@ -33,7 +33,7 @@ WORKDIR /src
 
 # install additional deps
 # coupling: efuns.opam
-RUN apt-get install -y libgraphics-ocaml-dev
+RUN apt-get install -y libx11-dev libgraphics-ocaml-dev
 
 # Now let's build from source
 COPY . .
