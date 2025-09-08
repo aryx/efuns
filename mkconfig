@@ -1,12 +1,15 @@
 BINDIR=/usr/local/bin
 LIBDIR=/usr/local/lib/ocaml
 
+# limit to just stdcompat!
+EXTERNAL_DIRS=`ocamlfind query stdcompat`
+EXTERNAL_LIBS=stdcompat.cma
+# we need xix/lib_core/ if we can't depend on semgrep-libs/libs/commons
+XIX=../xix
+
 OCAMLC=ocamlc
 OCAMLLEX=ocamllex
 OCAMLDEP=ocamldep
 
 COMPFLAGS=-g -thread
 LINKFLAGS=-custom -thread
-
-# we need xix/lib_core/ if we can't depend on semgrep-libs/libs/commons
-XIX=../xix

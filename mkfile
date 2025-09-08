@@ -114,7 +114,8 @@ INCLUDES=\
  -I libs/commons \
  -I src/graphics \
  -I src/core -I src/features -I src/ipc \
- -I modes/minor_modes -I modes/major_modes -I modes/prog_modes
+ -I modes/minor_modes -I modes/major_modes -I modes/prog_modes \
+ -I $EXTERNAL_DIRS
 # -I $BACKENDDIR
 
 #TODO: factorize XIX_LIBS=lib_core/collections lib_core_commons
@@ -148,7 +149,7 @@ all:V: efuns.byte
 #old:$OCAMLC str.cma unix.cma threads.cma  -custom -cclib -lstr -cclib -lunix -cclib -lthreads $COBJS  $OBJS -o $target
 
 efuns.byte: $OBJS $COBJS
-	$OCAMLC $LINKFLAGS $SYSLIBS $SYSCLIBS $LIBS $COBJS $OBJS -o $target
+	$OCAMLC $INCLUDES $LINKFLAGS $SYSLIBS $EXTERNAL_LIBS $SYSCLIBS $LIBS $COBJS $OBJS -o $target
 
 clean:V:
     rm -f $OBJS $CMIS $COBJS
