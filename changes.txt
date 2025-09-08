@@ -9,6 +9,7 @@ first public release on OPAM
 better merlin support
  automatic case-analysis code generation boilerplate (using merlin)
 Claude Code integration?
+ocaml-light
 
 * -----------------------------------------------------------
 

@@ -1,13 +1,13 @@
 BINDIR=/usr/local/bin
 LIBDIR=/usr/local/lib/ocaml
 
+#BACKENDDIR=src/graphics/libdraw
+BACKENDDIR=src/graphics/ocamlgraphics
 # limit to just stdcompat!
-EXTERNAL_DIRS=`ocamlfind query stdcompat`
-EXTERNAL_LIBS=stdcompat.cma
+EXTERNAL_INCLUDES=-I `ocamlfind query stdcompat` -I `ocamlfind query graphics`
+EXTERNAL_LIBS=stdcompat.cma graphics.cma
 # we need xix/lib_core/ if we can't depend on semgrep-libs/libs/commons
 XIX=../xix
-
-#BACKENDDIR=graphics/libdraw
 
 OCAMLC=ocamlc
 OCAMLLEX=ocamllex

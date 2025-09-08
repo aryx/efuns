@@ -94,6 +94,10 @@ SRC=\
  \
  config/default_config.ml\
  config/pad.ml\
+ \
+ $BACKENDDIR/graphics_efuns.ml \
+ \
+ main.ml
 
 # std_efunsrc.ml\
 # main.ml
@@ -108,8 +112,7 @@ INCLUDES=\
  -I src/graphics \
  -I src/core -I src/features -I src/ipc \
  -I modes/minor_modes -I modes/major_modes -I modes/prog_modes \
- -I $EXTERNAL_DIRS
-# -I $BACKENDDIR
+ $EXTERNAL_INCLUDES -I $BACKENDDIR
 
 #LESS: factorize XIX_LIBS=lib_core/collections lib_core_commons
 LIBS=$XIX/lib_core/collections/lib.cma $XIX/lib_core/commons/lib.cma
