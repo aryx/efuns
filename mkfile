@@ -2,6 +2,7 @@
 # Configuration section
 #############################################################################
 < mkconfig
+#< mkconfig.light
 
 #############################################################################
 # Variables
@@ -18,7 +19,7 @@ SRC=\
  \
  libs/commons/utils.ml libs/commons/str2.ml\
  libs/commons/log.ml\
- libs/commons/options.ml\
+ libs/commons/genlex.ml libs/commons/options.ml\
  libs/commons/store.ml\
  libs/commons/concur.ml\
  \

@@ -11,7 +11,7 @@
 module S = Stream
 [@@alert "-all"] (* Stream is deprecated *)
 
-module G = Genlex
+module G = Genlex_
 [@@alert "-all"] (* Stream is deprecated *)
 
 (*****************************************************************************)
