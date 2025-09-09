@@ -56,7 +56,8 @@ SRC= \
   src/features/compil.ml\
   \
   config/default_config.ml\
-  main.ml\
+  src/main/CLI.ml\
+  src/main/Main.ml\
   \
   modes/major_modes/dired.ml\
   \
@@ -71,7 +72,7 @@ SRC= \
   modes/prog_modes/TODO_more/ocaml_toplevel.ml\
   \
   src/ipc/server.ml\
-  efuns_client.ml\
+  src/ipc/efuns_client.ml\
   \
   todo/dynamic/eval.ml\
   todo/misc/efuns_filebrowser.ml\

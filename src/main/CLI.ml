@@ -1,4 +1,4 @@
-(*s: main.ml *)
+(*s: CLI.ml *)
 (*s: copyright header *)
 (***********************************************************************)
 (*                                                                     *)
@@ -13,6 +13,8 @@
 (*e: copyright header *)
 open Options
 open Efuns (* for fields for ocaml-light *)
+
+type caps = < Cap.no_caps >
 
 (*s: constant [[Efuns.init_files]] *)
 let initial_files = ref []
@@ -202,16 +204,4 @@ let main (_caps : < .. >) (argv : string array) : Exit.t =
   Exit.OK
 (*e: function [[Main.main]] *)
 
-(*s: toplevel [[Main]] call [[main()]] *)
-let _ =
-  (*old: UCommon.main_boilerplate (fun () -> *)
-  Cap.main (fun (caps : Cap.all_caps) ->
-    (* let r = Gc.get () in r.Gc.verbose <- true; Gc.set r; *)
-    let argv = CapSys.argv caps in
-    Exit.exit caps
-      (Exit.catch (fun () ->
-         main caps argv))
-  )
-(*e: toplevel [[Main]] call [[main()]] *)
-
-(*e: main.ml *)
+(*e: CLI.ml *)

@@ -98,7 +98,8 @@ SRC=\
  \
  $BACKENDDIR/graphics_efuns.ml \
  \
- main.ml
+ src/main/CLI.ml \
+ src/main/Main.ml
 
 # std_efunsrc.ml\
 # main.ml
@@ -111,7 +112,7 @@ INCLUDES=\
  -I $XIX/lib_core/collections -I $XIX/lib_core/commons \
  -I libs/commons \
  -I src/graphics \
- -I src/core -I src/features -I src/ipc \
+ -I src/core -I src/features -I src/ipc -I src/main \
  -I modes/minor_modes -I modes/major_modes -I modes/prog_modes \
  $EXTERNAL_INCLUDES -I $BACKENDDIR
 

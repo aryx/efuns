@@ -3598,7 +3598,13 @@ open Options
 
 %(*open WX_filesel*)
 
-\subsection{[[main.ml]]}
+\subsection{[[Main.ml]]}
+
+<<Main.ml>>=
+<<toplevel [[Main]] call [[main()]]>>
+@
+
+\subsection{[[CLI.ml]]}
 
 %let dpy_oo = new WX_display.t !displayname
 %let root_oo = new WX_root.t dpy_oo 0
@@ -3643,7 +3649,7 @@ open Options
 %-------------------------------------------------------------
 
 % was copyright header2, but better to use header1
-<<main.ml>>=
+<<CLI.ml>>=
 <<copyright header>>
 open Options
 open Efuns (* for fields for ocaml-light *)
@@ -3663,10 +3669,7 @@ open Efuns (* for fields for ocaml-light *)
   
 <<function [[Main.main]]>>
 
-<<toplevel [[Main]] call [[main()]]>>
-
 @
-
 
 
 

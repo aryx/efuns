@@ -10,36 +10,3 @@
   (flags (:standard -O3))))
 
 (dirs :standard \ docs external)
-
-(executables
- (names main efuns_client)
- (libraries
-     ; system libs
-     str unix
-
-     ; efuns libs
-     efuns_commons
-     efuns_core
-     ; TODO: should not need all of that
-     efuns_graphics efuns_graphics_gtk_cairo2
-     efuns_features ;efuns_ipc
-     efuns_major_modes efuns_minor_modes
-     efuns_prog_modes efuns_text_modes
-     efuns_config
-
-     ; pfff libs
-     efuns_pfff_modes
- )
-
- ; need that, otherwise all the [@@interactive] are not executed
- (link_flags (-linkall))
- ; for ocamldebug
- (modes native byte)
-)
-
-
-(install
- (package efuns)
- (section bin)
- (files (main.exe as efuns) (efuns_client.exe as efuns_client))
-)

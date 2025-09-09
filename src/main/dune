@@ -1,23 +1,5 @@
-(library
- (name efuns_ipc)
- (wrapped false)
- (modules 
-   Server
- )
- (libraries
-   commons
-
-   efuns_core efuns_features
- )
- (preprocess (pps ppx_interactive))
-)
-
-
 (executables
- (names efuns_client)
- (modules 
-   Efuns_client
- )
+ (names main)
  (libraries
      ; system libs
      str unix
@@ -46,5 +28,7 @@
 (install
  (package efuns)
  (section bin)
- (files (efuns_client.exe as efuns_client))
+ (files (main.exe as efuns))
 )
+
+; (efuns_client.exe as efuns_client)
