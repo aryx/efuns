@@ -1302,7 +1302,7 @@ let find_buffer_frame buf =
   try
     (Globals.editor()).top_windows |> List.iter (fun top_window ->
       top_window.window |> Window.iter (fun frame -> 
-        if Common.phys_equal frame.frm_buffer buf 
+        if Eq.phys_equal frame.frm_buffer buf 
         then raise (FoundFrame frame)
       )
     );
@@ -1762,7 +1762,7 @@ let key_option = Options.define_type "Key" value_to_key key_to_value
 %  (as ?? ?<- add_start_hook(<>) <- Config._5)
 <<function [[Config.init_global_map]]>>=
 let init_global_map () = 
-  if !!global_map = [] 
+  if !!global_map =*= [] 
   then 
     (core_map @ standard_map) |> List.iter (fun (keys, action) ->
         Keymap.add_global_key keys action
@@ -2149,7 +2149,8 @@ let save_buffer_hooks = define_option ["save_buffer_hooks"] ""
 
 <<toplevel [[Main]] call [[main()]]>>=
 let _ =
-  UCommon.main_boilerplate (fun () ->
+  (*UCommon.main_boilerplate (fun () -> *)
+  Cap.main (fun _all_caps ->
 (*
     let r = Gc.get () in
     r.Gc.verbose <- true;
@@ -2173,6 +2174,9 @@ let initial_files = ref []
 <<function [[Main.main]]>>=
 let main () =
   <<[[main()]] set signal handlers>>
+
+  let level = ref (Some Logs.Warning) in
+
   Arg.parse ([
     <<[[main()]] command line options>>
    ] 
@@ -2182,7 +2186,9 @@ let main () =
    (fun name -> initial_files := name :: !initial_files) 
    usage_str;
 
-  Logs.info (fun m -> m "logging enabled");
+  (* Logs_.setup ~level:!level (); *)
+  Logs.set_level !level;
+  Logs.info (fun m -> m "starting logging");
 
   <<[[main()]] set options>>
 
@@ -2689,7 +2695,7 @@ let handler top_window event =
 let with_lock f =
   let edt = editor () in
   Mutex.lock edt.edt_mutex;
-  Common.finalize f (fun () -> Mutex.unlock edt.edt_mutex)
+  Fun.protect ~finally:(fun () -> Mutex.unlock edt.edt_mutex) f
 @  
 
 
@@ -3060,13 +3066,13 @@ let compare _text p1 p2 =
 <<function [[Text.with_dup_point]]>>=
 let with_dup_point text point f =
   let p = dup_point text point in
-  Common.finalize (fun () -> f p) (fun () -> remove_point text p)
+  Fun.protect ~finally:(fun () -> remove_point text p) (fun () -> f p)
 @
 
 <<function [[Text.with_new_point]]>>=
 let with_new_point text f =
   let p = new_point text in
-  Common.finalize (fun () -> f p) (fun () -> remove_point text p)
+  Fun.protect ~finally:(fun () -> remove_point text p) (fun () -> f p) 
 @
 %pad: I introduced that; it factorizes code and remove some bugs I think
 
@@ -3125,7 +3131,7 @@ type coord = {
 let point_line text point = 
   (* defensive: *)
   if (point.line <> find_line_of_pos text point.pos)
-  then UCommon.pr2 (Common.spf "TODO: point.line = %d != find_line ... = %d"
+  then Logs.err (fun m -> m "TODO: point.line = %d != find_line ... = %d"
                      point.line (find_line_of_pos text point.pos));
   point.line
 @
@@ -4547,7 +4553,7 @@ let file_menu = define_option ["file_menu"] "" (list_option string2_option) []
 @
 
 <<[[Config]] file menu setup>>=
-if !!Top_window.file_menu = [] then begin
+if !!Top_window.file_menu =*= [] then begin
   Top_window.file_menu =:= [
     "Open File", "load_buffer";
     "Save Buffer", "save_buffer";
@@ -4919,8 +4925,8 @@ let rec save_buffers_and_action frame buffers action =
     [] -> let () = action frame in ()
   | (_,buf) :: buffers ->
       let text = buf.buf_text in
-      if buf.buf_last_saved = Text.version text  ||
-        buf.buf_name.[0] = '*'
+      if buf.buf_last_saved =|= Text.version text  ||
+        buf.buf_name.[0] =$= '*'
       then
         save_buffers_and_action frame buffers action
       else
@@ -4967,7 +4973,7 @@ let exit frame =
   let hooks = Var.get_global exit_hooks in
   Hooks.exec_hooks hooks ();
   Multi_buffers.save_buffers_and_action frame buffers (fun _ -> 
-    raise (Common.UnixExit 0)
+    raise (Exit.ExitCode 0)
   )
 [@@interactive]
 @
@@ -4987,7 +4993,7 @@ let edit_menu = define_option ["edit_menu"] "" (list_option string2_option) []
 @
 
 <<[[Config]] edit menu setup>>=
-if !!Top_window.edit_menu = [] then begin
+if !!Top_window.edit_menu =*= [] then begin
     Top_window.edit_menu =:= [ 
       "Cut",    "kill_region";
       "Paste",  "insert_killed";
@@ -5062,7 +5068,7 @@ let install window frame =
 
   window |> Window.iter (fun f -> 
      (* TODO? != or <> ? *)
-     if (Common.phys_not_equal f frame) 
+     if (Eq.phys_not_equal f frame) 
      then kill f
   );
   window.win_down <- WFrame frame;
@@ -5219,7 +5225,7 @@ frame.frm_redraw
 
 <<[[Frame.display()]] redraw>>=
 if !Globals.debug_display
-then UCommon.pr2 "redraw";
+then Logs.debug (fun m -> m "redraw");
 <<[[Frame.display()]] redraw, possibly update [[frm_y_offset]]>>
 <<[[Frame.display()]] redraw, possibly update [[frm_x_offset]]>>
 (* invariant: now frm_start is at a bol *)
@@ -5425,8 +5431,8 @@ in
 <<[[Frame.display()]] redraw, draw line y if line changed>>=
 let frm_line = frame.frm_table.(y) in
 
-if not ((Common.phys_equal frm_line.prev_frmline_boxes frm_line.frmline_boxes) &&
-        (Common.phys_equal frm_line.repr_prev_offset frm_line.first_box_extra_offset)) 
+if not ((Eq.phys_equal frm_line.prev_frmline_boxes frm_line.frmline_boxes) &&
+        (Eq.phys_equal frm_line.repr_prev_offset frm_line.first_box_extra_offset)) 
    || frame.frm_redraw
 then
   begin
@@ -5628,7 +5634,7 @@ let point_to_xy_opt frame point =
   try
     for i = 0 to frame.frm_height - 1 do
       let line_repr = frame.frm_table.(i) in
-      if Common.phys_equal line_repr.frm_text_line line then
+      if Eq.phys_equal line_repr.frm_text_line line then
         let x,y =
           if x_nocut =|= 0 
           then 0,i
@@ -6439,7 +6445,7 @@ let rec get_binding map keylist =
     Text.insert_at_end text bt;
     Text.insert_at_end text "\n"
 
-| (Common.UnixExit _) as x -> raise x
+| (Exit.ExitCode _) as x -> raise x
 @
 
 
@@ -6983,7 +6989,7 @@ let meta_hist = ref []
 % call_interactive -> <>
 <<function [[Interactive.buf_interactives]]>>=
 let compute_interactives () =
-  Action.actions |> Hashtbl_.hash_to_list |> List.map (fun (s, _) ->
+  Action.actions |> Hashtbl_.to_list |> List.map (fun (s, _) ->
     s, (Action.execute_action s, None)
   )
 @
@@ -7126,7 +7132,7 @@ let select frame request history start completion_fun prefix_fun action =
   let completions = ref [] in
   Keymap.add_binding map [NormalMap, XK.xk_Tab] (fun mini_frame ->
       (* TODO? was != but I think it should be <> *)
-      if (Common.phys_not_equal !completion !string) then begin
+      if (Eq.phys_not_equal !completion !string) then begin
         let text = mini_frame.frm_buffer.buf_text in
         completions := completion_fun !string;
         let suffix, n  = Utils.common_suffix !completions (prefix_fun !string)in
@@ -7279,7 +7285,7 @@ let all_vars = ref None
 let all_variables frame _ =
   let buf = frame.frm_buffer in
   match !all_vars with
-    Some (f,l) when f == frame -> l
+    Some (f,l) when Eq.phys_equal f frame -> l
   | _ ->
       let list = 
         (Store.list buf.buf_vars) @ 
@@ -9014,7 +9020,7 @@ let replace flag frame query str repl =
 
 <<function [[Simple.buffer_list]]>>=
 let buffer_list () =
-  (Globals.editor()).edt_buffers |> Hashtbl_.hash_to_list |> List.map fst
+  (Globals.editor()).edt_buffers |> Hashtbl_.to_list |> List.map fst
 @
 
 
@@ -9166,7 +9172,7 @@ let kill_buffer frame =
   in
 
   let _new_frame = Frame.create window None new_buf in
-  if buf.buf_shared = 0 
+  if buf.buf_shared =|= 0 
   then Ebuffer.kill buf
 [@@interactive]
 @
@@ -9604,8 +9610,7 @@ let new_major_mode name hook_opt = {
 % set_buffer_mode -> <>
 <<function [[Ebuffer.set_major_mode]]>>=
 let set_major_mode buf mode =
-  if !Globals.debug
-  then UCommon.pr2 (spf "setting %s major mode" mode.maj_name);
+  Logs.info (fun m -> m "setting %s major mode" mode.maj_name);
   buf.buf_modified <- buf.buf_modified + 1;
   buf.buf_major_mode <- mode;
   mode.maj_hooks |> List.iter (fun f -> 
@@ -9677,7 +9682,7 @@ let set_buffer_mode buf =
   in 
   let modes_alist = Var.get_var buf modes_alist in
   (* must use != here, because modes_alist contain functional values *)
-  if (Common.phys_not_equal !modes_old modes_alist) then begin
+  if (Eq.phys_not_equal !modes_old modes_alist) then begin
     regexp_alist := modes_alist |> List.map (fun (file_reg, major) ->
       Str.regexp file_reg, major
     );
@@ -9728,8 +9733,8 @@ status_major_mode frame;
 let status_major_mode frame  =
   let buf = frame.frm_buffer in
   let status = frame.frm_status in
-  if not (Common.phys_equal status.stat_modes buf.buf_minor_modes &&
-           Common.phys_equal status.stat_mode buf.buf_major_mode
+  if not (Eq.phys_equal status.stat_modes buf.buf_minor_modes &&
+           Eq.phys_equal status.stat_mode buf.buf_major_mode
     ) then
     begin
       status.stat_modes <- buf.buf_minor_modes;
@@ -9929,7 +9934,7 @@ let set_minor_mode buf mode =
 let del_minor_mode buf minor =
   buf.buf_minor_modes <- 
     List.fold_right (fun mode list -> 
-      if Common.phys_equal mode minor then begin
+      if Eq.phys_equal mode minor then begin
         buf.buf_modified <- buf.buf_modified + 1;
         list
       end else (mode :: list)
@@ -10179,9 +10184,9 @@ let open_process pwd cmd =
       List.iter close [in_read;out_write];
       (* I prefer to do it here than in the caller *)
       Sys.chdir pwd;
-      execv "/bin/sh" [| "/bin/sh"; "-c"; cmd |]
+      execv "/bin/sh" [| "/bin/sh"; "-c"; cmd |];
       (* never here! *)
-      (* exit 127 (* for ocaml light *) *)
+      exit 127 (* for ocaml light *)
   | pid -> 
       Unix.close out_read;
       Unix.close in_write;
@@ -10405,7 +10410,7 @@ let compile_find_makefile = define_option ["compil";"find_makefile"] ""
 let cdir, cmd = 
   match () with
   | _ when cmd =~ "^cd +\\([^;]+\\);\\(.*\\)$" ->
-      let (dir, cmd) = Common.matched2 cmd in
+      let (dir, cmd) = Regexp_.matched2 cmd in
       let finaldir = expand_tilde dir in
       finaldir, cmd
   | _ when !!compile_find_makefile && cmd =~ "^make" ->
@@ -10472,7 +10477,7 @@ let next_error top_frame =
           let frame = 
             try Frame.find_buffer_frame buf 
             with Not_found ->
-                if Common.phys_equal frame top_frame then
+                if Eq.phys_equal frame top_frame then
                   let new_window = Top_window.create ()
                       (*Window.display top_window*) 
                   in
@@ -10544,8 +10549,13 @@ let read_command fd =
           Text.search_forward text regexp point |> ignore;
         end;
         Top_window.update_display () 
-  with
-    _ -> Concur.remove_reader fd 
+  with 
+  | End_of_file ->
+     Concur.remove_reader fd
+  | e ->
+    Logs.err (fun m -> m "server read_command exn: %s (thread %d)"
+          (Printexc.to_string e) (Thread.id (Thread.self ())));
+    Concur.remove_reader fd 
 @
 %pad: I pass now a frame_opt, so can also pass None and get top_window
 % from Globals.editors, which allow then to call Server.start from pad.ml
@@ -10568,7 +10578,7 @@ let start () =
 
       if Sys.file_exists socket_name 
       then begin 
-        UCommon.pr2 (spf "socket file %s already exists; cancelling the server"
+        Logs.warn (fun m -> m "socket file %s already exists; cancelling the server"
               socket_name);
         (* alt: unlink here, so if you run multiple efuns, the last one wins*)
       end else begin
@@ -10576,6 +10586,8 @@ let start () =
         Unix.listen s 254;
         Unix.set_nonblock s;
         Unix.set_close_on_exec s;
+        Logs.info (fun m -> m "starting server listening on %s (thread %d)"
+                   socket_name (Thread.id (Thread.self ())));
         Concur.add_reader s (fun _ -> 
           started := true;
           module_accept s
@@ -10837,7 +10849,7 @@ let next_buffer buf =
     match list with
       [] -> raise Not_found 
     | (_name,b) :: tail ->
-        if b == buf 
+        if Eq.phys_equal b buf 
         then 
           match tail with
           | [] -> snd (List.hd buf_list) (* go back to head *)
@@ -11281,7 +11293,7 @@ Utils.register_exn (fun e ->
       Printf.sprintf "Unix error %s: %s %s" f (Unix.error_message error) arg
   | _ -> raise e
 );
-Printexc.record_backtrace true;
+(* TODO: not in ocaml-light: Printexc.record_backtrace true; *)
 
 Sys.signal Sys.sigint (Sys.Signal_handle (fun _ ->  
   (* Should auto-save all buffers, and then exit ... *)
@@ -11486,6 +11498,7 @@ let error_exn s exn =
    * exn handlers/formatters
    *)
   (match exn with 
+(* TODO: to restore, but then depends on semgrep lib_parsing
   | Parsing_error.Lexical_error _ | Parsing_error.Syntax_error _ ->
      let ex = Exception.catch exn in
      (* TODO
@@ -11493,11 +11506,11 @@ let error_exn s exn =
      pr2 (Error_code.string_of_error err)
       *)
      UCommon.pr2 (Dumper.dump ex)
+*)
   | _ -> ()
   );
-  UCommon.pr2 (spf "error: %s (exn = %s). backtrace:\n%s" 
-        s (Common.exn_to_s exn) bt);
-  flush stderr
+  Logs.err (fun m -> m "error: %s (exn = %s). backtrace:\n%s" 
+                       s (Printexc.to_string exn) bt)
 @
 % better to not mix print_xxx with printf, so let's use printf everywhere
 %pad: this is actually now Globals.error
@@ -11532,8 +11545,7 @@ let message _buf m =
      *)
     let bt = Printexc.get_backtrace () in
     let str = spf "Uncaught exception %s" (Utils.printexn e) in
-    if !Globals.debug
-    then UCommon.pr2 str;
+    Logs.err (fun m -> m "%s" str);
     message top_window  str;
     let buf = Ebuffer.default "*backtrace*" in
     let text = buf.buf_text in
@@ -11564,8 +11576,17 @@ let debug_init = ref false
 % all those hooks that are run at startup time
 
 <<[[main()]] command line options>>=
-"-debug", Arg.Set Globals.debug, 
-" for debugging";
+"-v", Arg.Unit (fun () -> level := Some Logs.Info),
+ " verbose mode";
+"-verbose", Arg.Unit (fun () -> level := Some Logs.Info),
+" verbose mode";
+"-debug", Arg.Unit (fun () -> 
+   Globals.debug := true;
+   level := Some Logs.Debug;
+),
+" debug mode";
+"-quiet", Arg.Unit (fun () -> level := None),
+" no logs";
 "-debug_graphics", Arg.Set Globals.debug_graphics, 
 " for debugging";
 "-debug_display", Arg.Set Globals.debug_display, 
@@ -11587,13 +11608,13 @@ then begin
   Action.actions |> Hashtbl.iter  (fun k v ->
     match v with
     (* subtle: this will work only if f2 was not a closure *)
-    | FrameAction f2 when Common.phys_equal f f2 ->
+    | FrameAction f2 when Eq.phys_equal f f2 ->
         found := true;
-        UCommon.pr2 (spf "action: %s" k)
+        Logs.debug (fun m -> m "action: %s" k)
     | _ -> ()
   );
   if not !found
-  then UCommon.pr2 ("action not found");
+  then Logs.err (fun m -> m "action not found");
 end;
 @
 %alt: store the function name in FrameAction

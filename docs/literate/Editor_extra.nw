@@ -311,13 +311,13 @@ type name = Efuns.action_name
 \subsection{[[core/error.ml]]}
 
 <<core/error.ml>>=
-open Common
+
+(* TODO: need flush after Logs.err ? *)
 
 <<function [[Efuns.error]]>>
 
 let error s =
-  UCommon.pr2 (spf "error: %s" s);
-  flush stderr
+  Logs.err (fun m -> m "error: %s" s)
 @
 
 
@@ -1024,6 +1024,7 @@ let iter buf debut fin =
 <<core/ebuffer.ml>>=
 <<copyright header2>>
 open Common
+open Eq.Operators
 open Efuns
 
 <<type [[Ebuffer.t]]>>
@@ -1233,6 +1234,7 @@ open Efuns
 <<core/frame.ml>>=
 <<copyright header2>>
 open Common
+open Eq.Operators
 open Options
 
 open Efuns
@@ -1544,6 +1546,7 @@ open Move
 <<copyright header2>>
 open Efuns
 open Common
+open Eq.Operators
 
 (*****************************************************************************)
 (* Prelude *)
@@ -1605,7 +1608,7 @@ let align_char_string char str =
     with Not_found -> 
       failwith (spf "Character '%c' not found in line %s" char s)
   ) in
-  let max = ys |> List.map snd |> Common2.maximum in
+  let max = ys |> List.map snd |> List.fold_left max 0 in
   ys |> List.map (fun (s, idx) -> 
     String.sub s 0 idx ^
     String.make (max - idx) ' ' ^
@@ -2159,7 +2162,7 @@ let dont_complete_regexps = ref ([],Str.regexp "")
 <<function [[Select.dont_complete_regexp]]>>=
 let dont_complete_regexp () =
   let (old,reg) = !dont_complete_regexps in
-  if Common.phys_equal old !!dont_complete 
+  if Eq.phys_equal old !!dont_complete 
   then reg
   else
     let reg = Str2.regexp_from_list !!dont_complete in
@@ -2200,7 +2203,7 @@ let complete_filename frame good_file filename =
       | Unix.S_DIR -> file ^ "/"
       | _ -> file
     with exn -> 
-      UCommon.pr2 (spf "complete_filename: exn = %s" (Common.exn_to_s exn));
+      Logs.err (fun m -> m "complete_filename: exn = %s" (Printexc.to_string exn));
       file
   )
   in
@@ -2226,7 +2229,6 @@ let select_file frame request history start action =
   let map = Keymap.create () in
   let string = ref "" in
   Keymap.add_binding map [ControlMap, Char.code 'g'] (fun mini_frame ->
-    UCommon.pr2 "HERE";
     remove_completions mini_frame;
     Minibuffer.kill mini_frame frame
   );
@@ -2369,6 +2371,8 @@ let simple_select frame request action =
 <<features/select.ml>>=
 <<copyright header2>>
 open Common
+open Eq.Operators
+open Regexp_.Operators
 open Options
 open Efuns
 
@@ -2454,6 +2458,7 @@ let completions_buf_hook = Store.create_abstr "completions_buf_hook"
 
 <<features/system.ml>>=
 open Common
+open Eq.Operators
 open Efuns
 open Unix
 
@@ -2592,6 +2597,7 @@ open Efuns
 
 <<features/interactive.ml>>=
 <<copyright header2>>
+open Common
 open Efuns
 module Parameter = Parameter_option
 
@@ -2683,6 +2689,8 @@ let switch_to_other_buffer frame =
 
 <<features/multi_buffers.ml>>=
 <<copyright header2>>
+open Common
+open Eq.Operators
 open Efuns
 
 <<function [[Simple.buffer_list]]>>
@@ -2822,6 +2830,7 @@ let find_error_gen re text error_point =
 <<features/compil.ml>>=
 <<copyright header2>>
 open Common
+open Regexp_.Operators
 open Options
 open Efuns
 
@@ -2856,7 +2865,7 @@ type find_error_fun = Text.t -> Text.point -> error
 let expand_tilde s =
   if s =~ "^~/\\(.*\\)$"
   then
-    let rest = Common.matched1 s in
+    let rest = Regexp_.matched1 s in
     Filename.concat (Sys.getenv "HOME") rest
   else s
 
@@ -3440,6 +3449,7 @@ let wrap_item top_window (n,f) =
 <<core/top_window.ml>>=
 <<copyright header2>>
 open Common
+open Eq.Operators
 open Options
 open Efuns
 
@@ -3506,10 +3516,11 @@ let handle_key_and_macro top_window modifiers keysym =
 
   if !in_call_macro
   then begin
-   Common.finalize (fun () ->
-   !recorded_keys |> List.rev |> List.iter (fun (modifiers, keysym) ->
-     handle_key top_window modifiers keysym
-   )) (fun () -> in_call_macro := false)
+   Fun.protect ~finally:(fun () -> in_call_macro := false)
+    (fun () ->
+      !recorded_keys |> List.rev |> List.iter (fun (modifiers, keysym) ->
+       handle_key top_window modifiers keysym
+     )) 
   end
 
   (* We can receive events from different sources. In particular, some of
@@ -3559,6 +3570,8 @@ let handle_key_and_macro top_window modifiers keysym =
 <<config/default_config.ml>>=
 <<copyright header2>>
 open Efuns
+open Common
+open Eq.Operators
 module Parameter = Parameter_option
 
 (* pad: this used to be called config.ml, but this conflict with 
@@ -3633,6 +3646,7 @@ open Options
 <<main.ml>>=
 <<copyright header>>
 open Options
+open Efuns (* for fields for ocaml-light *)
 
 <<constant [[Efuns.init_files]]>>
 
@@ -4912,7 +4926,6 @@ open Ocaml_env
 
 <<ipc/server.ml>>=
 <<copyright header>>
-open Common
 open Unix
 open Efuns
   
