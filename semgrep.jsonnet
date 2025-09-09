@@ -1,4 +1,4 @@
-# mostly a copy-paste of xix/semgrep.jsonnet
+# Mostly a copy-paste of xix/semgrep.jsonnet
 
 // ----------------------------------------------------------------------------
 // Simple rules
@@ -29,6 +29,7 @@ local cap_rules = [
     id: 'use-caps',
     match: { any:
         [
+        #TODO: fix
 	## Cap.chdir
 	# 'Sys.chdir',
 	# 'Unix.chdir',
@@ -47,6 +48,8 @@ local cap_rules = [
 	# #'open_in',
 	# #'UChan.with_open_in',
 	# #'UChan.with_open_out',
+        ## Cap.argv see below
+        ## Cap.exit see below
 	]
     },
     languages: ['ocaml'],
@@ -78,15 +81,17 @@ local cap_rules = [
   {
     id: 'do-not-use-argv',
     # Cap.argv
-    match: 'Sys.argv',
+    match: { any: ['Sys.argv', 'Arg.parse'] },
     languages: ['ocaml'],
     severity: 'ERROR',
     message: |||
-       Do not use Sys.argv. Use CapSys.argv and capabilities.
+       Do not use Sys.argv or functions using internally Sys.argv.
+       Use CapSys.argv and capabilities.
     |||,
     paths: {
       exclude: [ #TODO: fix
 	'log.ml', 'options.ml',
+        'efuns_client.ml', 'main.ml',
 	'todo/'
       ],
     },
