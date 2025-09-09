@@ -2,9 +2,9 @@
 %alt: 12pt, twocolumn, landscape
 %coupling: see Config.tex
 
-\input{principia-latex/Packages}
-\input{principia-latex/Config}
-\input{principia-latex/Macros}
+\input{latex/Packages}
+\input{latex/Config}
+\input{latex/Macros}
 
 %******************************************************************************
 % Prelude
@@ -104,7 +104,7 @@ Fabrice Le Fessant
 
 %\onecolumn
 \hrule
-\input{principia-latex/Copyright}
+\input{latex/Copyright}
 \hrule
 %\twocolumn
 
@@ -311,7 +311,7 @@ but which I ultimately discarded:
 \section{Requirements}
 
 \section{About this document}
-#include "principia-latex/About.nw"
+#include "latex/About.nw"
 
 \section{Copyright}
 
@@ -12230,7 +12230,7 @@ This index is generated automatically.
 
 %\chapter{References} 
 \addcontentsline{toc}{chapter}{References}
-\bibliography{principia-latex/Principia}
+\bibliography{latex/Principia}
 \bibliographystyle{alpha}
 
 %******************************************************************************
