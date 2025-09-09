@@ -32,6 +32,10 @@ build-docker-light:
 # Developer targets
 ###############################################################################
 
+# see https://github.com/semgrep/semgrep
+check:
+	osemgrep --experimental --config semgrep.jsonnet --strict --error
+
 # -filter semgrep
 visual:
 	codemap -screen_size 3 -efuns_client efuns_client -emacs_client /dev/null .
