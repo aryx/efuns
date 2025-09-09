@@ -7,17 +7,17 @@ first public release on OPAM
 
 ** devinfra
 better merlin support
- automatic case-analysis code generation boilerplate (using merlin)
+  automatic case-analysis code generation boilerplate (using merlin)
 Claude Code integration?
-ocaml-light
 
 * -----------------------------------------------------------
 
-* 0.26 (Q3 2025) (Dockerfile and GHA CI, OCaml5 ready, ocaml-light)
+* 0.26 (Q3 2025) (Dockerfile and GHA CI, OCaml5 and ocaml-light ready)
 
 ** testinfra
 - Dockerfile and docker.yml GHA (GitHub Actions) CI working for
   OCaml 4.14.2 and 5.2.1
+- Dockerfile.light working with ocaml-light
 
 ** docs
 - added Editor.nw in docs/literate/ from principia
