@@ -91,7 +91,7 @@ local cap_rules = [
     paths: {
       exclude: [ #TODO: fix
 	'log.ml', 'options.ml',
-        'efuns_client.ml', 'main.ml',
+        'efuns_client.ml',
 	'todo/'
       ],
     },

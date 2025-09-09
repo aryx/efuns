@@ -62,7 +62,7 @@ Options:
 (*e: constant [[Efuns.usage_str]] *)
   
 (*s: function [[Main.main]] *)
-let main () =
+let main (_caps : < .. >) (argv : string array) : Exit.t =
   (*s: [[main()]] set signal handlers *)
   Utils.register_exn (fun e ->
     match e with
@@ -87,7 +87,7 @@ let main () =
 
   let level = ref (Some Logs.Warning) in
 
-  Arg.parse ([
+  let options = [
     (*s: [[main()]] command line options *)
     "-width"  , Arg.Int (fun i -> width_opt := Some i), "<len>: Width in chars";
     "-height" , Arg.Int (fun i -> height_opt := Some i), "<len>: Height in chars";
@@ -124,9 +124,9 @@ let main () =
     (*e: [[main()]] command line options *)
    ] 
    (* @  Common2.cmdline_flags_devel () *)
-   )
-
-   (fun name -> initial_files := name :: !initial_files) 
+   in
+   Arg.parse_argv argv options
+      (fun name -> initial_files := name :: !initial_files)
    usage_str;
 
   (* Logs_.setup ~level:!level (); *)
@@ -199,19 +199,18 @@ let main () =
   (*s: [[main()]] run the UI *)
   Graphics_efuns.init !initial_files;
   (*e: [[main()]] run the UI *)
-  ()
+  Exit.OK
 (*e: function [[Main.main]] *)
 
 (*s: toplevel [[Main]] call [[main()]] *)
 let _ =
-  (*UCommon.main_boilerplate (fun () -> *)
-  Cap.main (fun _all_caps ->
-(*
-    let r = Gc.get () in
-    r.Gc.verbose <- true;
-    Gc.set r;
-*)
-    main () 
+  (*old: UCommon.main_boilerplate (fun () -> *)
+  Cap.main (fun (caps : Cap.all_caps) ->
+    (* let r = Gc.get () in r.Gc.verbose <- true; Gc.set r; *)
+    let argv = CapSys.argv caps in
+    Exit.exit caps
+      (Exit.catch (fun () ->
+         main caps argv))
   )
 (*e: toplevel [[Main]] call [[main()]] *)
 

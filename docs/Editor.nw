@@ -2149,14 +2149,13 @@ let save_buffer_hooks = define_option ["save_buffer_hooks"] ""
 
 <<toplevel [[Main]] call [[main()]]>>=
 let _ =
-  (*UCommon.main_boilerplate (fun () -> *)
-  Cap.main (fun _all_caps ->
-(*
-    let r = Gc.get () in
-    r.Gc.verbose <- true;
-    Gc.set r;
-*)
-    main () 
+  (*old: UCommon.main_boilerplate (fun () -> *)
+  Cap.main (fun (caps : Cap.all_caps) ->
+    (* let r = Gc.get () in r.Gc.verbose <- true; Gc.set r; *)
+    let argv = CapSys.argv caps in
+    Exit.exit caps
+      (Exit.catch (fun () ->
+         main caps argv))
   )
 @
 \l remove Common.main_boilerplate for explanation? 
@@ -2172,18 +2171,18 @@ let initial_files = ref []
 % efuns is a multi-file editor!
 
 <<function [[Main.main]]>>=
-let main () =
+let main (_caps : < .. >) (argv : string array) : Exit.t =
   <<[[main()]] set signal handlers>>
 
   let level = ref (Some Logs.Warning) in
 
-  Arg.parse ([
+  let options = [
     <<[[main()]] command line options>>
    ] 
    (* @  Common2.cmdline_flags_devel () *)
-   )
-
-   (fun name -> initial_files := name :: !initial_files) 
+   in
+   Arg.parse_argv argv options
+      (fun name -> initial_files := name :: !initial_files)
    usage_str;
 
   (* Logs_.setup ~level:!level (); *)
@@ -2197,7 +2196,7 @@ let main () =
   <<[[main()]] misc initializations>>
 
   <<[[main()]] run the UI>>
-  ()
+  Exit.OK
 @
 % Common2.cmdline_flags_devel for -profile?
 
