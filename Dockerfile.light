@@ -1,15 +1,15 @@
-# Build efuns (and xix) with OCaml 4.14.2 and mk (from xix) on Ubuntu.
-# LATER: with ocaml-light
+# Build efuns (and xix) with OCaml light and mk (from xix) on Ubuntu.
+
+# see https://github.com/aryx/ocaml-light/blob/main/Dockerfile
+FROM padator/ocaml-light
 
 # 24.04 ships with OCaml 4.14.x which we need for Thread.Exit
 # (the classic 22.04 ships with 4.13.1 which does not have it)
-FROM ubuntu:24.04
-#LATER: see https://github.com/aryx/ocaml-light/blob/main/Dockerfile
-#LATER: FROM padator/ocaml-light
+#alt: FROM ubuntu:24.04
 
 # Setup OCaml
 RUN apt-get update # needed otherwise can't find any package
-RUN apt-get install -y ocaml # with ubuntu:24.04 this is OCaml 4.14.2
+#alt: RUN apt-get install -y ocaml # with ubuntu:24.04 this is OCaml 4.14.2
 #alt: setup ocaml via opam but ultimately we want to use ocaml-light
 # so simpler to install raw ocaml without opam
 
@@ -18,13 +18,15 @@ WORKDIR /xix
 RUN apt-get install -y git
 RUN git clone --depth=1 https://github.com/aryx/xix /xix
 # for bootstrap-mk.sh, see also xix/xix.opam
-RUN apt-get install -y ocaml-findlib libstdcompat-ocaml-dev libppx-deriving-ocaml-dev
+#alt: RUN apt-get install -y ocaml-findlib libstdcompat-ocaml-dev libppx-deriving-ocaml-dev
 # coupling: https://github.com/aryx/xix/blob/master/Dockerfile.light
+ENV use_ocaml_light="yes"
 RUN ./bootstrap-mk.sh
 # 9base for rc (TODO: delete once we can bootstrap a working bin/rc)
 RUN apt-get install -y 9base
 ENV PATH="$PATH:/xix/bin"
 ENV MKSHELL="/usr/bin/rc"
+RUN cp mkconfig.light mkconfig
 RUN mk depend.light
 RUN mk all.light
 
@@ -33,11 +35,13 @@ WORKDIR /src
 
 # install additional deps
 # coupling: efuns.opam
-RUN apt-get install -y libx11-dev libgraphics-ocaml-dev
+#alt: RUN apt-get install -y libx11-dev libgraphics-ocaml-dev
 
 # Now let's build from source
 COPY . .
 
+#old: RUN cp mkconfig.light mkconfig
+# now the mkfile uses by default mkconfig.light
 RUN mk depend
 RUN mk
 
