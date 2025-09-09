@@ -3604,6 +3604,22 @@ open Options
 <<toplevel [[Main]] call [[main()]]>>
 @
 
+\subsection{[[CLI.mli]]}
+
+<<type [[CLI.caps]]>>=
+type caps = < Cap.no_caps >
+@
+
+<<signature [[CLI.main]]>>=
+(* entry point (can also raise Exit.ExitCode) *)
+val main : < caps ; .. > -> string array -> Exit.t
+@
+
+<<CLI.mli>>=
+<<type [[CLI.caps]]>>
+<<signature [[CLI.main]]>>
+@
+
 \subsection{[[CLI.ml]]}
 
 %let dpy_oo = new WX_display.t !displayname
@@ -3653,6 +3669,8 @@ open Options
 <<copyright header>>
 open Options
 open Efuns (* for fields for ocaml-light *)
+
+type caps = < Cap.no_caps >
 
 <<constant [[Efuns.init_files]]>>
 

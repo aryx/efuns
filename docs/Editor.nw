@@ -2155,7 +2155,7 @@ let _ =
     let argv = CapSys.argv caps in
     Exit.exit caps
       (Exit.catch (fun () ->
-         main caps argv))
+         CLI.main caps argv))
   )
 @
 \l remove Common.main_boilerplate for explanation? 

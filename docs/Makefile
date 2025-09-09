@@ -56,6 +56,7 @@ SRC= \
   src/features/compil.ml\
   \
   config/default_config.ml\
+  src/main/CLI.mli\
   src/main/CLI.ml\
   src/main/Main.ml\
   \
