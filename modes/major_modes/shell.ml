@@ -97,9 +97,9 @@ let columnize width xs =
 (* to filter them in ls *)
 let is_obj_file file =
   try
-    let typ = FType.of_file file in
+    let typ = Ftype.of_file file in
     match typ with
-    | FType.Obj _ -> true
+    | Ftype.Obj _ -> true
     | _ -> false
   with _ -> false
 
