@@ -1,6 +1,6 @@
 (*s: CLI.mli *)
 (*s: type [[CLI.caps]] *)
-type caps = < Cap.no_caps >
+type caps = < Cap.stdout; Cap.stderr >
 (*e: type [[CLI.caps]] *)
 (*s: signature [[CLI.main]] *)
 (* entry point (can also raise Exit.ExitCode) *)

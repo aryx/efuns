@@ -14,7 +14,7 @@
 open Options
 open Efuns (* for fields for ocaml-light *)
 
-type caps = < Cap.no_caps >
+type caps = < Cap.stdout; Cap.stderr >
 
 (*s: constant [[Efuns.init_files]] *)
 let initial_files = ref []
@@ -64,7 +64,7 @@ Options:
 (*e: constant [[Efuns.usage_str]] *)
   
 (*s: function [[Main.main]] *)
-let main (_caps : < .. >) (argv : string array) : Exit.t =
+let main (caps : < caps; .. >) (argv : string array) : Exit.t =
   (*s: [[main()]] set signal handlers *)
   Utils.register_exn (fun e ->
     match e with
@@ -132,8 +132,8 @@ let main (_caps : < .. >) (argv : string array) : Exit.t =
         (fun name -> initial_files := name :: !initial_files)
      usage_str;
     with
-    | Arg.Bad msg -> UConsole.eprint msg; raise (Exit.ExitCode 2)
-    | Arg.Help msg -> UConsole.print msg; raise (Exit.ExitCode 0)
+    | Arg.Bad msg -> Console.eprint caps msg; raise (Exit.ExitCode 2)
+    | Arg.Help msg -> Console.print caps msg; raise (Exit.ExitCode 0)
   );
   Logs_.setup !level ();
   Logs.info (fun m -> m "starting logging");
