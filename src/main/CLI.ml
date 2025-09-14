@@ -127,10 +127,14 @@ let main (_caps : < .. >) (argv : string array) : Exit.t =
    ] 
    (* @  Common2.cmdline_flags_devel () *)
    in
-   Arg.parse_argv argv options
-      (fun name -> initial_files := name :: !initial_files)
-   usage_str;
-
+   (try 
+     Arg.parse_argv argv options
+        (fun name -> initial_files := name :: !initial_files)
+     usage_str;
+    with
+    | Arg.Bad msg -> UConsole.eprint msg; raise (Exit.ExitCode 2)
+    | Arg.Help msg -> UConsole.print msg; raise (Exit.ExitCode 0)
+  );
   Logs_.setup !level ();
   Logs.info (fun m -> m "starting logging");
 
