@@ -23,6 +23,7 @@ module G = Genlex_
  *  - a JSON file, but this still requires the mechanism of define_type
  *    to have typed options (without the need to pattern Match Json_type.t
  *    to unbox the real type)
+ *    => use ATD! and have typed JSON.
  *  - a sexp file
  *  - YAML, TOML, ...
  *)
@@ -195,6 +196,7 @@ let exec_chooks o =
 
 (* less: could also warn for config data without an option in the program *)
 let really_load filename = 
+  Logs.info (fun m -> m "loading options in %s" filename);
   let ic = open_in filename in
   let s = S.of_channel ic in
   try
@@ -215,15 +217,14 @@ let really_load filename =
         with Not_found -> () (* no error if option is not defined here *)
     )
   with e -> 
-    Printf.printf "Error %s in %s\n" (Printexc.to_string e) filename;
-    flush stdout
+    Logs.err (fun m -> m "Error %s in %s\n" (Printexc.to_string e) filename)
 
       
 let load () =
   try
     really_load !filename
   with _ ->
-    Printf.printf "No %s found\n" !filename
+    Logs.info (fun m -> m  "No %s found\n" !filename)
 
 (*****************************************************************************)
 (* API *)
