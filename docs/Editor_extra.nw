@@ -3607,7 +3607,7 @@ open Options
 \subsection{[[CLI.mli]]}
 
 <<type [[CLI.caps]]>>=
-type caps = < Cap.no_caps >
+type caps = < Cap.stdout; Cap.stderr >
 @
 
 <<signature [[CLI.main]]>>=
@@ -3670,7 +3670,7 @@ val main : < caps ; .. > -> string array -> Exit.t
 open Options
 open Efuns (* for fields for ocaml-light *)
 
-type caps = < Cap.no_caps >
+type caps = < Cap.stdout; Cap.stderr >
 
 <<constant [[Efuns.init_files]]>>
 

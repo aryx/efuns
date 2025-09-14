@@ -2171,7 +2171,7 @@ let initial_files = ref []
 % efuns is a multi-file editor!
 
 <<function [[Main.main]]>>=
-let main (_caps : < .. >) (argv : string array) : Exit.t =
+let main (caps : < caps; .. >) (argv : string array) : Exit.t =
   <<[[main()]] set signal handlers>>
 
   let level = ref (Some Logs.Warning) in
@@ -2181,12 +2181,15 @@ let main (_caps : < .. >) (argv : string array) : Exit.t =
    ] 
    (* @  Common2.cmdline_flags_devel () *)
    in
-   Arg.parse_argv argv options
-      (fun name -> initial_files := name :: !initial_files)
-   usage_str;
-
-  (* Logs_.setup ~level:!level (); *)
-  Logs.set_level !level;
+   (try 
+     Arg.parse_argv argv options
+        (fun name -> initial_files := name :: !initial_files)
+     usage_str;
+    with
+    | Arg.Bad msg -> Console.eprint caps msg; raise (Exit.ExitCode 2)
+    | Arg.Help msg -> Console.print caps msg; raise (Exit.ExitCode 0)
+  );
+  Logs_.setup !level ();
   Logs.info (fun m -> m "starting logging");
 
   <<[[main()]] set options>>
