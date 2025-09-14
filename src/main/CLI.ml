@@ -131,8 +131,7 @@ let main (_caps : < .. >) (argv : string array) : Exit.t =
       (fun name -> initial_files := name :: !initial_files)
    usage_str;
 
-  (* Logs_.setup ~level:!level (); *)
-  Logs.set_level !level;
+  Logs_.setup !level ();
   Logs.info (fun m -> m "starting logging");
 
   (*s: [[main()]] set options *)
