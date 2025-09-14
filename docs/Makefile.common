@@ -1,0 +1,66 @@
+# -*- makefile -*-
+# mostly a copy-paste of ~/principia/docs/latex/mkcommon
+
+# assumes the "includer" has defined DOC, VERSION, SRC_VIEWS, SRC_ORIG 
+# and possibly SYNCFLAGS
+
+##############################################################################
+# Generic Literate programming variables
+##############################################################################
+
+SYNCWEB=syncweb
+#alt: SYNCWEB=~/github/syncweb/syncweb.opt
+#SYNCFLAGS=-md5sum_in_auxfile -less_marks -lang C
+INDEXER=syncweb_indexer
+#alt: INDEXER=~/github/syncweb/indexer/indexer
+#pdflatex --shell-escape? under macOS?
+
+##############################################################################
+# Generic rules
+##############################################################################
+
+#old: was using noweb (and noweblatexpad). We now use syncweb which has a weaver
+pdf: $(DOC)-$(VERSION).pdf
+
+$(DOC)-$(VERSION).pdf: $(DOC).tex Config.tex
+	pdflatex $(DOC).tex
+	bibtex $(DOC)
+	pdflatex $(DOC).tex
+	pdflatex $(DOC).tex
+	mv $(DOC).pdf $(DOC)-$(VERSION).pdf
+
+$(DOC).tex: $(SRC_ORIG) defs_and_uses.list
+	$(SYNCWEB) -verbose -to_tex $(DOC).nw defs_and_uses.list
+
+# the index: rule used below is adhoc and each mkfile defines it for now
+#defs_and_uses.list:D: $SRC_VIEWS
+#	mk index
+
+check:
+	$(SYNCWEB) -verbose -to_tex $(DOC).nw defs_and_uses.list
+	pdflatex $(DOC).tex
+
+# alt: echo $$i but can also use -verbose now
+sync:
+	set -e; for i in $(SRC_VIEWS) $(EXTRA_VIEWS); do $(SYNCWEB) $(SYNCFLAGS) $(SRC_ORIG) $$i ; done
+
+
+
+clean: clean2
+
+clean2:
+	rm -f *.aux *.toc *.log *.brf *.out *.bbl *.dot *.blg
+
+lpclean: clean2
+	rm -f $(DOC).tex $(DOC).pdf $(DOC)-$(VERSION).pdf
+	rm -f defs_and_uses.list
+
+lpdistclean:
+	rm -f $(SRC_VIEWS) $(EXTRA_VIEWS) .md5sum_* .*.nwcache
+
+# not $EXTRA_VIEWS here
+loc:
+	wc -l $(SRC_VIEWS)
+
+unmark:
+	set -e; for i in $(SRC_VIEWS) $(EXTRA_VIEWS); do $(SYNCWEB) -unmark $$i ; done
