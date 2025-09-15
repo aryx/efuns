@@ -172,21 +172,21 @@ let dired_mode =
 
 
 (*s: function [[Dired.viewer]] *)
-let viewer commande _frame filename =
-  Sys.command (Printf.sprintf "(%s %s) &" commande filename) |> ignore
+let viewer (cmd : string) (frm : Frame.t) (filename : string) : unit =
+  CapSys.command frm.caps (Printf.sprintf "(%s %s) &" cmd filename) |> ignore
 (*e: function [[Dired.viewer]] *)
 
 (*s: function [[Dired.commande]] *)
-let commande commande _frame filename =
-  Sys.command (Printf.sprintf commande filename) |> ignore;
-  failwith  (Printf.sprintf commande filename)
+let commande cmd_fmt (frm : Frame.t) (filename : string) : unit =
+  CapSys.command frm.caps (Printf.sprintf cmd_fmt filename) |> ignore;
+  failwith  (Printf.sprintf cmd_fmt filename)
 (*e: function [[Dired.commande]] *)
   
 (*s: function [[Dired.unzip_and_view]] *)
-let unzip_and_view frame filename =
+let unzip_and_view (frame : Frame.t) (filename : string) : unit =
   let new_filename = Printf.sprintf "/tmp/efuns-view-%s" (
       Filename.chop_extension filename) in
-  let res = Sys.command (
+  let res = CapSys.command frame.caps (
       Printf.sprintf "gzip -cd %s > %s" filename new_filename)
   in
   if res = 0 then fast_view frame new_filename

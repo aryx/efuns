@@ -2,9 +2,8 @@
 open Common
 open Eq.Operators
 open Efuns
-open Unix
 
-type caps = < Cap.fork; Cap.exec; Cap.chdir >
+type caps = < Cap.fork; Cap.exec; Cap.wait; Cap.chdir >
 
 type end_action = (Efuns.buffer -> int -> unit)
 
@@ -14,24 +13,24 @@ type end_action = (Efuns.buffer -> int -> unit)
 
 (*s: function [[System.open_process]] *)
 let open_process (caps : < caps; .. >) (pwd : string) (cmd : string) : Proc.pid * in_channel * out_channel =
-  let (in_read, in_write) = pipe() in
-  let (out_read, out_write) = pipe() in
-  let inchan = in_channel_of_descr in_read in
-  let outchan = out_channel_of_descr out_write in
+  let (in_read, in_write) = Unix.pipe() in
+  let (out_read, out_write) = Unix.pipe() in
+  let inchan = Unix.in_channel_of_descr in_read in
+  let outchan = Unix.out_channel_of_descr out_write in
   match CapUnix.fork caps () with
   | 0 ->
       if out_read <> Unix.stdin then begin
-        dup2 out_read Unix.stdin; 
-        close out_read 
+        Unix.dup2 out_read Unix.stdin; 
+        Unix.close out_read 
       end;
       if in_write <> Unix.stdout ||  in_write <> Unix.stderr then begin
         if in_write <> Unix.stdout 
-        then dup2 in_write Unix.stdout;
+        then Unix.dup2 in_write Unix.stdout;
         if in_write <> Unix.stderr 
-        then dup2 in_write Unix.stderr; 
-        close in_write 
+        then Unix.dup2 in_write Unix.stderr; 
+        Unix.close in_write 
       end;
-      List.iter close [in_read;out_write];
+      List.iter Unix.close [in_read;out_write];
       (* I prefer to do it here than in the caller *)
       CapSys.chdir caps pwd;
       CapUnix.execv caps "/bin/sh" [| "/bin/sh"; "-c"; cmd |];
@@ -63,9 +62,10 @@ let system (caps : < caps; .. >) (pwd : string) (buf_name : string) (cmd : strin
     let len = input inc tampon 0 1000 in
     Mutex.lock edt.edt_mutex;
     if len =|= 0 then begin
-      let _pid,status = waitpid [WNOHANG] pid in
+      let _pid,status = CapUnix.waitpid caps [Unix.WNOHANG] pid in
       (match status with 
-      | WEXITED s -> Text.insert_at_end text (spf "Exited with status %d\n" s); 
+      | Unix.WEXITED s -> 
+          Text.insert_at_end text (spf "Exited with status %d\n" s); 
           close_in inc;
           close_out outc;
           (try end_action buf s with _ -> ())
@@ -109,7 +109,7 @@ let system (caps : < caps; .. >) (pwd : string) (buf_name : string) (cmd : strin
   buf.buf_finalizers <- (fun () -> 
     (try 
        Unix.kill pid Sys.sigkill;
-       waitpid [] pid |> ignore;
+       CapUnix.waitpid caps [] pid |> ignore;
      with _ -> ()
     );
     Concur.remove_reader ins

@@ -32,6 +32,9 @@ local cap_rules = [
 	## Cap.chdir
 	'Sys.chdir',
 	'Unix.chdir',
+        ## Cap.forkew
+        'Sys.command',
+	'Unix.system',
         ## Cap.exec
 	'Unix.execve',
 	'Unix.execv',
@@ -39,13 +42,14 @@ local cap_rules = [
 	'Unix.fork',
 	## Cap.wait
 	'Unix.wait',
-        #TODO: fix
+	'Unix.waitpid',
 	## Cap.env
-	# 'Unix.environment',
-	# 'Sys.getenv',
+	#'Sys.getenv',
+	'Unix.environment',
+        #TODO: fix
 	## Cap.open_in
 	# 'open_in_bin',
-	# #'open_in',
+	# 'open_in',
 	# #'UChan.with_open_in',
 	# #'UChan.with_open_out',
         ## Cap.argv see below
@@ -59,7 +63,7 @@ local cap_rules = [
        for dangerous functions.
     |||,
     paths: {
-      exclude: [],
+      exclude: ['todo/'],
     },
   },
   {

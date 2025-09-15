@@ -383,7 +383,7 @@ let run_cmd (frame : Frame.t) (cmd : string) =
       let len = input inc tampon 0 1000 in
       Mutex.lock edt.edt_mutex;
       if len =|= 0 then begin
-        let _pid, status = Unix.waitpid [Unix.WNOHANG] pid in
+        let _pid, status = CapUnix.waitpid frame.caps [Unix.WNOHANG] pid in
         (match status with 
         | Unix.WEXITED s -> 
             Text.insert_at_end text (spf "Exited with status %d" s); 

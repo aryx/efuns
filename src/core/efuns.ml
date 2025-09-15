@@ -16,10 +16,9 @@
 (* alt: frame_caps *)
 type frame_caps = <
   (* mostly for System.open_process used by actions
-   * such as M-x shell, M-x compil
+   * such as M-x shell, M-x compil and in dired
    *)
-  Cap.fork;
-  Cap.exec;
+  Cap.forkew;
   Cap.chdir;
 >
 
