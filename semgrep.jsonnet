@@ -13,7 +13,7 @@ local semgrep_rules = [
     severity: 'ERROR',
     message: |||
       It is easy to forget to close `open_in` with `close_in`.
-      Use `CapFS.with_open_in()` or `UChan.with_open_in` instead.
+      Use `FS.with_open_in()` or `UChan.with_open_in` instead.
     |||,
     paths: {
       exclude: ['common2.ml'],
@@ -69,7 +69,7 @@ local cap_rules = [
     languages: ['ocaml'],
     severity: 'ERROR',
     message: |||
-       Do not use exit. Use CapStdlib.exit and capabilities.
+       Do not use exit. Use Exit.exit and capabilities.
     |||,
     paths: {
       exclude: [ #TODO: fix
@@ -91,7 +91,7 @@ local cap_rules = [
     paths: {
       exclude: [ #TODO: fix
 	'log.ml', 'options.ml',
-        'efuns_client.ml',
+         'efuns_client.ml',
 	'todo/'
       ],
     },

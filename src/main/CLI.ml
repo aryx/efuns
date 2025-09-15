@@ -76,7 +76,8 @@ let main (caps : < caps; .. >) (argv : string array) : Exit.t =
 
   Sys.signal Sys.sigint (Sys.Signal_handle (fun _ ->  
     (* Should auto-save all buffers, and then exit ... *)
-    exit 1
+    (* old: was exit 1 but not sure why, SigInt seems more logical *)
+    raise SigInt
   )) |> ignore; 
   Sys.signal Sys.sigterm (Sys.Signal_handle (fun _ ->  
     (* Should auto-save all buffers, and then exit ... *)
@@ -125,7 +126,6 @@ let main (caps : < caps; .. >) (argv : string array) : Exit.t =
     ), " for debugging";
     (*e: [[main()]] command line options *)
    ] 
-   (* @  Common2.cmdline_flags_devel () *)
    in
    (try 
      Arg.parse_argv argv options
