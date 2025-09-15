@@ -100,7 +100,7 @@ let compiled_view_list = ref []
 (*e: constant [[Dired.compiled_view_list]] *)
   
 (*s: function [[Dired.fast_view]] *)
-let fast_view frame filename =
+let fast_view (frame : Frame.t) (filename : string) : unit =
   if not (!old_view_list == !view_list) then
     begin
       compiled_view_list := List.map 
@@ -112,7 +112,7 @@ let fast_view frame filename =
     List.iter (fun (regexp, viewer) ->
         if Str.string_match regexp filename 0 then
           try
-            Unix.chdir (dirname frame);
+            CapSys.chdir frame.caps (dirname frame);
             viewer frame filename;
             raise Exit
           with

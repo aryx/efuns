@@ -29,7 +29,6 @@ local cap_rules = [
     id: 'use-caps',
     match: { any:
         [
-        #TODO: fix
 	## Cap.chdir
 	'Sys.chdir',
 	'Unix.chdir',
@@ -40,6 +39,7 @@ local cap_rules = [
 	'Unix.fork',
 	## Cap.wait
 	'Unix.wait',
+        #TODO: fix
 	## Cap.env
 	# 'Unix.environment',
 	# 'Sys.getenv',
