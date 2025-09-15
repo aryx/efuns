@@ -29,7 +29,7 @@ open Xdraw (* for the fields *)
 let clear_eol col line len =
   let loc = Globals.location () in
   if !Globals.debug_graphics
-  then pr2 (spf "clear_eol: %d %d %d" col line len);
+  then Logs.debug (fun m -> m "clear_eol: %d %d %d" col line len);
   let (r,g,b) = Color.rgb_of_string loc.loc_colors_names.(1) in
   Draw.set_bg_color 1 r g b;
   Draw.clear_eol col line len
@@ -37,7 +37,7 @@ let clear_eol col line len =
 let draw_string col line  str  offset len   attr =
   let loc = Globals.location () in
   if !Globals.debug_graphics
-  then pr2 (spf "draw_string %d %d %s %d %d %d"
+  then Logs.debug (fun m -> m "draw_string %d %d %s %d %d %d"
          col line str offset len attr);
 
   let bgcolor_idx = 
@@ -60,7 +60,7 @@ let draw_string col line  str  offset len   attr =
 
 let update_display () =
   if !Globals.debug_graphics
-  then pr2 ("update_displays")
+  then Logs.debug (fun m -> m "update_displays")
 
 let backend = { 
   clear_eol = clear_eol; 

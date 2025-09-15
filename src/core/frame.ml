@@ -557,7 +557,7 @@ let display top_window frame =
     (*e: [[Frame.display()]] conditions for redraw *)
   then begin
     (*s: [[Frame.display()]] redraw *)
-    if !Globals.debug_display
+    if !Globals.debug_graphics
     then Logs.debug (fun m -> m "redraw");
     (*s: [[Frame.display()]] redraw, possibly update [[frm_y_offset]] *)
     let start = frame.frm_start in

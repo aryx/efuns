@@ -116,10 +116,6 @@ let main (caps : < caps; .. >) (argv : string array) : Exit.t =
           level := Some Logs.Debug;
           Globals.debug_graphics := true), 
     " for debugging";
-    "-debug_display", Arg.Unit (fun () ->
-          level := Some Logs.Debug;
-          Globals.debug_display := true), 
-    " for debugging";
     (*e: [[main()]] command line options *)
    ] 
    in

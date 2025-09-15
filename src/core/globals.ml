@@ -54,7 +54,6 @@ let debug = ref false
  * functors so simpler to use those extra globals to mimic Logs src
  *)
 let debug_graphics = ref false
-let debug_display = ref false
 (*e: constants [[Efuns.debug_xxx]] *)
 
 (*s: constant [[Efuns.load_path]] *)

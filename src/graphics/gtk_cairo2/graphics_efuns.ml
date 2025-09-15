@@ -1,6 +1,6 @@
 (* Yoann Padioleau
  * 
- * Copyright (C) 2015 Yoann Padioleau
+ * Copyright (C) 2015, 2025 Yoann Padioleau
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -104,7 +104,7 @@ let move_to cr pg col line =
  *)
 
 let clear_eol ?(color="DarkSlateGray") cr pg  col line len =
-  (*pr2 (spf "WX_xterm.clear_eol: %.f %.f %d, color = %s" col line len color);*)
+  (* "WX_xterm.clear_eol: %.f %.f %d, color = %s" col line len color);*)
   let (_, metrics) = pg in
   let w = metrics.font_width in
   let h = metrics.font_height in
@@ -138,7 +138,7 @@ let clear_eol ?(color="DarkSlateGray") cr pg  col line len =
 
 let draw_string edt cr pg   col line  str  offset len   attr =
   if !Globals.debug_graphics
-  then UCommon.pr2 (spf "WX_xterm.draw_string %.1f %.1f \"%s\" %d %d attr = %d" 
+  then Logs.debug (fun m -> m "WX_xterm.draw_string %.1f %.1f \"%s\" %d %d attr = %d" 
               col line str offset len attr);
   let bgcolor = 
     let idx = (attr lsr 8) land 255 in
@@ -192,7 +192,7 @@ let backend w da top_gtk_win =
     (* refresh drawing area *)
     update_display = (fun () -> 
       if !Globals.debug_graphics
-      then UCommon.pr2 ("backend.update_display()");
+      then Logs.debug (fun m -> m "backend.update_display()");
 
       Minimap.draw_minimap_when_idle w da;
       (* this will trigger the expose event *)
@@ -212,9 +212,7 @@ let backend w da top_gtk_win =
       in
       clipboard#set_text str
     );
-        
   }
-
 
 (*****************************************************************************)
 (* paint/configure/expose *)
@@ -334,7 +332,7 @@ let start_cursor_thread () =
   Thread.create (fun () ->
     while true do
       incr cnt;
-      (*UCommon.pr2 (spf "%d" !cnt);*)
+      (* Logs.debug (fun m -> m "%d" !cnt);*)
       Thread.delay 0.5;
       Globals.with_lock (fun () ->
         (Globals.editor()).top_windows |> List.iter (fun top_window ->
@@ -489,8 +487,7 @@ let init2 init_files =
   (*-------------------------------------------------------------------*)
 
   win#event#connect#key_press ~callback:(fun key ->
-    if !Globals.debug
-    then UCommon.pr2 (spf "key: %d, %s" 
+    Logs.debug (fun m -> m "key: %d, %s" 
                 (GdkEvent.Key.keyval key) (GdkEvent.Key.string key));
 
     let code_opt =
@@ -545,12 +542,12 @@ let init2 init_files =
   ) |> ignore;
   win#event#connect#focus_out ~callback:(fun _focus ->
     if !Globals.debug_graphics
-    then UCommon.pr2 "Focus Out";
+    then Logs.debug (fun m -> m "Focus Out");
     true;
   ) |> ignore;
   win#event#connect#focus_in ~callback:(fun _focus ->
     if !Globals.debug_graphics
-    then UCommon.pr2 "Focus In";
+    then Logs.debug (fun m -> m "Focus In");
     (* bugfix: reset modifiers when focus back in, otherwise
      * when you Alt-Tab to another window modifiers is set to mod1mask,
      * and when you go back it is like Alt was still on
@@ -570,7 +567,7 @@ let init2 init_files =
         let x = (x / metrics.font_width) |> int_of_float in
         let y = (y / metrics.font_height) |> int_of_float in
         if !Globals.debug_graphics
-        then UCommon.pr2 (spf "click on x = %d, y = %d " x y);
+        then Logs.debug (fun m -> m "click on x = %d, y = %d " x y);
         let evt = Xtypes.XTButtonPress(!modifiers, button, x, y) in
         Top_window.handler top_window evt
     | _ -> ()
@@ -593,9 +590,9 @@ let init2 init_files =
     | Exit.ExitCode _ -> quit ()
     | _ ->
         let s = Printexc.get_backtrace () in
-        UCommon.pr2 "GtkSignal.user_handler: exception!";
-        UCommon.pr2 s;
-        UCommon.pr2 "end backtrace";
+        Logs.err (fun m -> m "GtkSignal.user_handler: exception!");
+        Logs.err (fun m -> m "%s" s);
+        Logs.err (fun m -> m "end backtrace");
         (*
           let pb = "pb: " ^ Common.exn_to_s exn in
           G.dialog_text ~text:pb ~title:"pb";

@@ -8,7 +8,6 @@ val global_editor : Efuns.editor option ref
 val check : bool ref
 val debug : bool ref
 val debug_graphics : bool ref
-val debug_display : bool ref
 
 (* for dynamic loading of OCaml code? *)
 val path : string list ref
