@@ -103,8 +103,6 @@ let main (caps : < caps; .. >) (argv : string array) : Exit.t =
       "-I",Arg.String (fun s -> Globals.load_path =:= 
           (Utils.string_to_path s) @ !!Globals.load_path), "<path>: Load Path";
     (*x: [[main()]] command line options *)
-    "-v", Arg.Unit (fun () -> level := Some Logs.Info),
-     " verbose mode";
     "-verbose", Arg.Unit (fun () -> level := Some Logs.Info),
     " verbose mode";
     "-debug", Arg.Unit (fun () -> 
@@ -114,16 +112,14 @@ let main (caps : < caps; .. >) (argv : string array) : Exit.t =
     " debug mode";
     "-quiet", Arg.Unit (fun () -> level := None),
     " no logs";
-    "-debug_graphics", Arg.Set Globals.debug_graphics, 
+    "-debug_graphics", Arg.Unit (fun () ->
+          level := Some Logs.Debug;
+          Globals.debug_graphics := true), 
     " for debugging";
-    "-debug_display", Arg.Set Globals.debug_display, 
+    "-debug_display", Arg.Unit (fun () ->
+          level := Some Logs.Debug;
+          Globals.debug_display := true), 
     " for debugging";
-    "-debug_init", Arg.Set Globals.debug_init, 
-    " for debugging";
-
-    "-debugger", Arg.Unit (fun () ->
-      Globals.debug := true;
-    ), " for debugging";
     (*e: [[main()]] command line options *)
    ] 
    in

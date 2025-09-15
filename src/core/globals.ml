@@ -50,9 +50,11 @@ let check = ref false
 
 (*s: constants [[Efuns.debug_xxx]] *)
 let debug = ref false
+(* alt: use Logs src like in semgrep but ocaml-light does not support
+ * functors so simpler to use those extra globals to mimic Logs src
+ *)
 let debug_graphics = ref false
 let debug_display = ref false
-let debug_init = ref false
 (*e: constants [[Efuns.debug_xxx]] *)
 
 (*s: constant [[Efuns.load_path]] *)
