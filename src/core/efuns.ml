@@ -13,6 +13,16 @@
 (*e: copyright header2 *)
 (* Useful types for Efuns *)
 
+(* alt: frame_caps *)
+type frame_caps = <
+  (* mostly for System.open_process used by actions
+   * such as M-x shell, M-x compil
+   *)
+  Cap.fork;
+  Cap.exec;
+  Cap.chdir;
+>
+
 (*************************************************************************)
 (* Keymaps and actions *)
 (*************************************************************************)
@@ -218,6 +228,7 @@ and frame  =
     (*x: [[Efuns.frame]] other fields *)
     mutable frm_last_action : action;
     (*e: [[Efuns.frame]] other fields *)
+    caps: < frame_caps >;
   } 
 (*e: type [[Efuns.frame]] *)
 

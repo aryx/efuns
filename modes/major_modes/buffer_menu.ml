@@ -56,7 +56,7 @@ let mode =  Ebuffer.new_major_mode "Buffer List" None
 
 
 (* bounded to C-M-Tab in std_efunsrc.ml  *)
-let menu frame =
+let menu (frame : Frame.t) : unit =
 
   let buf = Ebuffer.default buflist_name in
   let text = buf.buf_text in
@@ -104,19 +104,19 @@ let menu frame =
   (*  Text.toggle_readonly text; *)
   Text.goto_line text buf.buf_point 2;
   Multi_buffers.set_previous_frame frame;
-  Frame.change_buffer frame.frm_window "*Buffer List*";
+  Frame.change_buffer frame.caps frame.frm_window "*Buffer List*";
 
   ()
 
 
-let key_return frame =
+let key_return (frame : Frame.t) : unit =
   let (buf, text, point) = Frame.buf_text_point frame in
   let arr = Var.get_local buf buflist_array in
   let line = Text.point_line text point in
   try 
     (* -2 because of header *)
     let buf_name = arr.(line - 2) in
-    Frame.change_buffer frame.frm_window buf_name
+    Frame.change_buffer frame.caps frame.frm_window buf_name
   with exn ->
     Message.message frame
       (Common.spf "not valid entry in buffer list, exn = %s" 

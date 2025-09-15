@@ -7,18 +7,23 @@ type t = Efuns.frame
  * kill all the previous frames that were in the window.
  *)
 val create : 
+  <Efuns.frame_caps; .. > ->
   Efuns.window -> string option -> Efuns.buffer -> t
 
 (* without_top means it does not make the frame the top active frame *)
 val create_without_top :
+  <Efuns.frame_caps; .. > ->
   Efuns.window -> string option -> Efuns.buffer -> t
 (* alias for create_without_top *)
 val create_inactive : 
+  <Efuns.frame_caps; .. > ->
   Efuns.window -> Efuns.buffer -> t
 
 (* load/save/kill *)
 
-val load_file : Efuns.window -> string (* filename *) -> t
+val load_file : 
+  <Efuns.frame_caps; .. > ->
+  Efuns.window -> string (* filename *) -> t
 
 (* ugly: you may want to use Multi_buffers.set_previous_frame just before.
  * note: you can't maintain a reference to the old frame as in
@@ -28,7 +33,10 @@ val load_file : Efuns.window -> string (* filename *) -> t
  * because the old frm reference is now dead. If you want to capture
  * back the frame you'll have to grab the (new) top active frame.
  *)
-val change_buffer : Efuns.window -> string -> unit
+val change_buffer : 
+  <Efuns.frame_caps; .. > ->
+  Efuns.window -> string -> unit
+
 val change_buffer_hooks: Efuns.action_name list Options.t
 
 val save_buffer : t -> unit

@@ -1,6 +1,6 @@
 (*s: CLI.mli *)
 (*s: type [[CLI.caps]] *)
-type caps = < Cap.stdout; Cap.stderr >
+type caps = < Cap.stdout; Cap.stderr; Efuns.frame_caps >
 (*e: type [[CLI.caps]] *)
 (*s: signature [[CLI.main]] *)
 (* entry point (can also raise Exit.ExitCode) *)

@@ -350,10 +350,10 @@ let _ =
   (*s: [[Config]] help menu setup *)
   Top_window.help_menu := [|
     "Key Bindings", (fun frame ->
-      Frame.change_buffer frame.frm_window "*bindings*"
+      Frame.change_buffer frame.caps frame.frm_window "*bindings*"
     );
     "About Efuns", (fun frame ->
-      Frame.change_buffer frame.frm_window "*help*"
+      Frame.change_buffer frame.caps frame.frm_window "*help*"
     );
     "Changes", (fun _frame ->
       (*
@@ -373,7 +373,7 @@ let _ =
             (name, Top_window.wrap top_window (fun top_window ->
                   let frame = top_window.top_active_frame in
                   let window = frame.frm_window in
-                  Frame.change_buffer window name
+                  Frame.change_buffer frame.caps window name
               )))
         (Array.of_list !buffers) in
 

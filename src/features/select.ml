@@ -69,7 +69,7 @@ let find_completion_frame _frame =
 let completions_buf_hook = Store.create_abstr "completions_buf_hook"
 
 (*s: function [[Select.display_completions]] *)
-let display_completions frame list =
+let display_completions (frame : Frame.t) (list : string list) : unit =
   if list =*= [] 
   then Message.message frame "No Completions"
   else
@@ -88,7 +88,7 @@ let display_completions frame list =
     Hooks.exec_hooks hooks buf;
 
     (try Frame.find_buffer_frame buf
-     with Not_found -> Frame.create_inactive (Multi_frames.cut_frame frame) buf
+     with Not_found -> Frame.create_inactive frame.caps (Multi_frames.cut_frame frame) buf
     ) |> ignore
 (*e: function [[Select.display_completions]] *)
 

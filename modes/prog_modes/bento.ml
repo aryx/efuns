@@ -122,7 +122,7 @@ let color_buffer buf =
 (* Entry point *)
 (*****************************************************************************)
 
-let bento_check frame =
+let bento_check (frame : Frame.t) : unit =
   let dir = Frame.current_dir frame in
   let rootdir_opt = find_bento_root_dir_opt dir in
   (match rootdir_opt with
@@ -152,7 +152,7 @@ let bento_check frame =
 
     color_buffer buf;
     Ebuffer.set_major_mode buf Compil.mode;
-    let comp_frame = Frame.create comp_window None buf in
+    let comp_frame = Frame.create frame.caps comp_window None buf in
     Frame.active frame; (* switch back to original frame *)
     let error_point = Text.new_point buf.buf_text in
     compilation_frame := Some (comp_frame, error_point, rootdir)

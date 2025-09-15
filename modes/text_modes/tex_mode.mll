@@ -434,7 +434,7 @@ let insert_return_in_tex frame =
   then Edit.insert_char frame '%'
 
   (* load in buffer \input{file} *)
-let load_input frame buf point =
+let load_input (frame : Frame.t) buf point =
   let str = 
     let text = buf.buf_text in
     let curs = Text.dup_point text point in
@@ -465,7 +465,7 @@ let load_input frame buf point =
     with
       e -> Text.remove_point text curs; raise e
   in
-  let _ = Frame.load_file frame.frm_window str in ()
+  let _ = Frame.load_file frame.caps frame.frm_window str in ()
 
 let load_input_file frame = 
   Multi_buffers.set_previous_frame frame;
@@ -475,11 +475,11 @@ let load_input_file frame =
 let input_regexp = Str.regexp "\\input{"
 let main_buffer = ref None
 let set_main_file frame = main_buffer := Some frame.frm_buffer
-let to_main_file frame =
+let to_main_file (frame : Frame.t) : unit =
   let buf_name = match !main_buffer with None -> raise Not_found |
       Some buf -> buf.buf_name in
   Multi_buffers.set_previous_frame frame;
-  Frame.change_buffer frame.frm_window buf_name
+  Frame.change_buffer frame.caps frame.frm_window buf_name
  
 let load_next_input_file frame =
   let buf = match !main_buffer with

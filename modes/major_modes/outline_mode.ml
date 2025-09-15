@@ -156,7 +156,7 @@ let outline_num frame =
     Ebuffer.find_buffer_opt bufname_orig |> Option.iter (fun buf_orig ->
       let text_orig = buf_orig.buf_text in
       Text.goto_point text_orig buf_orig.buf_point pt_orig;
-      Frame.change_buffer frame.frm_window bufname_orig;
+      Frame.change_buffer frame.caps frame.frm_window bufname_orig;
       (* after change_buffer the old frame should have been killed
        * and so the outline buffer should have no more references to it,
        * except if the user did a split window in which case
@@ -174,7 +174,7 @@ let outline_num frame =
     let bufname_outl = spf "*Outline-%d-%s*" lvl buf_orig.buf_name in
     let line_orig = Text.point_line buf_orig.buf_text frame.frm_point in
     let buf_outl = create_outline_buffer lvl line_orig bufname_outl buf_orig in
-    Frame.change_buffer frame.frm_window buf_outl.buf_name
+    Frame.change_buffer frame.caps frame.frm_window buf_outl.buf_name
   end
 [@@interactive]
 

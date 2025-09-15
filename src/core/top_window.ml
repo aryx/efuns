@@ -481,12 +481,12 @@ let help_menu = ref ([| |]: (string * action) array)
   
   
 (*s: function [[Top_window.create]] *)
-let create () =
+let create (caps : <frame_caps; ..>) =
   let edt = Globals.editor() in
   let buf = Ebuffer.default "*help*" in
   (* keep one line for the minibuffer, hence the -1 *)
   let window = Window.create_at_top  0 0 edt.edt_width (edt.edt_height - 1) in
-  let frame = Frame.create_without_top window None buf in
+  let frame = Frame.create_without_top caps window None buf in
   let top_window =
     { 
       top_width = edt.edt_width;

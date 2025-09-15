@@ -330,7 +330,7 @@ let builtin_cd frame s =
       (* alt: display_prompt buf *)
   | _ -> failwith (spf "%s is not a directory" newdir)
 
-let builtin_v frame s =
+let builtin_v (frame : Frame.t) (s : string) : unit =
   let (buf, text, _) = Frame.buf_text_point frame in
 
   let dir = pwd buf in
@@ -343,7 +343,7 @@ let builtin_v frame s =
   display_prompt frame;
 
   Multi_buffers.set_previous_frame frame;
-  Frame.load_file frame.frm_window file |> ignore
+  Frame.load_file frame.caps frame.frm_window file |> ignore
   
 
 (*****************************************************************************)
@@ -364,10 +364,10 @@ let kill_external frame =
       
   
 
-let run_cmd frame cmd =
+let run_cmd (frame : Frame.t) (cmd : string) =
   let (buf, text, _) = Frame.buf_text_point frame in
 
-  let (pid,inc,outc) = System.open_process (pwd buf) cmd in
+  let (pid,inc,outc) = System.open_process frame.caps (pwd buf) cmd in
   pid_external := Some pid;
   let edt = Globals.editor () in
 
@@ -496,12 +496,12 @@ let install buf =
 
 let mode =  Ebuffer.new_major_mode "Shell" (Some install)
 
-let eshell buf_name frame =
+let eshell (buf_name : string) (frame : Frame.t) : unit =
   let text = Text.create "" in
   let buf = Ebuffer.create buf_name None text (Keymap.create ()) in
   Ebuffer.set_major_mode buf mode;
   Multi_buffers.set_previous_frame frame;
-  Frame.change_buffer frame.frm_window buf.buf_name;
+  Frame.change_buffer frame.caps frame.frm_window buf.buf_name;
   let top_window = Window.top frame.frm_window in
   let frame = top_window.top_active_frame in
   display_prompt frame;
@@ -513,14 +513,14 @@ let shell =
 [@@interactive]
 
 (* use Top_window.keypressed *)
-let eshell_num frame =
+let eshell_num (frame : Frame.t) : unit =
   let char = Char.chr !Top_window.keypressed in
   let buf_name = spf "*Shell-%c*" char in
   match Ebuffer.find_buffer_opt buf_name with
   | None -> eshell buf_name frame
   | Some buf -> 
       Multi_buffers.set_previous_frame frame;
-      Frame.change_buffer frame.frm_window buf.buf_name
+      Frame.change_buffer frame.caps frame.frm_window buf.buf_name
 [@@interactive]
 
 (*****************************************************************************)

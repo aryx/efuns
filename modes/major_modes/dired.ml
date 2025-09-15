@@ -69,10 +69,10 @@ let fullname frame filename =
 (*e: function [[Dired.fullname]] *)
       
 (*s: function [[Dired.open_file]] *)
-let open_file frame =
+let open_file (frame : Frame.t) =
   let filename = fullname frame (select_file (get_file_line frame)) in
   let buf = Ebuffer.read filename (Keymap.create ()) in
-  let frame = Frame.create  frame.frm_window None buf in
+  let frame = Frame.create frame.caps frame.frm_window None buf in
   Frame.active frame
 [@@interactive "dired_open"]
 (*e: function [[Dired.open_file]] *)

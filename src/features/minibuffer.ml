@@ -72,7 +72,7 @@ let return action old_frame = fun mini_frame ->
 (*e: function [[Minibuffer.return]] *)
 
 (*s: function [[Minibuffer.create]] *)
-let create frame local_map request =
+let create (frame : Frame.t) (local_map : Keymap.t) (request : string) : Frame.t =
   let window = frame.frm_window in
   let top_window = Window.top window in
 
@@ -91,7 +91,7 @@ let create frame local_map request =
     Window.create true (*mini*) (TopWindow top_window) 
       qlen (top_window.top_height - 1) (top_window.top_width - qlen) 1 in
   let mini_frame = 
-    Frame.create mini_window (Some request)(*mini*) mini_buf in    
+    Frame.create frame.caps mini_window (Some request)(*mini*) mini_buf in    
 
   mini_frame.frm_cutline <- max_int;
   mini_frame.frm_has_status_line <- 0;

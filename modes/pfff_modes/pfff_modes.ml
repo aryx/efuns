@@ -174,7 +174,7 @@ let db_for_frame _frame =
 
 let def_hist = ref []
 
-let goto_def frame =
+let goto_def (frame : Frame.t) : unit =
   let (_db, root, entities, _idx) = db_for_frame frame in
 
   let xs = entities |> List.map (fun e -> 
@@ -192,7 +192,7 @@ let goto_def frame =
     (fun str -> 
       let e = Hashtbl.find h str in
       let file = Filename.concat root e.Db.e_file in
-      let new_frame = Frame.load_file frame.frm_window file in
+      let new_frame = Frame.load_file frame.caps frame.frm_window file in
       let pt = new_frame.frm_point in
       let text = new_frame.frm_buffer.buf_text in
       let re_str = (spf "\\b%s\\b" e.Db.e_name) in

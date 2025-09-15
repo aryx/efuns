@@ -187,7 +187,7 @@ let show_doc_at_cursor frm =
     Message.message frm str
   | _ -> failwith (spf "wrong JSON output for doc_at_cursor: %s" str)
 
-let goto_def_at_cursor look_for frm =
+let goto_def_at_cursor (look_for : string) (frm : Frame.t) : unit =
   let command = spf "locate -position %s -look-for %s" 
     (str_of_current_position frm) look_for in
   let (j, str) = execute_command frm command in
@@ -200,7 +200,7 @@ let goto_def_at_cursor look_for frm =
     (* for C-M-l to work *)
     Multi_buffers.set_previous_frame frm;
 
-    let frm = Frame.load_file frm.frm_window file in
+    let frm = Frame.load_file frm.caps frm.frm_window file in
     let (_buf, text, point) = Frame.buf_text_point frm in
     Text.goto_line text point (line - 1);
     Text.fmove text point (col);
@@ -311,7 +311,7 @@ let goto_def frm =
               (* for C-M-l to work *)
               Multi_buffers.set_previous_frame frm;
 
-              let frm = Frame.load_file frm.frm_window file in
+              let frm = Frame.load_file frm.caps frm.frm_window file in
               let (_buf, text, point) = Frame.buf_text_point frm in
 
               Text.goto_line text point (line - 1);

@@ -16,7 +16,7 @@ local semgrep_rules = [
       Use `FS.with_open_in()` or `UChan.with_open_in` instead.
     |||,
     paths: {
-      exclude: ['common2.ml'],
+      exclude: [],
     },
   },
 ];
@@ -31,15 +31,15 @@ local cap_rules = [
         [
         #TODO: fix
 	## Cap.chdir
-	# 'Sys.chdir',
-	# 'Unix.chdir',
+	'Sys.chdir',
+	'Unix.chdir',
         ## Cap.exec
-	# 'Unix.execve',
-	# 'Unix.execv',
+	'Unix.execve',
+	'Unix.execv',
 	## Cap.fork
-	# 'Unix.fork',
+	'Unix.fork',
 	## Cap.wait
-	# 'Unix.wait',
+	'Unix.wait',
 	## Cap.env
 	# 'Unix.environment',
 	# 'Sys.getenv',
@@ -73,7 +73,7 @@ local cap_rules = [
     |||,
     paths: {
       exclude: [ #TODO: fix
-	'main.ml', 'system.ml', 'graphics_efuns.ml',
+	'graphics_efuns.ml',
 	'todo/'
       ],
     },

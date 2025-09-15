@@ -14,7 +14,11 @@
 open Options
 open Efuns (* for fields for ocaml-light *)
 
-type caps = < Cap.stdout; Cap.stderr >
+type caps = < 
+    Cap.stdout; 
+    Cap.stderr;
+    frame_caps;
+>
 
 (*s: constant [[Efuns.init_files]] *)
 let initial_files = ref []
@@ -194,7 +198,7 @@ let main (caps : < caps; .. >) (argv : string array) : Exit.t =
   (*e: [[main()]] misc initializations *)
 
   (*s: [[main()]] run the UI *)
-  Graphics_efuns.init !initial_files;
+  Graphics_efuns.init caps !initial_files;
   (*e: [[main()]] run the UI *)
   Exit.OK
 (*e: function [[Main.main]] *)

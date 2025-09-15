@@ -4,6 +4,8 @@ open Eq.Operators
 open Efuns
 open Unix
 
+type caps = < Cap.fork; Cap.exec; Cap.chdir >
+
 type end_action = (Efuns.buffer -> int -> unit)
 
 (* Takes pwd in parameter. The alternative is to do
@@ -11,12 +13,12 @@ type end_action = (Efuns.buffer -> int -> unit)
  *)
 
 (*s: function [[System.open_process]] *)
-let open_process pwd cmd =
+let open_process (caps : < caps; .. >) (pwd : string) (cmd : string) : Proc.pid * in_channel * out_channel =
   let (in_read, in_write) = pipe() in
   let (out_read, out_write) = pipe() in
   let inchan = in_channel_of_descr in_read in
   let outchan = out_channel_of_descr out_write in
-  match fork() with
+  match CapUnix.fork caps () with
   | 0 ->
       if out_read <> Unix.stdin then begin
         dup2 out_read Unix.stdin; 
@@ -31,9 +33,10 @@ let open_process pwd cmd =
       end;
       List.iter close [in_read;out_write];
       (* I prefer to do it here than in the caller *)
-      Sys.chdir pwd;
-      execv "/bin/sh" [| "/bin/sh"; "-c"; cmd |];
+      CapSys.chdir caps pwd;
+      CapUnix.execv caps "/bin/sh" [| "/bin/sh"; "-c"; cmd |];
       (* never here! *)
+      (* nosemgrep: do-not-use-exit *)
       exit 127 (* for ocaml light *)
   | pid -> 
       Unix.close out_read;
@@ -42,8 +45,8 @@ let open_process pwd cmd =
 (*e: function [[System.open_process]] *)
 
 (*s: function [[System.system]] *)
-let system pwd buf_name cmd end_action =
-  let (pid,inc,outc) = open_process pwd cmd in
+let system (caps : < caps; .. >) (pwd : string) (buf_name : string) (cmd : string) end_action =
+  let (pid,inc,outc) = open_process caps pwd cmd in
   let text = Text.create "" in
   let curseur = Text.new_point text in
   let buf = Ebuffer.create buf_name None text (Keymap.create ()) in
@@ -116,14 +119,15 @@ let system pwd buf_name cmd end_action =
 (*e: function [[System.system]] *)
 
 (*s: function [[System.start_command]] *)
-let start_command pwd buf_name window cmd end_action_opt =
+let start_command (caps : < caps; .. >) (pwd : string) (buf_name : string)
+  window cmd end_action_opt =
   let end_action =
     match end_action_opt with
     | None  -> (fun _buf _status -> ())
     | Some f -> f
   in
-  let buf = system pwd buf_name cmd end_action in
-  let frame = Frame.create window None buf in
+  let buf = system caps pwd buf_name cmd end_action in
+  let frame = Frame.create caps window None buf in
   frame
 (*e: function [[System.start_command]] *)
 
@@ -131,10 +135,10 @@ let start_command pwd buf_name window cmd end_action_opt =
 let shell_hist = ref []
 (*e: constant [[System.shell_hist]] *)
 (*s: function [[System.shell_command]] *)
-let shell_command frame =
-  Select.select_string frame "Run command:" shell_hist "" (fun cmd -> 
+let shell_command (frm : Frame.t) =
+  Select.select_string frm "Run command:" shell_hist "" (fun cmd -> 
     let pwd = (Globals.editor()).edt_dirname in
-    start_command pwd "*Command*" (Multi_frames.cut_frame frame) cmd None |> ignore)
+    start_command frm.caps pwd "*Command*" (Multi_frames.cut_frame frm) cmd None |> ignore)
 [@@interactive]
 (*e: function [[System.shell_command]] *)
   

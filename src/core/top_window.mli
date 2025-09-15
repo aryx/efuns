@@ -3,7 +3,7 @@ type t = Efuns.top_window
 
 (* creation *)
 
-val create : unit -> t
+val create : < Efuns.frame_caps; ..> -> t
 
 (* display *)
 

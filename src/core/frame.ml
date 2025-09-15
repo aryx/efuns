@@ -192,7 +192,7 @@ let dummy_mode = Ebuffer.new_major_mode "" None
 (*e: constant [[Frame.dummy_mode]] *)
   
 (*s: function [[Frame.create_without_top]] *)
-let create_without_top window mini buf =
+let create_without_top (caps : < frame_caps; ..>) (window : Window.t) (mini : string option) (buf : Ebuffer.t) : t =
   let text = buf.buf_text in
 
   let frm_start = Text.dup_point text buf.buf_start in
@@ -258,6 +258,7 @@ let create_without_top window mini buf =
       frm_last_action = Keymap.dummy_action;
 
       frm_killed = false;
+      caps = (caps :> < frame_caps >);
     } 
   in
   (*s: [[Frame.create_without_top()]] adjust status of frame *)
@@ -280,8 +281,8 @@ let active frame =
 (*e: function [[Frame.active]] *)
       
 (*s: function [[Frame.create]] *)
-let create window mini buf =
-  let frame = create_without_top window mini buf in
+let create (caps : < frame_caps; .. >) (window : Window.t) (mini : string option) (buf : Ebuffer.t) : t =
+  let frame = create_without_top caps window mini buf in
   (*s: [[Frame.create()]] adjust active frame *)
   let top_window = Window.top window in
   top_window.top_active_frame <- frame;
@@ -290,8 +291,8 @@ let create window mini buf =
 (*e: function [[Frame.create]] *)
 
 (*s: function [[Frame.create_inactive]] *)
-let create_inactive window buf =
-  create_without_top window None buf
+let create_inactive (caps : < frame_caps; ..>) window buf =
+  create_without_top caps window None buf
 (*e: function [[Frame.create_inactive]] *)
 
 (*****************************************************************************)
@@ -748,33 +749,33 @@ let change_buffer_hooks = define_option ["change_buffer_hooks"] ""
 (*e: constant [[Frame.change_buffer_hooks]] *)
 
 (*s: function [[Frame.load_file]] *)
-let load_file window filename =
+let load_file (caps : < frame_caps; ..>) (window : Window.t) (filename : string) : t =
   let buf = Ebuffer.read filename (Keymap.create ()) in
-  let frame = create window None buf in
+  let frame = create caps window None buf in
   Hooks.exec_named_hooks !!change_buffer_hooks frame;
   status_name frame buf.buf_name;
   frame
 (*e: function [[Frame.load_file]] *)
 
 (*s: function [[Frame.change_buffer]] *)
-let change_buffer window name = 
+let change_buffer (caps : < frame_caps ; ..>) (window : Window.t) (name : string) : unit = 
   try
     let buf = Hashtbl.find (Globals.editor()).edt_buffers name in
-    let frame = create window None buf in
+    let frame = create caps window None buf in
     Hooks.exec_named_hooks !!change_buffer_hooks frame;
     status_name frame buf.buf_name
   with Not_found -> ()
 (*e: function [[Frame.change_buffer]] *)
 
 (*s: function [[Frame.save_buffer]] *)
-let save_buffer frame =
+let save_buffer (frame : t) : unit =
   Ebuffer.save frame.frm_buffer
 (*e: function [[Frame.save_buffer]] *)
 
 (*s: function [[Frame.bindings_help]] *)
-let help_bindings frame =
+let help_bindings (frame : t) : unit =
   let window = frame.frm_window in
-  change_buffer window "*bindings*"
+  change_buffer frame.caps window "*bindings*"
 [@@interactive]
 (*e: function [[Frame.bindings_help]] *)
 

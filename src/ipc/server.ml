@@ -38,7 +38,7 @@ type command =
 
  
 (*s: function [[Server.read_command]] *)
-let read_command fd =
+let read_command (caps : < frame_caps; .. >) (fd : Unix.file_descr) : unit =
   let inc = in_channel_of_descr fd in
   try
     let cmd = input_value inc in
@@ -50,7 +50,7 @@ let read_command fd =
             | [] -> failwith "no top windows"
             | x::_ -> x.top_active_frame.frm_window
         in
-        let frame = Frame.load_file window name in
+        let frame = Frame.load_file caps window name in
         let (_, text, point) = Frame.buf_text_point frame in
         if pos <> 0 
         then Text.set_position text point pos;
@@ -73,15 +73,15 @@ let read_command fd =
 (*e: function [[Server.read_command]] *)
   
 (*s: function [[Server.module_accept]] *)
-let module_accept s = 
+let module_accept (caps : < frame_caps; ..>) s = 
   let fd,_ = accept s in
   Unix.set_close_on_exec fd;
-  Concur.add_reader fd (fun _ -> read_command fd)
+  Concur.add_reader fd (fun _ -> read_command caps fd)
 (*e: function [[Server.module_accept]] *)
   
 (*s: function [[Server.start]] *)
 (* old: this used to take an optional frame but was useless I think *)
-let start () =
+let start (caps : < frame_caps; ..>) =
   if not !started then
   Utils.catchexn "Efuns server:" (fun _ ->
       let s = Unix.socket PF_UNIX SOCK_STREAM 0 in
@@ -100,15 +100,15 @@ let start () =
                    socket_name (Thread.id (Thread.self ())));
         Concur.add_reader s (fun _ -> 
           started := true;
-          module_accept s
+          module_accept caps s
         );
        Hooks.add_hook Misc_features.exit_hooks (fun () -> Unix.unlink socket_name);
       end
   )  
 (*e: function [[Server.start]] *)
 
-let server_start _frame =
-  start ()
+let server_start (frame : Frame.t) : unit =
+  start frame.caps
 [@@interactive]
   
 (*e: ipc/server.ml *)

@@ -105,7 +105,7 @@ let find_error_of_buf buf =
 (*****************************************************************************)
   
 (*s: function [[Compil.next_error]] *)
-let next_error top_frame =
+let next_error (top_frame : Frame.t) : unit =
   match !compilation_frame with
   | None -> Message.message top_frame "No compilation started"
   | Some (frame, error_point, cdir) ->      
@@ -132,12 +132,12 @@ let next_error top_frame =
             try Frame.find_buffer_frame buf 
             with Not_found ->
                 if Eq.phys_equal frame top_frame then
-                  let new_window = Top_window.create ()
+                  let new_window = Top_window.create top_frame.caps
                       (*Window.display top_window*) 
                   in
-                  Frame.create new_window.window None buf
+                  Frame.create frame.caps new_window.window None buf
                 else
-                  Frame.create top_frame.frm_window None buf
+                  Frame.create frame.caps top_frame.frm_window None buf
           in
           let text = buf.buf_text in
           let point = frame.frm_point in
@@ -202,7 +202,7 @@ let mode = Ebuffer.new_major_mode "Compilation"  None
 let make_hist = ref [!!make_command]
 (*e: constant [[Compil.make_hist]] *)
 (*s: function [[Compil.compile]] *)
-let compile frame =
+let compile (frame : Frame.t) =
   let default = List.hd !make_hist in
   Select.select_string frame 
     ("Compile command: (default :"^ default^") " )
@@ -246,7 +246,7 @@ let compile frame =
       in
       (* this makes also comp_frame the active frame *)
       let comp_frame = 
-        System.start_command cdir "*Compile*" comp_window cmd 
+        System.start_command frame.caps cdir "*Compile*" comp_window cmd 
         (Some (fun buf _status -> color_buffer buf))
       in
       (* switch back cursor to original frame *)
@@ -311,7 +311,7 @@ let grep frame =
             then Multi_frames.cut_frame frame
             else new_frame.frm_window 
       in
-      let comp_frame = System.start_command cdir "*Grep*" comp_window cmd 
+      let comp_frame = System.start_command frame.caps cdir "*Grep*" comp_window cmd 
          (Some (fun buf _status -> color_buffer buf))
       in
       Frame.active frame; 

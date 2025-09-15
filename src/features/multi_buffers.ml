@@ -42,10 +42,10 @@ let get_previous_frame () =
 
 (*s: function [[Multi_buffers.switch_to_other_buffer]] *)
 (* C-M-l *)
-let switch_to_other_buffer frame =
+let switch_to_other_buffer (frame : Frame.t) : unit =
   let default = get_previous_frame () in
   set_previous_frame frame;
-  Frame.change_buffer frame.frm_window default
+  Frame.change_buffer frame.caps frame.frm_window default
 (*e: function [[Multi_buffers.switch_to_other_buffer]] *)
 
 
@@ -83,7 +83,7 @@ let next_buffer buf =
 (*e: function [[Simple.next_buffer]] *)
 
 (*s: function [[Simple.kill_buffer]] *)
-let kill_buffer frame =
+let kill_buffer (frame : Frame.t) : unit =
   let window = frame.frm_window in
   let buf = frame.frm_buffer in
 
@@ -99,7 +99,7 @@ let kill_buffer frame =
     | _ -> next_buffer buf 
   in
 
-  let _new_frame = Frame.create window None new_buf in
+  let _new_frame = Frame.create frame.caps window None new_buf in
   if buf.buf_shared =|= 0 
   then Ebuffer.kill buf
 [@@interactive]
@@ -115,18 +115,18 @@ let down_buffer frame =
 (*e: function [[Complex.down_buffer]] *)
 
 (*s: function [[Complex.up_buffer]] *)
-let up_buffer frame =
+let up_buffer (frame : Frame.t) : unit =
   if !up_buffer = "" 
   then raise Not_found;
   set_previous_frame frame;
-  Frame.change_buffer frame.frm_window !up_buffer
+  Frame.change_buffer frame.caps frame.frm_window !up_buffer
 [@@interactive]
 (*e: function [[Complex.up_buffer]] *)
   
 (*s: function [[Complex.left_buffer]] *)
-let left_buffer frame =
+let left_buffer (frame : Frame.t) : unit =
   set_previous_frame frame;
-  Frame.change_buffer frame.frm_window 
+  Frame.change_buffer frame.caps frame.frm_window 
     (match !prev_buffers with
     | name :: buffer :: tail ->
         prev_buffers := tail @ [name]; 
@@ -137,9 +137,9 @@ let left_buffer frame =
 (*e: function [[Complex.left_buffer]] *)
 
 (*s: function [[Complex.right_buffer]] *)
-let right_buffer frame =
+let right_buffer (frame : Frame.t) : unit =
   set_previous_frame frame;
-  Frame.change_buffer frame.frm_window 
+  Frame.change_buffer frame.caps frame.frm_window 
     (match !prev_buffers with
     | name :: tail ->
         (match List.rev tail with
@@ -154,11 +154,11 @@ let right_buffer frame =
 (*e: function [[Complex.right_buffer]] *)
 
 (*s: function [[Complex.change_buffer]] *)
-let change_buffer frame =
+let change_buffer (frame : Frame.t) : unit =
   let default = get_previous_frame () in
   set_previous_frame frame;
   select_buffer frame " Switch to buffer: " default (fun str ->
-    Frame.change_buffer frame.frm_window str
+    Frame.change_buffer frame.caps frame.frm_window str
   )
 [@@interactive]
 (*e: function [[Complex.change_buffer]] *)
@@ -214,10 +214,10 @@ let save_some_buffers frame =
 (*e: function [[Complex.save_some_buffers]] *)
 
 (*s: function [[Complex.load_buffer]] *)
-let load_buffer frame = 
+let load_buffer (frame : Frame.t) : unit = 
   set_previous_frame frame;
   Select.select_file_from_pwd frame "Find file: " (fun str -> 
-    Frame.load_file frame.frm_window str |> ignore
+    Frame.load_file frame.caps frame.frm_window str |> ignore
   )
 [@@interactive]
 (*e: function [[Complex.load_buffer]] *)

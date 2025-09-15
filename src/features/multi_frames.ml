@@ -44,12 +44,12 @@ let remove_frame frame =
 (*s: function [[Multi_frames.v_cut_frame]] *)
 let vertical_cut_frame frame =
   if frame.frm_mini_buffer = None 
-  then Frame.create (cut_frame frame) None frame.frm_buffer |> ignore
+  then Frame.create frame.caps (cut_frame frame) None frame.frm_buffer |> ignore
 [@@interactive]
 (*e: function [[Multi_frames.v_cut_frame]] *)
 
 (*s: function [[Multi_frames.h_cut_frame]] *)
-let horizontal_cut_frame frame =
+let horizontal_cut_frame (frame : Frame.t) =
   if frame.frm_mini_buffer = None 
   then
     let window = frame.frm_window in
@@ -63,7 +63,7 @@ let horizontal_cut_frame frame =
                  (window.win_width - wi) window.win_height in
       window.win_down <- HComb (w1,w2);
       Frame.install w1 frame;
-      Frame.create w2 None frame.frm_buffer |> ignore
+      Frame.create frame.caps w2 None frame.frm_buffer |> ignore
     end
 [@@interactive]
 (*e: function [[Multi_frames.h_cut_frame]] *)

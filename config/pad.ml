@@ -7,8 +7,8 @@ open Efuns
  *)
 
 (* special functions *)
-let gtd frm = 
-  Frame.load_file frm.frm_window "/home/pad/GTD/GTD-daily.org" |> ignore
+let gtd (frm : Frame.t) : unit = 
+  Frame.load_file frm.caps frm.frm_window "/home/pad/GTD/GTD-daily.org" |> ignore
 [@@interactive]
 
 let _ =
@@ -78,5 +78,8 @@ let _ =
 
     (* Hooks *)
 
-    Server.start ();
+    (* old: but requires caps now so simpler to move in CLI.ml
+       or start interactively via M-x server_start
+       Server.start (); 
+     *)
   )

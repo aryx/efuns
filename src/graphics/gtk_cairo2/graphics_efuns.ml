@@ -353,7 +353,7 @@ let start_cursor_thread () =
 (* for the special key, Control, Meta, etc *)
 let modifiers = ref 0
 
-let init2 init_files =
+let init2 (caps : < frame_caps ; .. >) init_files =
 
   (*-------------------------------------------------------------------*)
   (* Graphics initialisation *)
@@ -391,12 +391,12 @@ let init2 init_files =
 
   (* edt.loc_height <- 45; *)
   (* will boostrap and use a newly created *help* buffer *)
-  let top_window = Top_window.create () in
+  let top_window = Top_window.create caps in
   (* the *bindings* buffer *)
   Interactive.create_bindings_help_buffer () |> ignore;
   (* open the first buffers *)
   init_files |> List.iter (fun name ->
-    Frame.load_file top_window.window name |> ignore
+    Frame.load_file caps top_window.window name |> ignore
   );
 
   (*-------------------------------------------------------------------*)
@@ -607,7 +607,7 @@ let init2 init_files =
 (*****************************************************************************)
 (*****************************************************************************)
 
-let init a =
+let init (caps : < frame_caps; ..>) xs =
   if !Globals.check
   then Test_libs.test_cairo ()
-  else init2 a
+  else init2 caps xs
