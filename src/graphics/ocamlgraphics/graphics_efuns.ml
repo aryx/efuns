@@ -52,7 +52,7 @@ let backend = { clear_eol = clear_eol;
 (* The main UI *)
 (*****************************************************************************)
 
-let init init_files =
+let init caps init_files =
   Graphics.open_graph (spf " ");
   Graphics.set_window_title "efuns";
 
@@ -63,7 +63,7 @@ let init init_files =
 
   (* open the first buffers *)
   init_files |> List.iter (fun name ->
-    let _ = Frame.load_file top_window.window name in ()
+    let _ = Frame.load_file caps top_window.window name in ()
   );
   Top_window.update_display ();
 
