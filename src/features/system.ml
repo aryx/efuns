@@ -3,7 +3,7 @@ open Common
 open Eq.Operators
 open Efuns
 
-type caps = < Cap.fork; Cap.exec; Cap.wait; Cap.chdir >
+type caps = < Cap.fork; Cap.exec; Cap.wait; Cap.kill; Cap.chdir >
 
 type end_action = (Efuns.buffer -> int -> unit)
 
@@ -108,7 +108,7 @@ let system (caps : < caps; .. >) (pwd : string) (buf_name : string) (cmd : strin
   (*s: [[System.system()]] set finalizer, to intercept killed frame *)
   buf.buf_finalizers <- (fun () -> 
     (try 
-       Unix.kill pid Sys.sigkill;
+       CapUnix.kill caps pid Sys.sigkill;
        CapUnix.waitpid caps [] pid |> ignore;
      with _ -> ()
     );

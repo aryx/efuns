@@ -3,7 +3,7 @@
 val shell_command : Efuns.action
 
 (* =~ Efuns.frame_caps *)
-type caps = < Cap.fork; Cap.exec; Cap.wait; Cap.chdir >
+type caps = < Cap.fork; Cap.exec; Cap.wait; Cap.kill; Cap.chdir >
 
 type end_action = (Efuns.buffer -> int -> unit)
 

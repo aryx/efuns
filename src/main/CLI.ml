@@ -19,6 +19,7 @@ type caps = <
     Cap.stderr;
     (* = Efuns.frame_caps *)
     Cap.forkew;
+    Cap.kill;
     Cap.chdir;
     Cap.env;
 >

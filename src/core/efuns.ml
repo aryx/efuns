@@ -19,6 +19,10 @@ type frame_caps = <
    * such as M-x shell, M-x compil and in dired
    *)
   Cap.forkew;
+  (* also for System.open_process as we need to kill the opened
+   * process in the buffer finalizer when it is killed by the user
+   *)
+  Cap.kill;
   (* used also in System.open_process *)
   Cap.chdir;
   (* for USER in M-x server_start, for HOME in compil.ml

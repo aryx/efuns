@@ -352,13 +352,13 @@ let builtin_v (frame : Frame.t) (s : string) : unit =
 
 let pid_external = ref None
 
-let kill_external frame =
+let kill_external (frame : Frame.t) =
   let (_, text, _) = Frame.buf_text_point frame in
   match !pid_external with
   | None ->  
       failwith "No external process to kill"
   | Some pid ->
-      Unix.kill pid 9;
+      CapUnix.kill frame.caps pid Sys.sigkill;
       Text.insert_at_end text (spf "Killed %d, signal 9" pid);
       display_prompt frame
       
