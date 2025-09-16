@@ -17,7 +17,10 @@ open Efuns (* for fields for ocaml-light *)
 type caps = < 
     Cap.stdout; 
     Cap.stderr;
-    frame_caps;
+    (* = Efuns.frame_caps *)
+    Cap.forkew;
+    Cap.chdir;
+    Cap.env;
 >
 
 (*s: constant [[Efuns.init_files]] *)

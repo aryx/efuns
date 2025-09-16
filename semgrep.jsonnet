@@ -38,13 +38,15 @@ local cap_rules = [
         ## Cap.exec
 	'Unix.execve',
 	'Unix.execv',
+	'Unix.execvp',
 	## Cap.fork
 	'Unix.fork',
 	## Cap.wait
 	'Unix.wait',
 	'Unix.waitpid',
 	## Cap.env
-	#'Sys.getenv',
+	'Sys.getenv',
+	'Sys.getenv_opt',
 	'Unix.environment',
         #TODO: fix
 	## Cap.open_in

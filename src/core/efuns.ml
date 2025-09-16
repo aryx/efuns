@@ -19,7 +19,12 @@ type frame_caps = <
    * such as M-x shell, M-x compil and in dired
    *)
   Cap.forkew;
+  (* used also in System.open_process *)
   Cap.chdir;
+  (* for USER in M-x server_start, for HOME in compil.ml
+   * and more 
+   *)
+  Cap.env;
 >
 
 (*************************************************************************)

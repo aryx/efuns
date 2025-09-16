@@ -18,13 +18,13 @@ open Efuns
 (*let efuns_property = "_EFUNS_SERVER"  *)
 (*e: constant [[Server.efuns_property]] *)
 (*s: constant [[Server.user]] *)
-let user = 
-  try Sys.getenv "USER" 
+let user (caps : < Cap.env; .. >) = 
+  try CapSys.getenv caps "USER" 
   with _ -> "noname"
 (*e: constant [[Server.user]] *)
 (*s: constant [[Server.socket_name]] *)
-let socket_name = 
-  (Printf.sprintf "/tmp/efuns-server.%s.%s:0" user !Globals.displayname)
+let socket_name (caps : < Cap.env; .. >) = 
+  (Printf.sprintf "/tmp/efuns-server.%s.%s:0" (user caps) !Globals.displayname)
 (*e: constant [[Server.socket_name]] *)
 
 (*s: constant [[Server.started]] *)
@@ -85,24 +85,24 @@ let start (caps : < frame_caps; ..>) =
   if not !started then
   Utils.catchexn "Efuns server:" (fun _ ->
       let s = Unix.socket PF_UNIX SOCK_STREAM 0 in
-
-      if Sys.file_exists socket_name 
+      let name = socket_name caps in
+      if Sys.file_exists name
       then begin 
         Logs.warn (fun m -> m "socket file %s already exists; cancelling the server"
-              socket_name);
+              name);
         (* alt: unlink here, so if you run multiple efuns, the last one wins*)
       end else begin
-        Unix.bind s (ADDR_UNIX socket_name);
+        Unix.bind s (ADDR_UNIX name);
         Unix.listen s 254;
         Unix.set_nonblock s;
         Unix.set_close_on_exec s;
         Logs.info (fun m -> m "starting server listening on %s (thread %d)"
-                   socket_name (Thread.id (Thread.self ())));
+                   name (Thread.id (Thread.self ())));
         Concur.add_reader s (fun _ -> 
           started := true;
           module_accept caps s
         );
-       Hooks.add_hook Misc_features.exit_hooks (fun () -> Unix.unlink socket_name);
+       Hooks.add_hook Misc_features.exit_hooks (fun () -> Unix.unlink name);
       end
   )  
 (*e: function [[Server.start]] *)

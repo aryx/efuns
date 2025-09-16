@@ -119,7 +119,7 @@ let system (caps : < caps; .. >) (pwd : string) (buf_name : string) (cmd : strin
 (*e: function [[System.system]] *)
 
 (*s: function [[System.start_command]] *)
-let start_command (caps : < caps; .. >) (pwd : string) (buf_name : string)
+let start_command (caps : < caps; Cap.env; .. >) (pwd : string) (buf_name : string)
   window cmd end_action_opt =
   let end_action =
     match end_action_opt with
