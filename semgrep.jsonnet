@@ -65,7 +65,7 @@ local cap_rules = [
        for dangerous functions.
     |||,
     paths: {
-      exclude: ['todo/'],
+      exclude: ['todo/', 'efuns_client.ml'],
     },
   },
   {
@@ -97,8 +97,7 @@ local cap_rules = [
     paths: {
       exclude: [ #TODO: fix
 	'log.ml', 'options.ml',
-         'efuns_client.ml',
-	'todo/'
+        'todo/', 'efuns_client.ml',
       ],
     },
   },

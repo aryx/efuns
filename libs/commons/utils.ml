@@ -213,19 +213,14 @@ let hash_add_assoc hash list =
 
             (* Simplify a filename before printing it *)
 
-let user =
-  try
-    Sys.getenv "USER"
-  with
-    Not_found -> ""
-
 let homedir =
   try
+    (* nosemgrep: use-caps *)
     Sys.getenv "HOME"
   with
     Not_found -> ""
 
-let known_dirs = ref [ homedir,"~"]
+let known_dirs = ref [ homedir, "~"]
   
 let check_prefix filename prefix =
   let len = String.length prefix in

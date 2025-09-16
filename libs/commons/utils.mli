@@ -33,7 +33,6 @@ val string_to_path : string -> string list
 val path_to_string : string list -> string
 val hash_add_assoc : ('a, 'b) Hashtbl.t -> ('a * 'b) list -> unit
 
-val user : string
 val homedir : string
 val known_dirs : (string * string) list ref
 

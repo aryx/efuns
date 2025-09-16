@@ -74,11 +74,11 @@ let find_error_gen re text error_point =
 (*e: function [[Compil.c_find_error]] *)
 
 (* apparently the Core Filename module has an expand function doing that *)
-let expand_tilde s =
+let expand_tilde (caps : < Cap.env ; ..>) (s : string) : string =
   if s =~ "^~/\\(.*\\)$"
   then
     let rest = Regexp_.matched1 s in
-    Filename.concat (Sys.getenv "HOME") rest
+    Filename.concat (CapSys.getenv caps "HOME") rest
   else s
 
 (*****************************************************************************)
@@ -215,7 +215,7 @@ let compile (frame : Frame.t) =
         match () with
         | _ when cmd =~ "^cd +\\([^;]+\\);\\(.*\\)$" ->
             let (dir, cmd) = Regexp_.matched2 cmd in
-            let finaldir = expand_tilde dir in
+            let finaldir = expand_tilde frame.caps dir in
             finaldir, cmd
         | _ when !!compile_find_makefile && cmd =~ "^make" ->
           (* try to find a Makefile in the directory *)
