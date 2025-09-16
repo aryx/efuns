@@ -14,6 +14,14 @@
 open Options
 open Efuns (* for fields for ocaml-light *)
 
+(* Need:
+ * - stdout/stderr: just for a few calls to Console for --help display
+ * - fork/exec/wait: for M-x shell, M-x compil, etc.
+ * - kill: because need to kill process attached to buffer when
+ *   killing the buffer
+ * - chdir: for M-x shell too and System.open_process
+ * - env: for $USER, $HOME
+ *)
 type caps = < 
     Cap.stdout; 
     Cap.stderr;

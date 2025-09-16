@@ -102,8 +102,6 @@ module J = JSON
 (* I assume this program is in your PATH *)
 let external_program = "ocamlmerlin"
 
-let debug = ref true
-
 (*****************************************************************************)
 (* Helpers *)
 (*****************************************************************************)
@@ -132,8 +130,7 @@ let execute_command frm command =
   close_out pipe_write;
   let str = input_line pipe_read in
   let _status = Unix.close_process (pipe_read, pipe_write) in
-  if !debug
-  then UCommon.pr2 str;
+  Logs.debug (fun m -> m "merlin: %s" str);
   let j = JSON.json_of_string str in
   (match j with
   | J.Object (

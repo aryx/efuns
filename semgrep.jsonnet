@@ -29,36 +29,40 @@ local cap_rules = [
     id: 'use-caps',
     match: { any:
         [
-	## Cap.chdir
-	'Sys.chdir',
-	'Unix.chdir',
+        ## Cap.stdout
+        'UCommon.pr',
+        ## Cap.stderr
+        'UCommon.pr2',
+        ## Cap.chdir
+        'Sys.chdir',
+        'Unix.chdir',
         ## Cap.forkew
         'Sys.command',
-	'Unix.system',
+        'Unix.system',
         ## Cap.exec
-	'Unix.execve',
-	'Unix.execv',
-	'Unix.execvp',
-	## Cap.fork
-	'Unix.fork',
-	## Cap.wait
-	'Unix.wait',
-	'Unix.waitpid',
-	## Cap.kill
-	'Unix.kill',
-	## Cap.env
-	'Sys.getenv',
-	'Sys.getenv_opt',
-	'Unix.environment',
+        'Unix.execve',
+        'Unix.execv',
+        'Unix.execvp',
+        ## Cap.fork
+        'Unix.fork',
+        ## Cap.wait
+        'Unix.wait',
+        'Unix.waitpid',
+        ## Cap.kill
+        'Unix.kill',
+        ## Cap.env
+        'Sys.getenv',
+        'Sys.getenv_opt',
+        'Unix.environment',
         #TODO: fix
-	## Cap.open_in
-	# 'open_in_bin',
-	# 'open_in',
-	# #'UChan.with_open_in',
-	# #'UChan.with_open_out',
+        ## Cap.open_in
+        # 'open_in_bin',
+        # 'open_in',
+        # #'UChan.with_open_in',
+        # #'UChan.with_open_out',
         ## Cap.argv see below
         ## Cap.exit see below
-	]
+        ]
     },
     languages: ['ocaml'],
     severity: 'ERROR',
@@ -81,8 +85,8 @@ local cap_rules = [
     |||,
     paths: {
       exclude: [ #TODO: fix
-	'graphics_efuns.ml',
-	'todo/'
+        'graphics_efuns.ml',
+        'todo/'
       ],
     },
   },
@@ -98,13 +102,13 @@ local cap_rules = [
     |||,
     paths: {
       exclude: [ #TODO: fix
-	'log.ml', 'options.ml',
+        'log.ml', 'options.ml',
         'todo/', 'efuns_client.ml',
       ],
     },
   },
 ];
-							   
+                                                           
 // ----------------------------------------------------------------------------
 // Skip and last-minute override
 // ----------------------------------------------------------------------------

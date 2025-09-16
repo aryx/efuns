@@ -97,7 +97,7 @@ let test_draw_pango cr =
 
   Cairo.move_to cr 0. 0.;
   Cairo_pango.show_layout cr layout;
-  UCommon.pr2 (spf "font = %s" (Pango.Font.to_string desc));
+  Logs.debug (fun m -> m "font = %s" (Pango.Font.to_string desc));
 
 
   let metrics = 
@@ -110,7 +110,8 @@ let test_draw_pango cr =
   let ascent = 
     float_of_int (Pango.Font.get_ascent metrics) / 1024. in
   let h = ascent + descent in
-  UCommon.pr2_gen (w, h, ascent, descent);
+  Logs.debug (fun m -> m "w h ascent descent %s "
+        (Dumper.dump (w, h, ascent, descent)));
 
   Cairo.move_to cr 0. h;
   (* The 'i' should align with the 'W' above if the font is monospace *)

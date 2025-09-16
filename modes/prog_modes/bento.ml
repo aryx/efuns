@@ -42,8 +42,6 @@ let external_program = "bento"
 (* Config file to look for in a project *)
 let bento_config_file = ".bento.yml"
 
-let debug = ref true
-
 (*****************************************************************************)
 (* Helpers *)
 (*****************************************************************************)
@@ -67,8 +65,7 @@ let json_of_bento_check rootdir =
     with End_of_file -> "[]" (* no errors, empty Json array *)
   in
   let _status = Unix.close_process_in pipe_read in
-  if !debug
-  then UCommon.pr2 str;
+  Logs.debug (fun m -> m "bento: %s" str);
   JSON.json_of_string str
 
 (* generate error strings compatible with Compil.c_error_regexp *)
