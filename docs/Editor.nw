@@ -909,6 +909,7 @@ and frame  =
     <<[[Efuns.frame]] status field>>
     <<[[Efuns.frame]] history fields>>
     <<[[Efuns.frame]] other fields>>
+    caps: < frame_caps >;
   } 
 @
 %dead: mutable frm_force_point : bool;
@@ -941,8 +942,8 @@ mutable frm_point : Text.point;
 
 % v_cut_frame | start_command | ... -> <>
 <<function [[Frame.create]]>>=
-let create window mini buf =
-  let frame = create_without_top window mini buf in
+let create (caps : < frame_caps; .. >) (window : Window.t) (mini : string option) (buf : Ebuffer.t) : t =
+  let frame = create_without_top caps window mini buf in
   <<[[Frame.create()]] adjust active frame>>
   frame
 @
@@ -950,15 +951,15 @@ let create window mini buf =
 \ifallcode
 % for completion, but useful really? -> <>
 <<function [[Frame.create_inactive]]>>=
-let create_inactive window buf =
-  create_without_top window None buf
+let create_inactive (caps : < frame_caps; ..>) window buf =
+  create_without_top caps window None buf
 @
 \fi
 
 
 % Top_window.create | Frame.create | Frame.create_inactive -> <>
 <<function [[Frame.create_without_top]]>>=
-let create_without_top window mini buf =
+let create_without_top (caps : < frame_caps; ..>) (window : Window.t) (mini : string option) (buf : Ebuffer.t) : t =
   let text = buf.buf_text in
 
   let frm_start = Text.dup_point text buf.buf_start in
@@ -1007,6 +1008,7 @@ let create_without_top window mini buf =
       frm_last_action = Keymap.dummy_action;
 
       frm_killed = false;
+      caps = (caps :> < frame_caps >);
     } 
   in
   <<[[Frame.create_without_top()]] adjust status of frame>>
@@ -2179,7 +2181,6 @@ let main (caps : < caps; .. >) (argv : string array) : Exit.t =
   let options = [
     <<[[main()]] command line options>>
    ] 
-   (* @  Common2.cmdline_flags_devel () *)
    in
    (try 
      Arg.parse_argv argv options
@@ -2422,7 +2423,7 @@ let _ =
 \section{The graphical top window}
 
 <<[[main()]] run the UI>>=
-Graphics_efuns.init !initial_files;
+Graphics_efuns.init caps !initial_files;
 @
 %less: could just take ()
 
@@ -2461,12 +2462,12 @@ let backend top_window =
 
 % main -> Graphics_efuns.init -> <>
 <<function [[Top_window.create]]>>=
-let create () =
+let create (caps : <frame_caps; ..>) =
   let edt = Globals.editor() in
   let buf = Ebuffer.default "*help*" in
   (* keep one line for the minibuffer, hence the -1 *)
   let window = Window.create_at_top  0 0 edt.edt_width (edt.edt_height - 1) in
-  let frame = Frame.create_without_top window None buf in
+  let frame = Frame.create_without_top caps window None buf in
   let top_window =
     { 
       top_width = edt.edt_width;
@@ -4581,10 +4582,10 @@ if !!Top_window.file_menu =*= [] then begin
 
 % in Complex because requires select and minibuffer
 <<function [[Complex.load_buffer]]>>=
-let load_buffer frame = 
+let load_buffer (frame : Frame.t) : unit = 
   set_previous_frame frame;
   Select.select_file_from_pwd frame "Find file: " (fun str -> 
-    Frame.load_file frame.frm_window str |> ignore
+    Frame.load_file frame.caps frame.frm_window str |> ignore
   )
 [@@interactive]
 @
@@ -4601,9 +4602,9 @@ let load_buffer frame =
 %\subsection{Helpers}
 
 <<function [[Frame.load_file]]>>=
-let load_file window filename =
+let load_file (caps : < frame_caps; ..>) (window : Window.t) (filename : string) : t =
   let buf = Ebuffer.read filename (Keymap.create ()) in
-  let frame = create window None buf in
+  let frame = create caps window None buf in
   Hooks.exec_named_hooks !!change_buffer_hooks frame;
   status_name frame buf.buf_name;
   frame
@@ -4884,7 +4885,7 @@ let write_buffer frame =
 
 %\subsection{Helpers}
 <<function [[Frame.save_buffer]]>>=
-let save_buffer frame =
+let save_buffer (frame : t) : unit =
   Ebuffer.save frame.frm_buffer
 @
 % dead?
@@ -5023,10 +5024,10 @@ let help_menu = ref ([| |]: (string * action) array)
 <<[[Config]] help menu setup>>=
 Top_window.help_menu := [|
   "Key Bindings", (fun frame ->
-    Frame.change_buffer frame.frm_window "*bindings*"
+    Frame.change_buffer frame.caps frame.frm_window "*bindings*"
   );
   "About Efuns", (fun frame ->
-    Frame.change_buffer frame.frm_window "*help*"
+    Frame.change_buffer frame.caps frame.frm_window "*help*"
   );
   "Changes", (fun _frame ->
     (*
@@ -5226,7 +5227,7 @@ frame.frm_redraw
 \subsubsection{Redraw}
 
 <<[[Frame.display()]] redraw>>=
-if !Globals.debug_display
+if !Globals.debug_graphics
 then Logs.debug (fun m -> m "redraw");
 <<[[Frame.display()]] redraw, possibly update [[frm_y_offset]]>>
 <<[[Frame.display()]] redraw, possibly update [[frm_x_offset]]>>
@@ -6176,7 +6177,7 @@ mutable top_mini_buffers : frame list;
 
 % ?? -> <>
 <<function [[Minibuffer.create]]>>=
-let create frame local_map request =
+let create (frame : Frame.t) (local_map : Keymap.t) (request : string) : Frame.t =
   let window = frame.frm_window in
   let top_window = Window.top window in
 
@@ -6195,7 +6196,7 @@ let create frame local_map request =
     Window.create true (*mini*) (TopWindow top_window) 
       qlen (top_window.top_height - 1) (top_window.top_width - qlen) 1 in
   let mini_frame = 
-    Frame.create mini_window (Some request)(*mini*) mini_buf in    
+    Frame.create frame.caps mini_window (Some request)(*mini*) mini_buf in    
 
   mini_frame.frm_cutline <- max_int;
   mini_frame.frm_has_status_line <- 0;
@@ -6555,9 +6556,9 @@ let insert_special_char frame =
 @
 
 <<function [[Frame.bindings_help]]>>=
-let help_bindings frame =
+let help_bindings (frame : t) : unit =
   let window = frame.frm_window in
-  change_buffer window "*bindings*"
+  change_buffer frame.caps window "*bindings*"
 [@@interactive]
 @
 %old:
@@ -9073,7 +9074,7 @@ Top_window.buffers_menu := (fun top_window _button () ->
           (name, Top_window.wrap top_window (fun top_window ->
                 let frame = top_window.top_active_frame in
                 let window = frame.frm_window in
-                Frame.change_buffer window name
+                Frame.change_buffer frame.caps window name
             )))
       (Array.of_list !buffers) in
 
@@ -9104,11 +9105,11 @@ Top_window.buffers_menu := (fun top_window _button () ->
 @
 
 <<function [[Complex.change_buffer]]>>=
-let change_buffer frame =
+let change_buffer (frame : Frame.t) : unit =
   let default = get_previous_frame () in
   set_previous_frame frame;
   select_buffer frame " Switch to buffer: " default (fun str ->
-    Frame.change_buffer frame.frm_window str
+    Frame.change_buffer frame.caps frame.frm_window str
   )
 [@@interactive]
 @
@@ -9126,10 +9127,10 @@ let change_buffer frame =
 
 
 <<function [[Frame.change_buffer]]>>=
-let change_buffer window name = 
+let change_buffer (caps : < frame_caps ; ..>) (window : Window.t) (name : string) : unit = 
   try
     let buf = Hashtbl.find (Globals.editor()).edt_buffers name in
-    let frame = create window None buf in
+    let frame = create caps window None buf in
     Hooks.exec_named_hooks !!change_buffer_hooks frame;
     status_name frame buf.buf_name
   with Not_found -> ()
@@ -9157,7 +9158,7 @@ let change_buffer window name =
 % @
 
 <<function [[Simple.kill_buffer]]>>=
-let kill_buffer frame =
+let kill_buffer (frame : Frame.t) : unit =
   let window = frame.frm_window in
   let buf = frame.frm_buffer in
 
@@ -9173,7 +9174,7 @@ let kill_buffer frame =
     | _ -> next_buffer buf 
   in
 
-  let _new_frame = Frame.create window None new_buf in
+  let _new_frame = Frame.create frame.caps window None new_buf in
   if buf.buf_shared =|= 0 
   then Ebuffer.kill buf
 [@@interactive]
@@ -9220,9 +9221,9 @@ let prev_buffers = ref []
 @
 
 <<function [[Complex.left_buffer]]>>=
-let left_buffer frame =
+let left_buffer (frame : Frame.t) : unit =
   set_previous_frame frame;
-  Frame.change_buffer frame.frm_window 
+  Frame.change_buffer frame.caps frame.frm_window 
     (match !prev_buffers with
     | name :: buffer :: tail ->
         prev_buffers := tail @ [name]; 
@@ -9240,9 +9241,9 @@ let left_buffer frame =
 % @
 
 <<function [[Complex.right_buffer]]>>=
-let right_buffer frame =
+let right_buffer (frame : Frame.t) : unit =
   set_previous_frame frame;
-  Frame.change_buffer frame.frm_window 
+  Frame.change_buffer frame.caps frame.frm_window 
     (match !prev_buffers with
     | name :: tail ->
         (match List.rev tail with
@@ -9285,11 +9286,11 @@ let down_buffer frame =
 @
 
 <<function [[Complex.up_buffer]]>>=
-let up_buffer frame =
+let up_buffer (frame : Frame.t) : unit =
   if !up_buffer = "" 
   then raise Not_found;
   set_previous_frame frame;
-  Frame.change_buffer frame.frm_window !up_buffer
+  Frame.change_buffer frame.caps frame.frm_window !up_buffer
 [@@interactive]
 @
 %old:
@@ -9348,7 +9349,7 @@ let active frame =
 <<function [[Multi_frames.v_cut_frame]]>>=
 let vertical_cut_frame frame =
   if frame.frm_mini_buffer = None 
-  then Frame.create (cut_frame frame) None frame.frm_buffer |> ignore
+  then Frame.create frame.caps (cut_frame frame) None frame.frm_buffer |> ignore
 [@@interactive]
 @
 %old: 
@@ -9361,7 +9362,7 @@ let vertical_cut_frame frame =
 
 
 <<function [[Multi_frames.h_cut_frame]]>>=
-let horizontal_cut_frame frame =
+let horizontal_cut_frame (frame : Frame.t) =
   if frame.frm_mini_buffer = None 
   then
     let window = frame.frm_window in
@@ -9375,7 +9376,7 @@ let horizontal_cut_frame frame =
                  (window.win_width - wi) window.win_height in
       window.win_down <- HComb (w1,w2);
       Frame.install w1 frame;
-      Frame.create w2 None frame.frm_buffer |> ignore
+      Frame.create frame.caps w2 None frame.frm_buffer |> ignore
     end
 [@@interactive]
 @
@@ -10071,10 +10072,10 @@ iter buf.buf_minor_modes
 let shell_hist = ref []
 @
 <<function [[System.shell_command]]>>=
-let shell_command frame =
-  Select.select_string frame "Run command:" shell_hist "" (fun cmd -> 
+let shell_command (frm : Frame.t) =
+  Select.select_string frm "Run command:" shell_hist "" (fun cmd -> 
     let pwd = (Globals.editor()).edt_dirname in
-    start_command pwd "*Command*" (Multi_frames.cut_frame frame) cmd None |> ignore)
+    start_command frm.caps pwd "*Command*" (Multi_frames.cut_frame frm) cmd None |> ignore)
 [@@interactive]
 @
 %old:
@@ -10084,14 +10085,15 @@ let shell_command frame =
 
 
 <<function [[System.start_command]]>>=
-let start_command pwd buf_name window cmd end_action_opt =
+let start_command (caps : < caps; Cap.env; .. >) (pwd : string) (buf_name : string)
+  window cmd end_action_opt =
   let end_action =
     match end_action_opt with
     | None  -> (fun _buf _status -> ())
     | Some f -> f
   in
-  let buf = system pwd buf_name cmd end_action in
-  let frame = Frame.create window None buf in
+  let buf = system caps pwd buf_name cmd end_action in
+  let frame = Frame.create caps window None buf in
   frame
 @
 
@@ -10099,8 +10101,8 @@ let start_command pwd buf_name window cmd end_action_opt =
 % we can use threads! no more emacs lisp limitations
 
 <<function [[System.system]]>>=
-let system pwd buf_name cmd end_action =
-  let (pid,inc,outc) = open_process pwd cmd in
+let system (caps : < caps; .. >) (pwd : string) (buf_name : string) (cmd : string) end_action =
+  let (pid,inc,outc) = open_process caps pwd cmd in
   let text = Text.create "" in
   let curseur = Text.new_point text in
   let buf = Ebuffer.create buf_name None text (Keymap.create ()) in
@@ -10117,9 +10119,10 @@ let system pwd buf_name cmd end_action =
     let len = input inc tampon 0 1000 in
     Mutex.lock edt.edt_mutex;
     if len =|= 0 then begin
-      let _pid,status = waitpid [WNOHANG] pid in
+      let _pid,status = CapUnix.waitpid caps [Unix.WNOHANG] pid in
       (match status with 
-      | WEXITED s -> Text.insert_at_end text (spf "Exited with status %d\n" s); 
+      | Unix.WEXITED s -> 
+          Text.insert_at_end text (spf "Exited with status %d\n" s); 
           close_in inc;
           close_out outc;
           (try end_action buf s with _ -> ())
@@ -10165,29 +10168,30 @@ let system pwd buf_name cmd end_action =
 
 
 <<function [[System.open_process]]>>=
-let open_process pwd cmd =
-  let (in_read, in_write) = pipe() in
-  let (out_read, out_write) = pipe() in
-  let inchan = in_channel_of_descr in_read in
-  let outchan = out_channel_of_descr out_write in
-  match fork() with
+let open_process (caps : < caps; .. >) (pwd : string) (cmd : string) : Proc.pid * in_channel * out_channel =
+  let (in_read, in_write) = Unix.pipe() in
+  let (out_read, out_write) = Unix.pipe() in
+  let inchan = Unix.in_channel_of_descr in_read in
+  let outchan = Unix.out_channel_of_descr out_write in
+  match CapUnix.fork caps () with
   | 0 ->
       if out_read <> Unix.stdin then begin
-        dup2 out_read Unix.stdin; 
-        close out_read 
+        Unix.dup2 out_read Unix.stdin; 
+        Unix.close out_read 
       end;
       if in_write <> Unix.stdout ||  in_write <> Unix.stderr then begin
         if in_write <> Unix.stdout 
-        then dup2 in_write Unix.stdout;
+        then Unix.dup2 in_write Unix.stdout;
         if in_write <> Unix.stderr 
-        then dup2 in_write Unix.stderr; 
-        close in_write 
+        then Unix.dup2 in_write Unix.stderr; 
+        Unix.close in_write 
       end;
-      List.iter close [in_read;out_write];
+      List.iter Unix.close [in_read;out_write];
       (* I prefer to do it here than in the caller *)
-      Sys.chdir pwd;
-      execv "/bin/sh" [| "/bin/sh"; "-c"; cmd |];
+      CapSys.chdir caps pwd;
+      CapUnix.execv caps "/bin/sh" [| "/bin/sh"; "-c"; cmd |];
       (* never here! *)
+      (* nosemgrep: do-not-use-exit *)
       exit 127 (* for ocaml light *)
   | pid -> 
       Unix.close out_read;
@@ -10222,8 +10226,8 @@ mutable buf_finalizers : (unit -> unit) list;
 <<[[System.system()]] set finalizer, to intercept killed frame>>=
 buf.buf_finalizers <- (fun () -> 
   (try 
-     Unix.kill pid Sys.sigkill;
-     waitpid [] pid |> ignore;
+     CapUnix.kill caps pid Sys.sigkill;
+     CapUnix.waitpid caps [] pid |> ignore;
    with _ -> ()
   );
   Concur.remove_reader ins
@@ -10284,7 +10288,7 @@ let grep frame =
             then Multi_frames.cut_frame frame
             else new_frame.frm_window 
       in
-      let comp_frame = System.start_command cdir "*Grep*" comp_window cmd 
+      let comp_frame = System.start_command frame.caps cdir "*Grep*" comp_window cmd 
          (Some (fun buf _status -> color_buffer buf))
       in
       Frame.active frame; 
@@ -10337,7 +10341,7 @@ let make_command = define_option ["compil";"make_command"] ""
 @
 
 <<function [[Compil.compile]]>>=
-let compile frame =
+let compile (frame : Frame.t) =
   let default = List.hd !make_hist in
   Select.select_string frame 
     ("Compile command: (default :"^ default^") " )
@@ -10358,7 +10362,7 @@ let compile frame =
       in
       (* this makes also comp_frame the active frame *)
       let comp_frame = 
-        System.start_command cdir "*Compile*" comp_window cmd 
+        System.start_command frame.caps cdir "*Compile*" comp_window cmd 
         (Some (fun buf _status -> color_buffer buf))
       in
       (* switch back cursor to original frame *)
@@ -10413,7 +10417,7 @@ let cdir, cmd =
   match () with
   | _ when cmd =~ "^cd +\\([^;]+\\);\\(.*\\)$" ->
       let (dir, cmd) = Regexp_.matched2 cmd in
-      let finaldir = expand_tilde dir in
+      let finaldir = expand_tilde frame.caps dir in
       finaldir, cmd
   | _ when !!compile_find_makefile && cmd =~ "^make" ->
     (* try to find a Makefile in the directory *)
@@ -10453,7 +10457,7 @@ let find_error = Store.create_abstr "find_error"
 
 
 <<function [[Compil.next_error]]>>=
-let next_error top_frame =
+let next_error (top_frame : Frame.t) : unit =
   match !compilation_frame with
   | None -> Message.message top_frame "No compilation started"
   | Some (frame, error_point, cdir) ->      
@@ -10480,12 +10484,12 @@ let next_error top_frame =
             try Frame.find_buffer_frame buf 
             with Not_found ->
                 if Eq.phys_equal frame top_frame then
-                  let new_window = Top_window.create ()
+                  let new_window = Top_window.create top_frame.caps
                       (*Window.display top_window*) 
                   in
-                  Frame.create new_window.window None buf
+                  Frame.create frame.caps new_window.window None buf
                 else
-                  Frame.create top_frame.frm_window None buf
+                  Frame.create frame.caps top_frame.frm_window None buf
           in
           let text = buf.buf_text in
           let point = frame.frm_point in
@@ -10506,14 +10510,14 @@ let next_error top_frame =
 \subsection{The server}
 
 <<constant [[Server.user]]>>=
-let user = 
-  try Sys.getenv "USER" 
+let user (caps : < Cap.env; .. >) = 
+  try CapSys.getenv caps "USER" 
   with _ -> "noname"
 @
 
 <<constant [[Server.socket_name]]>>=
-let socket_name = 
-  (Printf.sprintf "/tmp/efuns-server.%s.%s:0" user !Globals.displayname)
+let socket_name (caps : < Cap.env; .. >) = 
+  (Printf.sprintf "/tmp/efuns-server.%s.%s:0" (user caps) !Globals.displayname)
 @
 
 <<constant [[Server.started]]>>=
@@ -10526,7 +10530,7 @@ type command =
 @
 
 <<function [[Server.read_command]]>>=
-let read_command fd =
+let read_command (caps : < frame_caps; .. >) (fd : Unix.file_descr) : unit =
   let inc = in_channel_of_descr fd in
   try
     let cmd = input_value inc in
@@ -10538,7 +10542,7 @@ let read_command fd =
             | [] -> failwith "no top windows"
             | x::_ -> x.top_active_frame.frm_window
         in
-        let frame = Frame.load_file window name in
+        let frame = Frame.load_file caps window name in
         let (_, text, point) = Frame.buf_text_point frame in
         if pos <> 0 
         then Text.set_position text point pos;
@@ -10565,36 +10569,36 @@ let read_command fd =
 %old: wrap top_window ...
 
 <<function [[Server.module_accept]]>>=
-let module_accept s = 
+let module_accept (caps : < frame_caps; ..>) s = 
   let fd,_ = accept s in
   Unix.set_close_on_exec fd;
-  Concur.add_reader fd (fun _ -> read_command fd)
+  Concur.add_reader fd (fun _ -> read_command caps fd)
 @
 
 <<function [[Server.start]]>>=
 (* old: this used to take an optional frame but was useless I think *)
-let start () =
+let start (caps : < frame_caps; ..>) =
   if not !started then
   Utils.catchexn "Efuns server:" (fun _ ->
       let s = Unix.socket PF_UNIX SOCK_STREAM 0 in
-
-      if Sys.file_exists socket_name 
+      let name = socket_name caps in
+      if Sys.file_exists name
       then begin 
         Logs.warn (fun m -> m "socket file %s already exists; cancelling the server"
-              socket_name);
+              name);
         (* alt: unlink here, so if you run multiple efuns, the last one wins*)
       end else begin
-        Unix.bind s (ADDR_UNIX socket_name);
+        Unix.bind s (ADDR_UNIX name);
         Unix.listen s 254;
         Unix.set_nonblock s;
         Unix.set_close_on_exec s;
         Logs.info (fun m -> m "starting server listening on %s (thread %d)"
-                   socket_name (Thread.id (Thread.self ())));
+                   name (Thread.id (Thread.self ())));
         Concur.add_reader s (fun _ -> 
           started := true;
-          module_accept s
+          module_accept caps s
         );
-       Hooks.add_hook Misc_features.exit_hooks (fun () -> Unix.unlink socket_name);
+       Hooks.add_hook Misc_features.exit_hooks (fun () -> Unix.unlink name);
       end
   )  
 @
@@ -11299,7 +11303,8 @@ Utils.register_exn (fun e ->
 
 Sys.signal Sys.sigint (Sys.Signal_handle (fun _ ->  
   (* Should auto-save all buffers, and then exit ... *)
-  exit 1
+  (* old: was exit 1 but not sure why, SigInt seems more logical *)
+  raise SigInt
 )) |> ignore; 
 Sys.signal Sys.sigterm (Sys.Signal_handle (fun _ ->  
   (* Should auto-save all buffers, and then exit ... *)
@@ -11569,17 +11574,16 @@ let message _buf m =
 
 <<constants [[Efuns.debug_xxx]]>>=
 let debug = ref false
+(* alt: use Logs src like in semgrep but ocaml-light does not support
+ * functors so simpler to use those extra globals to mimic Logs src
+ *)
 let debug_graphics = ref false
-let debug_display = ref false
-let debug_init = ref false
 @
 
 %less: would be good to have a -debug_init so at least print out
 % all those hooks that are run at startup time
 
 <<[[main()]] command line options>>=
-"-v", Arg.Unit (fun () -> level := Some Logs.Info),
- " verbose mode";
 "-verbose", Arg.Unit (fun () -> level := Some Logs.Info),
 " verbose mode";
 "-debug", Arg.Unit (fun () -> 
@@ -11589,16 +11593,10 @@ let debug_init = ref false
 " debug mode";
 "-quiet", Arg.Unit (fun () -> level := None),
 " no logs";
-"-debug_graphics", Arg.Set Globals.debug_graphics, 
+"-debug_graphics", Arg.Unit (fun () ->
+      level := Some Logs.Debug;
+      Globals.debug_graphics := true), 
 " for debugging";
-"-debug_display", Arg.Set Globals.debug_display, 
-" for debugging";
-"-debug_init", Arg.Set Globals.debug_init, 
-" for debugging";
-
-"-debugger", Arg.Unit (fun () ->
-  Globals.debug := true;
-), " for debugging";
 @
 
 \section{Actions trace: [[-debug]]}

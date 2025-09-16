@@ -386,6 +386,24 @@ open Options
 <<copyright header2>>
 (* Useful types for Efuns *)
 
+(* alt: frame_caps *)
+type frame_caps = <
+  (* mostly for System.open_process used by actions
+   * such as M-x shell, M-x compil and in dired
+   *)
+  Cap.forkew;
+  (* also for System.open_process as we need to kill the opened
+   * process in the buffer finalizer when it is killed by the user
+   *)
+  Cap.kill;
+  (* used also in System.open_process *)
+  Cap.chdir;
+  (* for USER in M-x server_start, for HOME in compil.ml
+   * and more 
+   *)
+  Cap.env;
+>
+
 (*************************************************************************)
 (* Keymaps and actions *)
 (*************************************************************************)
@@ -2044,7 +2062,7 @@ let find_completion_frame _frame =
 @
 
 <<function [[Select.display_completions]]>>=
-let display_completions frame list =
+let display_completions (frame : Frame.t) (list : string list) : unit =
   if list =*= [] 
   then Message.message frame "No Completions"
   else
@@ -2063,7 +2081,7 @@ let display_completions frame list =
     Hooks.exec_hooks hooks buf;
 
     (try Frame.find_buffer_frame buf
-     with Not_found -> Frame.create_inactive (Multi_frames.cut_frame frame) buf
+     with Not_found -> Frame.create_inactive frame.caps (Multi_frames.cut_frame frame) buf
     ) |> ignore
 @
 
@@ -2460,7 +2478,8 @@ let completions_buf_hook = Store.create_abstr "completions_buf_hook"
 open Common
 open Eq.Operators
 open Efuns
-open Unix
+
+type caps = < Cap.fork; Cap.exec; Cap.wait; Cap.kill; Cap.chdir >
 
 type end_action = (Efuns.buffer -> int -> unit)
 
@@ -2679,10 +2698,10 @@ let char_expand_abbrev frm =
 
 <<function [[Multi_buffers.switch_to_other_buffer]]>>=
 (* C-M-l *)
-let switch_to_other_buffer frame =
+let switch_to_other_buffer (frame : Frame.t) : unit =
   let default = get_previous_frame () in
   set_previous_frame frame;
-  Frame.change_buffer frame.frm_window default
+  Frame.change_buffer frame.caps frame.frm_window default
 @
 
 %-------------------------------------------------------------
@@ -2862,11 +2881,11 @@ type find_error_fun = Text.t -> Text.point -> error
 <<function [[Compil.c_find_error]]>>
 
 (* apparently the Core Filename module has an expand function doing that *)
-let expand_tilde s =
+let expand_tilde (caps : < Cap.env ; ..>) (s : string) : string =
   if s =~ "^~/\\(.*\\)$"
   then
     let rest = Regexp_.matched1 s in
-    Filename.concat (Sys.getenv "HOME") rest
+    Filename.concat (CapSys.getenv caps "HOME") rest
   else s
 
 (*****************************************************************************)
@@ -3607,7 +3626,7 @@ open Options
 \subsection{[[CLI.mli]]}
 
 <<type [[CLI.caps]]>>=
-type caps = < Cap.stdout; Cap.stderr >
+type caps = < Cap.stdout; Cap.stderr; Efuns.frame_caps >
 @
 
 <<signature [[CLI.main]]>>=
@@ -3670,7 +3689,23 @@ val main : < caps ; .. > -> string array -> Exit.t
 open Options
 open Efuns (* for fields for ocaml-light *)
 
-type caps = < Cap.stdout; Cap.stderr >
+(* Need:
+ * - stdout/stderr: just for a few calls to Console for --help display
+ * - fork/exec/wait: for M-x shell, M-x compil, etc.
+ * - kill: because need to kill process attached to buffer when
+ *   killing the buffer
+ * - chdir: for M-x shell too and System.open_process
+ * - env: for $USER, $HOME
+ *)
+type caps = < 
+    Cap.stdout; 
+    Cap.stderr;
+    (* = Efuns.frame_caps *)
+    Cap.forkew;
+    Cap.kill;
+    Cap.chdir;
+    Cap.env;
+>
 
 <<constant [[Efuns.init_files]]>>
 
@@ -3754,10 +3789,10 @@ let fullname frame filename =
 @
 
 <<function [[Dired.open_file]]>>=
-let open_file frame =
+let open_file (frame : Frame.t) =
   let filename = fullname frame (select_file (get_file_line frame)) in
   let buf = Ebuffer.read filename (Keymap.create ()) in
-  let frame = Frame.create  frame.frm_window None buf in
+  let frame = Frame.create frame.caps frame.frm_window None buf in
   Frame.active frame
 [@@interactive "dired_open"]
 @
@@ -3787,7 +3822,7 @@ let compiled_view_list = ref []
 @
 
 <<function [[Dired.fast_view]]>>=
-let fast_view frame filename =
+let fast_view (frame : Frame.t) (filename : string) : unit =
   if not (!old_view_list == !view_list) then
     begin
       compiled_view_list := List.map 
@@ -3799,7 +3834,7 @@ let fast_view frame filename =
     List.iter (fun (regexp, viewer) ->
         if Str.string_match regexp filename 0 then
           try
-            Unix.chdir (dirname frame);
+            CapSys.chdir frame.caps (dirname frame);
             viewer frame filename;
             raise Exit
           with
@@ -3858,21 +3893,21 @@ let mode = Ebuffer.new_major_mode "Dired" (Some install)
 @
 
 <<function [[Dired.viewer]]>>=
-let viewer commande _frame filename =
-  Sys.command (Printf.sprintf "(%s %s) &" commande filename) |> ignore
+let viewer (cmd : string) (frm : Frame.t) (filename : string) : unit =
+  CapSys.command frm.caps (Printf.sprintf "(%s %s) &" cmd filename) |> ignore
 @
 
 <<function [[Dired.commande]]>>=
-let commande commande _frame filename =
-  Sys.command (Printf.sprintf commande filename) |> ignore;
-  failwith  (Printf.sprintf commande filename)
+let commande cmd_fmt (frm : Frame.t) (filename : string) : unit =
+  CapSys.command frm.caps (Printf.sprintf cmd_fmt filename) |> ignore;
+  failwith  (Printf.sprintf cmd_fmt filename)
 @
 
 <<function [[Dired.unzip_and_view]]>>=
-let unzip_and_view frame filename =
+let unzip_and_view (frame : Frame.t) (filename : string) : unit =
   let new_filename = Printf.sprintf "/tmp/efuns-view-%s" (
       Filename.chop_extension filename) in
-  let res = Sys.command (
+  let res = CapSys.command frame.caps (
       Printf.sprintf "gzip -cd %s > %s" filename new_filename)
   in
   if res = 0 then fast_view frame new_filename
@@ -4965,8 +5000,8 @@ open Efuns
   
 <<function [[Server.start]]>>
 
-let server_start _frame =
-  start ()
+let server_start (frame : Frame.t) : unit =
+  start frame.caps
 [@@interactive]
   
 @
