@@ -1,4 +1,4 @@
-# Build efuns (and xix) with OCaml light and mk (from xix) on Ubuntu.
+# Build efuns (and xix) with ocaml-light and mk (from xix) on Ubuntu.
 
 # see https://github.com/aryx/ocaml-light/blob/main/Dockerfile
 FROM padator/ocaml-light
@@ -28,8 +28,8 @@ ENV PATH="$PATH:/xix/bin"
 ENV MKSHELL="/usr/bin/rc"
 RUN cp mkconfig.light mkconfig
 RUN mk clean
-RUN mk depend.light
-RUN mk all.light
+RUN mk depend
+RUN mk all
 
 # Back to efuns (whose mkconfig assumes ../xix)
 WORKDIR /src
