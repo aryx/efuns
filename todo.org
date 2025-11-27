@@ -2,6 +2,10 @@
 
 * Last
 
+**  maybe copy the non-tree-sitter parsers in separate semgrep-libs repo that
+is easier to install in opam? and link with efuns!
+or make configure --no-tree-sitter in semgrep-libs
+
 ** Last4
 
 *** add GHA checks, build, test, and semgrep
