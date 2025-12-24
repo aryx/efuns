@@ -589,14 +589,12 @@ let init2 (caps : < frame_caps ; .. >) init_files =
     (match exn with
     | Exit.ExitCode _ -> quit ()
     | _ ->
+        (* alt:  G.dialog_text ~text:backtrace ~title:"pb"; *)
         let s = Printexc.get_backtrace () in
-        Logs.err (fun m -> m "GtkSignal.user_handler: exception!");
+        Logs.err (fun m -> m "GtkSignal.user_handler: exn = %s" 
+                                (Printexc.to_string exn));
         Logs.err (fun m -> m "%s" s);
         Logs.err (fun m -> m "end backtrace");
-        (*
-          let pb = "pb: " ^ Common.exn_to_s exn in
-          G.dialog_text ~text:pb ~title:"pb";
-        *)
         raise exn
     )
   );

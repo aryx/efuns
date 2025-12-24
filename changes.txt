@@ -1,36 +1,30 @@
 # -*- org -*-
 
-* TODO
+* 0.25 (Q4 2025) (bugfixes)
 
-** package
-first public release on OPAM
-
-** devinfra
-better merlin support
-  automatic case-analysis code generation boilerplate (using merlin)
-Claude Code integration?
-
-* -----------------------------------------------------------
+** bugfixes
+- do not raise divide by zero exn on files having a single line without
+  a trailing \n when moving the cursor right
 
 * 0.26 (Q3 2025) (Dockerfile and GHA CI, OCaml5 and ocaml-light ready)
 
 ** testinfra
 - Dockerfile and docker.yml GHA (GitHub Actions) CI working for
   OCaml 4.14.2 and 5.2.1
-- Dockerfile.light working with ocaml-light
+- Dockerfile.light working with ocaml-light (for principia)
 
 ** docs
 - added Editor.nw in docs/literate/ from principia
 
 * -----------------------------------------------------------
 
-* 0.26 (Q? 202?) (Mode:Jsonnet, generic highlighters)
+* 0.26 (Q1 2022) (Mode:Jsonnet, generic highlighters)
 
 ** a new Jsonnet mode (based on ojsonnet parser in semgrep)
 
 ** added a generic highlighter using the generic AST in semgrep
 
-* Maintenance mode in 2020/2021/2022/2023 as I was working on semgrep
+* --- Maintenance mode in 2020/2021/2022/2023 as I was working on semgrep
 
 * -----------------------------------------------------------
 
@@ -41,6 +35,7 @@ based on the Python parser and highlighter in Pfff.
 
 ** support for the bento code checker (r2c)
 especially useful for Python and Javascript code
+update: removed as bento got deprecated at r2c
 
 * 0.24 (Q3 2019)
 
@@ -176,7 +171,7 @@ buffer menu C-M-Tab, C-M-l and right order
 also use pfff/h_visualization/simple_color.ml for emacs style color names
 
 ** a new Dircolors module
-(based on my dircolors.el plugin for emacs)
+(based on my dircolors.el plugin for Emacs)
 
 ** a new Buffer_menu mode
 

@@ -1,4 +1,19 @@
-# -*- org -*-
+* Big plan
+
+** TODO changes.txt
+
+*** package
+first public release on OPAM
+
+*** devinfra
+better merlin support
+  automatic case-analysis code generation boilerplate (using merlin)
+Claude Code integration?
+
+
+** Overview
+
+** Later
 
 * Last
 
