@@ -26,7 +26,7 @@ RUN ./bootstrap-mk.sh
 RUN apt-get install -y 9base
 ENV PATH="$PATH:/xix/bin"
 ENV MKSHELL="/usr/bin/rc"
-RUN cp mkconfig.light mkconfig
+RUN cp mkfiles/mkconfig.light mkconfig
 RUN mk clean
 RUN mk depend
 RUN mk all
