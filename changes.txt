@@ -1,5 +1,8 @@
 # -*- org -*-
 
+* -----------------------------------------------------------
+
+
 * 0.25 (Q4 2025) (bugfixes)
 
 ** bugfixes
@@ -24,7 +27,7 @@
 
 ** added a generic highlighter using the generic AST in semgrep
 
-* --- Maintenance mode in 2020/2021/2022/2023 as I was working on semgrep
+* Maintenance mode in 2020/2021/2022/2023/2024 as I was working on semgrep
 
 * -----------------------------------------------------------
 
