@@ -29,8 +29,8 @@
 *.blg
 
 # Literate stuff
-/docs/Editor-*.pdf
-/docs/Editor.tex
+/docs/efuns-*.pdf
+/docs/efuns.tex
 
 # pfff and tools
 /TAGS

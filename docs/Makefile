@@ -3,9 +3,9 @@
 SYNCFLAGS=-md5sum_in_auxfile -less_marks -lang ocaml
 
 VERSION=6
-DOC=Editor
+DOC=efuns
 
-SRC_ORIG=Editor.nw Editor_extra.nw
+SRC_ORIG=efuns.nw efuns_extra.nw
 
 TOP=../
 

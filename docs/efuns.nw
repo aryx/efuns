@@ -3,6 +3,7 @@
 %coupling: see Config.tex
 
 \input{latex/Packages}
+\input{latex/Noweb}
 \input{latex/Config}
 \input{latex/Macros}
 
@@ -12201,7 +12202,7 @@ let insert_at_place frame char =
 
 %TODO: got "Counter too large" error without the \ifallcode
 \ifallcode
-#include "Editor_extra.nw"
+#include "efuns_extra.nw"
 \fi
 
 %\chapter{Changelog}
