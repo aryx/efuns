@@ -6131,12 +6131,15 @@ then
 let str = spf "-%s- %s  %s L%-6d (%s) --"
   (if (version text <> buf.buf_last_saved) then "**" else "--")
   (buf.buf_name ^ 
-   String.make (max 1 ((width / 3) - String.length buf.buf_name)) ' ')
+    String.make (max 1 ((width / 3) - String.length buf.buf_name)) ' ')
   (match () with
   | _ when Text.get_position text point =|= 0 -> "Top"
   | _ when Text.get_position text point =|= Text.size text -> "Bot"
-  | _ -> spf "%2d%%" 
-    (Text.point_line text point * 100 / Text.nbr_lines text)
+  | _ -> 
+     let nblines = Text.nbr_lines text in
+     if nblines =|= 0
+     then " 0%%"
+     else spf "%2d%%" (Text.point_line text point * 100 / nblines)
   )
   (Text.point_line text point + 1)
   (let xs = buf.buf_minor_modes |> List.map (fun m -> m.min_name) in
