@@ -206,7 +206,7 @@ Which data structure is used?
 % - QED "online editor" by Butler Lampson
 %   history of QED: https://www.bell-labs.com/usr/dmr/www/qed.html
 % - ed, http://blog.sanctum.geek.nz/actually-using-ed/
-%   see also ed.c in plan9 repo
+%   see also ed.c in plan9 repo. pretty small! but line oriented
 % - vi 
 %   (vi but less code: http://lists.suckless.org/dev/1409/23497.html)
 %classic: unix (gen2)
