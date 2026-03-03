@@ -5651,7 +5651,12 @@ let point_to_xy_opt frame point =
     done;
     None
   with Exit ->
-    Some (!xref, !yref)
+    (* claude: when a long line wraps past the bottom of the visible frame,
+     * the computed y can exceed frm_height - 1. Return None (cursor not
+     * visible) to avoid an out-of-bounds access in frm_table by set_cursor. *)
+    if !yref >= frame.frm_height
+    then None
+    else Some (!xref, !yref)
 @
 %pad: I added this function. This simplify Frame.set_cursor by 
 % extracting lots of code from it
@@ -6272,7 +6277,12 @@ let kill mini_frame old_frame =
   let top_window = Window.top window in
   Top_window.clear_message top_window;
   top_window.top_mini_buffers <- List.tl top_window.top_mini_buffers;
-  if old_frame.frm_killed 
+  (* claude: clear top_second_cursor to avoid stale references.
+   * Features like isearch set top_second_cursor before creating a
+   * minibuffer, but the C-g cancel path calls kill without clearing it,
+   * causing "weird, second cursor" errors on the next display cycle. *)
+  top_window.top_second_cursor <- None;
+  if old_frame.frm_killed
   then Frame.unkill window old_frame;
   top_window.top_active_frame <- old_frame;
   Frame.kill mini_frame
@@ -8611,15 +8621,19 @@ let isearch to_regexp sens frame =
       | Regexp, false -> Str.regexp !string, 0
       | RegexpString, true -> Str.regexp_string_case_fold !string, String.length !string
       | RegexpString, false -> Str.regexp_string !string, String.length !string
-    in  
+    in
     Text.goto_point text point spoint;
-    match !sens with
-    | Backward -> Text.search_backward text regexp point |> ignore
-    | Forward ->  
-        let len = Text.search_forward text regexp point in
-     (* Printf.printf  "Found at %d len %d" (Text.get_position text point) len;
-        print_newline ();*)
-        Text.fmove text point len
+    (* claude: catch Not_found so failed searches show a message
+     * instead of propagating as an uncaught exception *)
+    (try
+      match !sens with
+      | Backward -> Text.search_backward text regexp point |> ignore
+      | Forward ->
+          let len = Text.search_forward text regexp point in
+          Text.fmove text point len
+    with Not_found ->
+      Message.message frame "Failing I-search"
+    )
   in
   let set_last mini_frame =
     if !string = "" then begin

@@ -1,7 +1,18 @@
-# -*- org -*-
+
+* 0.26 (Q1 2026) (bugfixes)
+# start to use Claude Code
+
+** bugfixes
+- fix stale top_second_cursor after C-g cancel in isearch/query-replace
+  (Minibuffer.kill now clears top_second_cursor)
+- fix array out of bounds in Frame.set_cursor when long wrapped lines
+  push the cursor y-coordinate past the frame height
+
+** test infra
+- added tests/bugfixes/ with manual reproduction steps for bug reports
+- plan for Testo-based automated test suite (headless editor tests)
 
 * -----------------------------------------------------------
-
 
 * 0.25 (Q4 2025) (bugfixes)
 
@@ -381,54 +392,54 @@ Efuns*ocaml.font.comment: -*-*-*-i-*-*-13-*-*-*-*-60-*-*
   - Mode Tex:   [C-c 1] insere "\section{^^} ^^", etc ...
   - Mode HTML:  [C-c 1] insere "<H1> ^^ </H1> ^^", etc ...
 
-** Ajout du préfixe C-q pour insérer des caractères spéciaux dans un buffer.
+** Ajout du prï¿½fixe C-q pour insï¿½rer des caractï¿½res spï¿½ciaux dans un buffer.
 
 ** Ajout de nouveaux modes avec coloriage: lisp-mode, html-mode et c-mode.
 
 ** Suppression de point_x dans text.ml.
 
 ** Ocaml-mode: 
-  - compatibilité avec les mots cles JoCaml
+  - compatibilitï¿½ avec les mots cles JoCaml
   - recherche des erreurs d' ocamllex
  
 ** Bug fix:
-  - positionnement correct du curseur après une délétion avant le point.
+  - positionnement correct du curseur aprï¿½s une dï¿½lï¿½tion avant le point.
   - fill_paragraph correct
 
 * Efuns version 003 (BETA)
 =================
 
-** Modification de la forme des attributs des caractères pour permettre
+** Modification de la forme des attributs des caractï¿½res pour permettre
    l'highlighting.
 
 ** Tex-mode: 
-  - passage automatique à la ligne après 75 caractères (electric_insert_space)
+  - passage automatique ï¿½ la ligne aprï¿½s 75 caractï¿½res (electric_insert_space)
   - formattage de paragraphe (fill_paragraph)
 
 ** Ocaml-mode:
-  - Mise en évidence des associations de parenthèses (highlight_paren)
+  - Mise en ï¿½vidence des associations de parenthï¿½ses (highlight_paren)
 
-** Souris: drag (déplacement de la souris avec un bouton appuyé) et mise en 
-  évidence de la région lors d'un drag
+** Souris: drag (dï¿½placement de la souris avec un bouton appuyï¿½) et mise en 
+  ï¿½vidence de la rï¿½gion lors d'un drag
 
-** Modification de l'expansion dynamique pour partir à l'envers du
+** Modification de l'expansion dynamique pour partir ï¿½ l'envers du
   point courant.
 
-** Ajout d'une fonction "add_start_hook" pour ce qui doit être évalué
-  après l'exécution d'un module (démarrage et ensuite). Ajout de hooks,
+** Ajout d'une fonction "add_start_hook" pour ce qui doit ï¿½tre ï¿½valuï¿½
+  aprï¿½s l'exï¿½cution d'un module (dï¿½marrage et ensuite). Ajout de hooks,
   tels que handle_key_start_hook et handle_key_end_hook. Fonctions
-  pour gérer les hooks dans Efuns.
+  pour gï¿½rer les hooks dans Efuns.
 
-** Isearch garde en mémoire la dernière chaîne recherchée. Sortie de isearch
-avec n'importe quel flèche.
+** Isearch garde en mï¿½moire la derniï¿½re chaï¿½ne recherchï¿½e. Sortie de isearch
+avec n'importe quel flï¿½che.
 
-** Lors de la sélection des fichiers, utilisation possible de ~ et
+** Lors de la sï¿½lection des fichiers, utilisation possible de ~ et
 remplacement par ~ lors de l'affichage des fichiers.
 
 ** Bugs fix:
-  - plus de décallages dans les recherches/remplacements
+  - plus de dï¿½callages dans les recherches/remplacements
   - coloriage correct des commentaires en Caml
-  - curseur bien placé en fin de ligne
+  - curseur bien placï¿½ en fin de ligne
 
 * Efuns version 002 (BETA)
 =================
@@ -436,30 +447,30 @@ remplacement par ~ lors de l'affichage des fichiers.
 ** Ensembles de fonctions interactives accessibles depuis le minibuffer par
    M-x.
 
-** Chargement au démarrage du fichier efunsrc.cmo. Possibilité d'exécuter
-un buffer Ocaml (eval-buffer) dans l'éditeur pour le modifier. Possibilité
-de charger un fichier .cmo dans l'éditeur (load-library). Utilisation de
-la librairie Dynlink étendue au code natif.
+** Chargement au dï¿½marrage du fichier efunsrc.cmo. Possibilitï¿½ d'exï¿½cuter
+un buffer Ocaml (eval-buffer) dans l'ï¿½diteur pour le modifier. Possibilitï¿½
+de charger un fichier .cmo dans l'ï¿½diteur (load-library). Utilisation de
+la librairie Dynlink ï¿½tendue au code natif.
 
 ** Ajout de modes majeurs (module Modes) avec modes_alist, de modes mineurs
-  et de variables locales à un buffer ou à une frame.
+  et de variables locales ï¿½ un buffer ou ï¿½ une frame.
 
-** Ajout d'un mode Ocaml, basé sur le Lexer de Ocaml 2.00 pour le coloriage
+** Ajout d'un mode Ocaml, basï¿½ sur le Lexer de Ocaml 2.00 pour le coloriage
    et l'indentation.
  - Compilation (ocaml-compile) et recherche d'erreurs (ocaml-next-error)
  - Coloriage (ocaml-color-buffer)
  - Indentation (ocaml-indent-phrase, ocaml-indent-buffer, ocaml-indent-line)
- - Abbréviations statiques (len's --> String.length, ...)
- - Aides à la programmation: recherche du type d'une valeur dans les
+ - Abbrï¿½viations statiques (len's --> String.length, ...)
+ - Aides ï¿½ la programmation: recherche du type d'une valeur dans les
      fichiers .cmi (ocaml-print-type)
 
-** Historiques et complétions dans les mini-buffers (pour les commandes
-  intéractives et les fichiers, avec regexps à éviter).
+** Historiques et complï¿½tions dans les mini-buffers (pour les commandes
+  intï¿½ractives et les fichiers, avec regexps ï¿½ ï¿½viter).
 
 ** Remplacements sur tout le buffer:
   replace-string, replace-regexp, query-replace-string, query-replace-regexp
 
-** Recherches incrémentales:
+** Recherches incrï¿½mentales:
   isearch-forward, isearch-forward-regexp, isearch-backward, 
   isearch-backward-regexp
 
@@ -474,37 +485,37 @@ la librairie Dynlink étendue au code natif.
   transpose-words, forward-word, backward-word, delete-forward-word,
   delete-backward-word
 
-** Expansion d'abbréviations statiques et dynamiques:
+** Expansion d'abbrï¿½viations statiques et dynamiques:
   expand-dabbrev, expand-sabbrev
 
-** Meilleure intéraction avec X11. Gestion de la souris (3 boutons) et de 
+** Meilleure intï¿½raction avec X11. Gestion de la souris (3 boutons) et de 
 la communication entre applications X par CUT_BUFFER:
   set-active-frame, insert-at-point, mouse-save-then-kill
 
-** Gestion des lettres accentuées:
+** Gestion des lettres accentuï¿½es:
   accents-mode
   
-** Gestion de plusieurs displays (open-display) et de plusieurs fenètres par
+** Gestion de plusieurs displays (open-display) et de plusieurs fenï¿½tres par
 display (window-load-buffer, window-change-buffer, delete-window)
 
-** Gestion de plusieurs frames par fenètre (one-frame, delete-frame, 
+** Gestion de plusieurs frames par fenï¿½tre (one-frame, delete-frame, 
    vertical-cut-frame, horizontal-cut-frame, next-frame)
 
 ** Insertion de buffers entiers (insert-buffer)
 
 ** Gestion d'une marque par buffer (point-at-mark, kill-region)
 
-** Terminaison avec sauvegarde des buffers modifiés
+** Terminaison avec sauvegarde des buffers modifiï¿½s
 
 ** Lancements de commandes du shell (shell-command)
 
 ** Gestion de la kill-ring (insert-killed, insert-next-killed)
 
-** Déplacements aux extremités du buffer (end-of-file, begin-of-file)
+** Dï¿½placements aux extremitï¿½s du buffer (end-of-file, begin-of-file)
 
-** Déplacements par paragraphes (forward-paragraph, backward-paragraph)
+** Dï¿½placements par paragraphes (forward-paragraph, backward-paragraph)
 
-** Retours arrières (undo) infinis et par session
+** Retours arriï¿½res (undo) infinis et par session
     (par ensembles de modifications)
 
 * Efuns version 001 (BETA)
