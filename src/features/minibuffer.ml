@@ -58,7 +58,12 @@ let kill mini_frame old_frame =
   let top_window = Window.top window in
   Top_window.clear_message top_window;
   top_window.top_mini_buffers <- List.tl top_window.top_mini_buffers;
-  if old_frame.frm_killed 
+  (* claude: clear top_second_cursor to avoid stale references.
+   * Features like isearch set top_second_cursor before creating a
+   * minibuffer, but the C-g cancel path calls kill without clearing it,
+   * causing "weird, second cursor" errors on the next display cycle. *)
+  top_window.top_second_cursor <- None;
+  if old_frame.frm_killed
   then Frame.unkill window old_frame;
   top_window.top_active_frame <- old_frame;
   Frame.kill mini_frame

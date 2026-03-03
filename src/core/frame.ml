@@ -396,7 +396,12 @@ let point_to_xy_opt frame point =
     done;
     None
   with Exit ->
-    Some (!xref, !yref)
+    (* claude: when a long line wraps past the bottom of the visible frame,
+     * the computed y can exceed frm_height - 1. Return None (cursor not
+     * visible) to avoid an out-of-bounds access in frm_table by set_cursor. *)
+    if !yref >= frame.frm_height
+    then None
+    else Some (!xref, !yref)
 (*e: function [[Frame.point_to_xy_opt]] *)
 
 (*s: function [[Frame.set_cursor]] *)

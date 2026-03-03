@@ -1,0 +1,12 @@
+(test
+ (name test_efuns)
+ (libraries
+   testo
+   efuns_core
+   efuns_features
+ )
+ ; -40-42: allow type-directed field disambiguation without open
+ (ocamlopt_flags (:standard -w -40-42))
+ (ocamlc_flags (:standard -w -40-42))
+ (preprocess (pps ppx_interactive profiling.ppx))
+)

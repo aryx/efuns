@@ -60,6 +60,7 @@ src/graphics/    Graphics backends: gtk_cairo2/ is the main GTK+Cairo backend;
 src/ipc/         Server/client IPC: server.ml listens on a Unix socket,
                  efuns_client.ml sends commands
 src/main/        Entry point: Main.ml → CLI.ml → Graphics_efuns.init
+src/tests/       Testo-based test suite (unit_text.ml, unit_frame.ml, etc.)
 libs/commons/    Utility libs: options.ml (config), store.ml (typed vars), concur.ml, etc.
 modes/major_modes/   Buffer menu, dired, shell, outline
 modes/minor_modes/   Abbrevs, fill, paren matching, tab
@@ -68,7 +69,7 @@ modes/text_modes/    Plain text modes
 modes/pfff_modes/    pfff program analysis integration (for smart navigation)
 ppx_interactive/ Custom PPX rewriter (see below)
 external/        Symlinks to external OPAM packages (semgrep-libs, codemap, etc.)
-tests/           Test files by language (ml/, c/, lisp/, etc.) used for indent/highlight tests
+tests/           Test data files by language (ml/, c/, lisp/, etc.) used for indent/highlight tests
 ```
 
 ### `[@@interactive]` PPX
@@ -92,3 +93,23 @@ This is why the main executable uses `-linkall` — all modules must be linked t
 - **Configuration**: User config lives in `~/.efunsrc` (loaded via `Options` module). Options are defined with `Options.define_option`.
 - **Graphics abstraction**: `Xdraw.graphics_backend` is a record of functions; the GTK/Cairo implementation is in `src/graphics/gtk_cairo2/graphics_efuns.ml`.
 - **IPC**: `efuns_client` sends `LoadFile` commands over a Unix socket at `/tmp/efuns-server.<user>.<display>:0`.
+
+### OCaml Coding Style
+
+- **Avoid `open`** unless it's really convenient (e.g., `open Efuns` inside `src/core/` files that heavily use its types).
+- **Avoid `xxx.Module.field` qualifiers for record access**. Instead, annotate the binding that introduces the variable with a type and let OCaml's type-directed disambiguation resolve field names:
+  ```ocaml
+  (* Good: annotate the parameter *)
+  let frame_content (frame : Efuns.frame) =
+    Text.to_string frame.frm_buffer.buf_text
+
+  (* Avoid: verbose module qualifiers on each field *)
+  let frame_content frame =
+    Text.to_string frame.Efuns.frm_buffer.Efuns.buf_text
+  ```
+
+## Other Conventions
+
+- **Literate programming with syncweb:** This project uses [syncweb](https://github.com/aryx/syncweb) for literate programming. The canonical documentation is in `docs/efuns.nw` (Noweb format), and source files are synced from it.
+- **DO NOT modify `(* s: ... *)`, `(* e: ... *)`, or `(* x: ... *)` comments** in source files. These are syncweb chunk markers that link source code to the Noweb documentation. Altering them will break `make sync` in `docs/`.
+- **Tag new comments with `claude:`** when adding comments to existing code, so it's clear they were AI-generated. E.g. `(* claude: bounds check to avoid OOB on wrapped lines *)`.
