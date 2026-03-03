@@ -254,15 +254,19 @@ let isearch to_regexp sens frame =
       | Regexp, false -> Str.regexp !string, 0
       | RegexpString, true -> Str.regexp_string_case_fold !string, String.length !string
       | RegexpString, false -> Str.regexp_string !string, String.length !string
-    in  
+    in
     Text.goto_point text point spoint;
-    match !sens with
-    | Backward -> Text.search_backward text regexp point |> ignore
-    | Forward ->  
-        let len = Text.search_forward text regexp point in
-     (* Printf.printf  "Found at %d len %d" (Text.get_position text point) len;
-        print_newline ();*)
-        Text.fmove text point len
+    (* claude: catch Not_found so failed searches show a message
+     * instead of propagating as an uncaught exception *)
+    (try
+      match !sens with
+      | Backward -> Text.search_backward text regexp point |> ignore
+      | Forward ->
+          let len = Text.search_forward text regexp point in
+          Text.fmove text point len
+    with Not_found ->
+      Message.message frame "Failing I-search"
+    )
   in
   let set_last mini_frame =
     if !string = "" then begin
