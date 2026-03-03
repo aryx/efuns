@@ -34,7 +34,7 @@ let test_set_cursor_long_line_no_oob () =
   let long_line = String.make 200 'x' in
   let content = short_lines ^ "\n" ^ long_line in
   let (top, frame, text, point) =
-    Helpers_efuns.make_frame ~width ~height content
+    Testutil_efuns.make_frame ~width ~height content
   in
   (* First display: populates frm_table with point at beginning.
      The long line starts near the bottom of the frame. *)
@@ -54,7 +54,7 @@ let test_set_cursor_long_line_no_oob () =
    that causes "weird, second cursor" errors on the next display cycle. *)
 let test_minibuffer_kill_clears_second_cursor () =
   let (_top, (frame : Efuns.frame), _text, _point) =
-    Helpers_efuns.make_frame ~width:80 ~height:25 "test content"
+    Testutil_efuns.make_frame ~width:80 ~height:25 "test content"
   in
   let (top : Efuns.top_window) = Window.top frame.frm_window in
   (* Simulate what isearch does: set second cursor before creating minibuffer *)

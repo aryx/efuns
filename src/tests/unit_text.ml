@@ -16,7 +16,7 @@
 (* Unit tests for Text.t (gap buffer) operations *)
 
 let test_insert () =
-  Helpers_efuns.init_editor ();
+  Testutil_efuns.init_editor ();
   let text = Text.create "" in
   let point = Text.new_point text in
   Text.insert text point "hello";
@@ -25,7 +25,7 @@ let test_insert () =
   Text.remove_point text point
 
 let test_insert_multiple () =
-  Helpers_efuns.init_editor ();
+  Testutil_efuns.init_editor ();
   let text = Text.create "" in
   let point = Text.new_point text in
   Text.insert text point "hello";
@@ -37,7 +37,7 @@ let test_insert_multiple () =
   Text.remove_point text point
 
 let test_delete () =
-  Helpers_efuns.init_editor ();
+  Testutil_efuns.init_editor ();
   let text = Text.create "hello world" in
   let point = Text.new_point text in
   (* Move to position 5 ("hello| world") *)
@@ -49,7 +49,7 @@ let test_delete () =
   Text.remove_point text point
 
 let test_point_movement () =
-  Helpers_efuns.init_editor ();
+  Testutil_efuns.init_editor ();
   let text = Text.create "abcdef" in
   let point = Text.new_point text in
   (* Move forward 3 *)
@@ -61,7 +61,7 @@ let test_point_movement () =
   Text.remove_point text point
 
 let test_multiline () =
-  Helpers_efuns.init_editor ();
+  Testutil_efuns.init_editor ();
   let text = Text.create "line1\nline2\nline3" in
   let point = Text.new_point text in
   assert (Text.point_line text point = 0);

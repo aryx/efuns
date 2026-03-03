@@ -25,7 +25,7 @@ let send_key top modifiers keysym =
    Now isearch_s catches Not_found and shows "Failing I-search". *)
 let test_isearch_no_match_no_exception () =
   let (top, frame, _text, _point) =
-    Helpers_efuns.make_frame ~width:80 ~height:25 "hello world"
+    Testutil_efuns.make_frame ~width:80 ~height:25 "hello world"
   in
   (* Display once so frm_table is populated *)
   Frame.display top frame;
@@ -40,7 +40,7 @@ let test_isearch_no_match_no_exception () =
    Text.search_backward explicitly raised Not_found for pos 0. *)
 let test_isearch_backward_at_bob_no_exception () =
   let (top, frame, _text, _point) =
-    Helpers_efuns.make_frame ~width:80 ~height:25 "hello world"
+    Testutil_efuns.make_frame ~width:80 ~height:25 "hello world"
   in
   Frame.display top frame;
   (* Send C-s to start isearch, then C-r to switch to backward *)
