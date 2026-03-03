@@ -44,8 +44,8 @@
 
 * 0.25 (Q4 2019)
 
-** a new Python mode
-based on the Python parser and highlighter in Pfff.
+** languages
+- a new Python mode based on the Python parser and highlighter in Pfff.
 
 ** support for the bento code checker (r2c)
 especially useful for Python and Javascript code
@@ -55,79 +55,66 @@ update: removed as bento got deprecated at r2c
 
 * 0.23 (Q2 2019)
 
-** a new Javascript mode
-based on the Javascript parser and highlighter in Pfff.
+** languages
+- a new Javascript mode based on the Javascript parser and highlighter in Pfff.
 
 * 0.22 (Q1 2019)
 
-** macros!
-(finally deserve to be called an Emacs clone)
+** features
+- macros!
+  (finally deserve to be called an Emacs clone)
 
 ** bugfixes
-
-*** correct exception backtrace in *backtrace*
-and report it also for Failure exn
-
-*** reset modifier when focus back in window
-otherwise it's like Alt is still on
+-correct exception backtrace in *backtrace*
+ and report it also for Failure exn
+- reset modifier when focus back in window
+ otherwise it's like Alt is still on
 
 ** internals
-
-*** full switch to cairo2, opam 2.0, and ocaml 4.07.1
+- full switch to cairo2, opam 2.0, and ocaml 4.07.1
 
 * -----------------------------------------------------------
 
 * 0.21 (Q3 2018)
 
-** a new Merlin minor mode
-to support type and ocamldoc information under cursor, jump-to-definition,
-jump-to-interface, completion, search-def
+** features
+- a new Merlin minor mode
+  to support type and ocamldoc information under cursor, jump-to-definition,
+  jump-to-interface, completion, search-def
 
-** noweb 
-
-*** better coloring
-use fuzzy tree to correctly handle nested elements, and
-support [[ ]] and [< >] correctly (different lexing rules).
+** languages
+- better coloring in noweb
+  use fuzzy tree to correctly handle nested elements, and
+  support [[ ]] and [< >] correctly (different lexing rules).
 
 ** shell
+- shell history (Up and Down)
+- working C-a, M-backspace that do not go beyond the prompt
 
-*** shell history (Up and Down)
-
-*** working C-a, M-backspace that do not go beyond the prompt
-
-** support for Windows!
-can now compile Efuns for Linux, Windows, and macOS
+** build infra
+- support for Windows!
+  can now compile Efuns for Linux, Windows, and macOS
 
 ** better fonts for Linux and Windows
 
 ** misc
-
-*** C-c = to get position information
-
-*** SEMI copy to and from clipboard
-so can have efuns interact with other applications (e.g., web browser)
-
-*** M-x align_char
-
-*** basic rectangle operations (C-x r t, C-x r k)
-
+- C-c = to get position information
+- SEMI copy to and from clipboard
+  so can have efuns interact with other applications (e.g., web browser)
+- M-x align_char
+- basic rectangle operations (C-x r t, C-x r k)
 
 ** internals
-
-*** cleanup external/, rely more on OPAM
-
-*** simplified interface for interactive functions and bindings
-use [@@interactive] attribute (thx to my ppx_interactive extension)
-
-*** factorized code with Frame.buf_text_point helper
-
-*** Cleaner Message.message API and add messages to *Messages* buffer
-
-*** port to cairo2
-cairo seems obsolete; I can not even install it with OPAM
-with recent versions of OCaml.
-Also cairo2's maintainer is very responsive (he quickly added
-the support for Pango fonts that I needed).
+- cleanup external/, rely more on OPAM
+- simplified interface for interactive functions and bindings
+  use [@@interactive] attribute (thx to my ppx_interactive extension)
+- factorized code with Frame.buf_text_point helper
+- Cleaner Message.message API and add messages to *Messages* buffer
+- port to cairo2
+  cairo seems obsolete; I can not even install it with OPAM
+  with recent versions of OCaml.
+  Also cairo2's maintainer is very responsive (he quickly added
+  the support for Pango fonts that I needed).
 
 * -----------------------------------------------------------
 
@@ -199,7 +186,6 @@ for identifiers (e.g. differentiate fields from parameters from locals).
 - maintain a "goal column" when goes up and down in a file, similar to Emacs
 
 ** refactoring
-
 - files and directories reorganization, pad's style
 - LPization (literate programming restructuring, with help from syncweb)
 - removed many opens
