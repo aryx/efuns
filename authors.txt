@@ -15,3 +15,6 @@ Yoann Padioleau: a few contributions
   * Emacs's misc port: M-x align_char, rectangles (C-x r t, C-x r k)
   * pad's stuff: M-down/up/right/left scrolling, M-x gtd
   * Emacs's macro! (C-x (, C-x ), C-x e)
+
+Claude Code:
+  * bugfixes
