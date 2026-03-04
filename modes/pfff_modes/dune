@@ -10,7 +10,7 @@
    efuns_major_modes efuns_minor_modes
    efuns_prog_modes
 
-   ; now in codemap
+   ; from semgrep-pfff-langs
    highlighters
    database_code
    graph_code

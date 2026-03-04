@@ -20,6 +20,8 @@ jobs:
           - 5.2.1
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - run: docker build -t "efuns" --build-arg OCAML_VERSION=${{matrix.ocaml}} .
 
   build-light:
