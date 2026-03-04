@@ -122,6 +122,14 @@ Fabrice Le Fessant
 
 \chapter{Introduction}
 
+%claude:
+This book presents the complete source code of [[efuns]], a text editor
+written in OCaml by Fabrice Le Fessant at INRIA. Efuns is an Emacs
+clone---it shares Emacs's concepts of buffers, windows, modes, and
+keymaps---but implemented in OCaml rather than C+Lisp. The choice
+of OCaml means the editor can be extended simply by adding modules
+and recompiling, rather than needing a separate extension language.
+
 The goal of this book is to explain with full details the source code of
 a {text editor}.
 
@@ -155,6 +163,30 @@ Which data structure is used?
 \end{itemize}
 
 \section{The text editor [[efuns]]}
+
+%claude:
+I chose [[efuns]] for this book because it is a clean, elegant Emacs
+clone written in OCaml by Fabrice Le Fessant at INRIA.
+It covers all the essential concepts of a screen editor --- buffers,
+windows, modes, keymaps --- while remaining small enough (under
+15,000 lines) to explain completely.
+%claude:
+Using OCaml also provides an interesting contrast with the other
+books in the \principia series, which focus on C programs.
+For a desktop application like a text editor, a higher-level language
+makes sense: OCaml's type system catches many bugs at compile time,
+pattern matching makes dispatch logic clearer, and the garbage collector
+removes the need for manual memory management.
+%claude:
+A key design difference from GNU Emacs is that [[efuns]] has no
+separate extension language.
+In Emacs, the core is written in C and extensions in Emacs Lisp,
+which made sense because C is harder to program in than Lisp.
+But with OCaml as the implementation language, you can extend the
+editor simply by adding a module and recompiling --- no need for
+an embedded interpreter. This also means you can use standard
+OCaml debugging tools (like [[ocamldebug]]) rather than Emacs's
+ad-hoc [[debug-on-error]] mechanism.
 
 % I chose efuns, an emacs clone, simple, elegant. Also different language
 % than previous books. Written in OCaml! more high level than C, and while
@@ -201,6 +233,18 @@ Which data structure is used?
 %    lisp code)
 
 \section{Other editors}
+
+%claude:
+Text editors have evolved through several generations.
+The earliest (QED, [[ed]]) were line-oriented: you addressed text
+by line numbers and never saw more than one line at a time.
+The second generation---[[vi]], Emacs---brought full-screen editing.
+A third generation (Sublime Text, VS~Code, Atom) added modern UI
+conventions like multiple cursors and fuzzy-find palettes, while
+IDEs (Eclipse, IntelliJ) integrated compilation, debugging, and
+refactoring.
+Efuns sits squarely in the second generation, inheriting the Emacs
+model, but its codebase is small enough to study as a whole.
 
 %history: (gen1)
 % - QED "online editor" by Butler Lampson
@@ -273,6 +317,17 @@ Which data structure is used?
 % http://www.catch22.net/tuts/neatpad
 
 \section{Other Emacs-like editors}
+
+%claude:
+Several Emacs clones were considered for this book.
+GNU Emacs itself was ruled out because of sheer size---[[xdisp.c]]
+alone is 30,000 lines, more than all of [[efuns]].
+Microemacs and [[mg]] are smaller but written in C, which is already
+well covered elsewhere in the \principia series.
+Qemacs has impressive Unicode and HTML rendering but is also C.
+Efuns stood out as a clean, complete Emacs clone in a
+higher-level language, making it both a manageable size and an
+interesting change of perspective.
 
 Here are a few Emacs clones that I considered for this book,
 but which I ultimately discarded:
@@ -373,6 +428,21 @@ who wrote in some sense most of this book.
 
 \section{Text editor principles}
 
+%claude:
+A screen text editor must solve several interrelated problems:
+represent file content in memory efficiently (the {gap buffer}),
+display that content on screen (handling tabs, control characters,
+and long lines), map keyboard input to editing actions (via keymaps),
+and keep everything synchronized---when text is inserted or deleted,
+all cursors, line counts, and display state must be updated consistently.
+%claude:
+The Emacs design that [[efuns]] follows adds further structure:
+``everything is a buffer'' (even the minibuffer prompt and compilation
+output are buffers), extensibility through {major} and {minor modes}
+that customize keybindings and behavior per file type, and a
+hierarchical variable system (buffer-local, mode-local, global)
+for configuration.
+
 %history: punch cards, line editor ed (imaginary cursor) (cf wikipedia page)
 %Important is can edit! move anywhere, and do backspace!
 % As opposed to ed, can actually see the content! and update it
@@ -428,6 +498,12 @@ who wrote in some sense most of this book.
 
 \section{[[efuns]] interfaces}
 
+%claude:
+Efuns is launched from the command line with optional filenames.
+As with Emacs, there is also a client program ([[efuns_client]])
+that can tell a running instance to open a file, allowing
+integration with other tools.
+
 \subsection{Command-line interface}
 
 % trivial:
@@ -449,6 +525,20 @@ Options:
 \subsection{Graphical user interface}
 
 \section{Code organization}
+
+%claude:
+The source is split into three layers. The \emph{internals} provide
+the core data structures: [[text.ml]] (the gap buffer, self-contained),
+[[efuns.ml]] (the central, mutually-recursive type definitions),
+[[ebuffer.ml]], [[window.ml]], [[frame.ml]], [[top_window.ml]],
+[[keymap.ml]], and [[minibuffer.ml]].
+The \emph{functions} layer implements editing operations on top of
+these structures: [[simple.ml]] for basic actions like insertion and
+deletion, [[complex.ml]] for operations involving the minibuffer,
+[[search.ml]], [[compile.ml]], and so on.
+Finally, the \emph{major modes} ([[ocaml_mode.mll]], [[c_mode.mll]],
+[[tex_mode.mll]], etc.) provide per-language syntax highlighting and
+indentation via [[ocamllex]] lexers.
 
 %from guide.txt:
 
@@ -495,13 +585,31 @@ Options:
 %makefile_mode.ml: The Makefile mode (Tabulation)
 %
 %Minor modes:
-%accents_mode.ml: Accents for QWERTY keyboards (e' => é, e'' => e', ...)
+%accents_mode.ml: Accents for QWERTY keyboards (e' => ï¿½, e'' => e', ...)
 %
 %Config:
 %std_efunsrc.ml: Standard bindings (except those defined in other modules)
 
 
 \section{Software architecture}
+
+%claude:
+The data structures form a layered hierarchy: [[Text.t]] (the gap buffer
+holding raw content) is wrapped in [[Ebuffer.t]] (which adds a name,
+filename, keymap, and modes), which is displayed in a [[Frame.t]]
+(a view of a buffer with its own cursor position and display state),
+which lives inside a [[Window.t]] (the geometry of a tiled subwindow),
+which belongs to a [[Top_window.t]] (the actual OS window). The
+global [[Editor.t]] holds all buffers, frames, and top windows.
+%claude:
+The control flow is event-driven: the GTK event loop dispatches key
+presses to [[Top_window.handle_key]], which looks up the binding in
+the current frame's keymap (cascading through minor mode, major mode,
+buffer, and global keymaps), invokes the resulting action function,
+and then triggers a redisplay. The beauty of this design is that
+action functions only need to modify the buffer state (e.g., move
+a point or insert text)---the redisplay engine automatically handles
+all the visual consequences.
 
 %FIGURE: show top graphical window first! so can see concepts
 % of frames/windows, status line, minibuffer (which don't have status lines),
@@ -535,13 +643,29 @@ Options:
 
 \subsection{Trace of a file loading}
 
+%claude:
+Opening a file triggers a chain: [[main]] calls [<Ebuffer.read_file>]
+which reads the file into a [[Text.t]] gap buffer, wraps it in
+an [[Ebuffer.t]] with default keymap and modes, creates a [[Frame.t]]
+to display it, and finally triggers the initial redisplay.
+
 % scenario
 
 \subsection{Trace of a line rendering}
 
+%claude:
+Rendering a single line follows a pipeline: on-disk bytes are loaded
+into [[text.text_string]] (the gap buffer's backing store), line
+boundaries are recorded in [[text.text_newlines]], then each line
+is expanded into {boxes} that handle special characters (tabs become
+spaces, control characters become [[^X]] notation), and these boxes
+are placed into [[frame.frm_table]] rows---splitting into multiple
+screen rows when a line overflows the window width---before finally
+being drawn on screen.
+
 % also important is the flow from the text string to the screen:
-% data on disk -> 
-% text.text_string in memory -> 
+% data on disk ->
+% text.text_string in memory ->
 % text.text_newlines ->
 %   boxes + repr_string to handle special chars ->
 % frame.frm_table ->
@@ -550,7 +674,19 @@ Options:
 
 \subsection{Trace of a key press}
 
-% event, event loop, keyboard dispatch, 
+%claude:
+A key press flows through the GTK event loop to
+[<Top_window.handle_key>], which looks up the key (or key sequence)
+in the current frame's keymap chain via [<Keymap.try_map>].
+The matching action function is called with the current frame
+as argument---for example, [[M->]] simply moves the point to the
+end of the buffer.
+After the action returns, the event loop calls the redisplay engine,
+which notices the point has moved and redraws accordingly.
+The elegance is that action code only modifies buffer state;
+all visual consequences are handled automatically by redisplay.
+
+% event, event loop, keyboard dispatch,
 % try_map, find right map
 % action (e.g. RETURN), effect
 % rerendering!
@@ -568,6 +704,15 @@ Options:
 
 \section{Book structure}
 
+%claude:
+The book follows a layered approach.
+It begins with the core data structures (gap buffer, types, buffers,
+frames, windows), then walks through [[main]] top-down.
+Next it covers the editing functions bottom-up from simple to complex,
+followed by the display engine and the major modes.
+The appendices contain auxiliary code such as X11 bindings and
+configuration.
+
 % Core DS. Top-down main.
 % Bottom up core DS functions. Top-down again UI perspective.
 
@@ -583,10 +728,30 @@ Options:
 % control = action -> keymap
 % config = var, option, hooks
 
+%claude:
+The core types are mutually recursive (defined together in [[Efuns]])
+and form a containment hierarchy: [[Text.t]] $\subset$ [[Ebuffer.t]]
+$\subset$ [[Frame.t]] $\subset$ [[Window.t]] $\subset$ [[Top_window.t]]
+$\subset$ [[Editor.t]]. The control structures---[[Action.t]] (named
+functions), [[Keymap.t]] (key-to-action mappings), and [[Var.t]]
+(typed configuration variables)---cut across this hierarchy,
+connecting keyboard input to buffer modifications.
+
 \section{[[Text.t]]}
 
 % text -> string | (lines -> ... boxes)
 % with attrs at different level (text_attr, box_attr)
+
+%claude:
+[[Text.t]] is the lowest-level data structure: a {gap buffer} holding
+the raw file content as a mutable byte array. The gap (a hole in the
+array) sits at the current editing position, making sequential
+insertions O(1). The [[text_newlines]] array maintains an index of
+line boundaries for fast line-number lookups. Two coordinate systems
+coexist: {user positions} (what the editor user sees, ignoring the gap)
+and {internal positions} (offsets into [[text_string]] including
+the gap). The [[Text.get_position]]/[[Text.set_position]] functions
+convert between them.
 
 <<type [[Text.t]]>>=
 type t = {
@@ -750,6 +915,15 @@ let mk_line_with_pos pos =
 %a virtual file (for example, compilation messages). The file text itself
 %is stored in the Text.t type."
 
+%claude:
+A buffer wraps a [[Text.t]] with editor-level metadata: a unique name,
+an optional filename, a major mode, minor modes, a local keymap, and
+a syntax table. It also holds [[buf_point]] and [[buf_start]]---saved
+cursor and viewport positions that are restored when switching back to
+this buffer from another one. The buffer's [[buf_name]] serves as a
+primary key in the editor's buffer hash table, and is made unique by
+appending a counter suffix (e.g., [[file.txt<2>]]) when needed.
+
 <<type [[Efuns.buffer]]>>=
 (* a buffer containing a file content in buffer.buf_text *)
 and buffer =
@@ -879,6 +1053,20 @@ let create name filename text local_map =
 
 
 \section{[[Frame.t]]}
+
+%claude:
+A frame is a {view} of a buffer. It holds its own cursor ([[frm_point]]),
+viewport start ([[frm_start]]), and display table ([[frm_table]]) mapping
+screen lines to text lines. Multiple frames can show the same buffer
+simultaneously. The frame also tracks display state---version numbers
+for incremental redraw, a [[frm_cutline]] for line wrapping, and
+offsets for scrolling within wrapped lines.
+%claude:
+The terminology can be confusing: what [[efuns]] calls a ``frame''
+corresponds to an Emacs ``window'' (a pane showing a buffer), while
+what [[efuns]] calls a ``window'' is purely geometry (position and
+dimensions within the top window). An Emacs ``frame'' (a separate OS
+window) corresponds to [[efuns]]'s [[Top_window.t]].
 
 % It's actually not a frame in emacs terminology. hmmm.
 % It's really a window, but with not just
@@ -1036,6 +1224,15 @@ mutable buf_shared : int; (* number of frames for that buffer *)
 
 %todo: rename? frame_config? frame_window?
 
+%claude:
+A window is just geometry: position and dimensions in character units.
+The interesting part is [[win_down]], which forms a binary tree:
+a window is either a leaf containing a [[Frame.t]], or a horizontal
+or vertical combination ([[HComb]]/[[VComb]]) of two sub-windows.
+The [[win_up]] link points back to the parent window or the top window,
+enabling navigation from any frame to its containing top window
+via [[Window.top]].
+
 <<type [[Efuns.window]]>>=
 and window =
   { 
@@ -1128,6 +1325,14 @@ let create mini up_window xpos ypos width height =
 % the possibility to have multiple top windows related to each other
 % through the same efuns instance.
 
+%claude:
+A [[Top_window.t]] represents an actual OS-level window (historically
+an X11 widget). It sits at the top of the containment hierarchy:
+it owns the root [[Window.t]] (which recursively contains all the
+frames), tracks overall dimensions, holds the graphics backend,
+and knows which frame is currently active ([[top_active_frame]]).
+It is kept separate from [[Editor.t]] to allow---in principle---multiple
+top-level windows sharing the same editor state.
 
 <<type [[Efuns.top_window]]>>=
 (* a window containing some frames *)
@@ -1194,6 +1399,15 @@ let rec top window =
 
 
 \section{[[Editor.t]]}
+
+%claude:
+The editor is the global ``world'' object, holding hash tables of all
+buffers (keyed by name and by filename), the list of top windows, and
+global display settings. It is stored as a global mutable reference
+([[global_editor]]) rather than being threaded through every function
+call. Originally called ``location'' (reflecting [[efuns]]'s Jocaml
+ancestry), it was renamed to the more intuitive [[editor]].
+
 % full state
 
 %"All the editor information is organised inside one structure: the location.
@@ -1333,6 +1547,14 @@ exception FoundFrame of frame
 % Have seen the data mostly: editor, frame, buffer, text.
 % Now how modify all of that? The control?
 
+%claude:
+An action is simply a function [[frame -> unit]]. Every editing
+operation---inserting a character, moving the cursor, opening a file---is
+an action. Actions take the active frame as their sole parameter and can
+reach the buffer, text, window, and editor from there. They are
+registered by name in a global hash table ([[Efuns.actions]]) so they
+can be invoked by name from [[M-x]], menus, and configuration files.
+
 <<type [[Efuns.action]]>>=
 and action = frame -> unit
 @
@@ -1378,6 +1600,15 @@ let dummy_action _frame = ()
 %note: but maybe it's important to present early because this is useful for
 % some hooks that are defined as options, for the configurable menu,
 % and because M-x is a pretty important concept in Emacs.
+
+%claude:
+Every editing command is registered by name in a global [[actions]]
+hash table, mapping strings like [["forward_char"]] to their
+[[generic_action]] function. This is the mechanism behind [[M-x]]:
+the user types an action name and efuns looks it up in the table.
+It also enables saving keybindings in configuration files as
+strings rather than function pointers. Since OCaml lacks
+[[eval]], [<define_action>] must be called explicitly for each command.
 
 <<type [[Efuns.action_name]]>>=
 and action_name = string
@@ -1565,6 +1796,15 @@ let execute_buffer_action action_name buf =
 % have seen ocaml code corresponding to actions
 % but how trigger those actions? via keyboard! binding!
 
+%claude:
+A keymap maps key combinations to actions. It uses a dual structure
+for performance: [[char_map]] is a 256-entry array for single-character
+bindings (O(1) lookup), while [[complex_bindings]] is a list for
+modified keys and multi-key sequences. Bindings cascade through
+four scopes: minor mode $\to$ major mode $\to$ buffer-local $\to$ global,
+so a mode like shell-mode can override [[Return]] without affecting
+other buffers. Prefix keys (like [[C-x]]) bind to sub-keymaps, enabling
+arbitrarily deep key sequences.
 
 % keyboard handling is important for an editor!
 % different possibilities:
@@ -1733,6 +1973,13 @@ let add_local_key buf prefix action =
 
 \subsection{Configurable keymap}
 
+%claude:
+The [[global_map]] option allows users to override the default keymap
+entirely from their [[.efunsrc]] configuration file. Each entry is a
+pair of key sequence and action name (as a string). If the user has
+not customized it (the list is empty), [<Config.init_global_map>]
+falls back to the built-in [[core_map]] and [[standard_map]].
+
 %todo: move that later now
 <<constant [[Config.global_map]]>>=
 let global_map = define_option ["global_map"] "" 
@@ -1785,6 +2032,17 @@ let init_global_map () =
 @
 
 \subsection{Standard Emacs/Efuns keymap}
+
+%claude:
+The [[standard_map]] defines the familiar Emacs keybindings:
+[[C-f]]/[[C-b]] for character movement, [[C-x C-f]] for opening
+files, [[C-w]] for kill-region, and so on. Three prefix keys
+([[C-x]], [[C-c]], [[C-h]]) are given named constants because
+they appear in many multi-key sequences. The bindings are organized
+by category (loading, navigating, editing, searching, etc.) and
+each entry is a pair of key sequence and action function---not a
+string name, since this is the compiled-in default rather than
+a user configuration file.
 
 % a few important keys
 
@@ -1906,6 +2164,16 @@ let standard_map = [
 
 
 \section{[[Var.t]]}
+
+%claude:
+Variables provide Emacs-style configuration: a typed key-value store
+with scoped lookup. [[Var.get_var]] searches buffer-local $\to$ major
+mode $\to$ minor modes $\to$ global, so a Python buffer can have
+[[indent_level = 4]] while a Makefile buffer has [[indent_level = 8]],
+and both fall back to the global default if unset. The [[Store]]
+module (see appendix) uses an unsafe but clever trick with [[Obj.magic]]
+to provide type-safe heterogeneous storage without requiring all
+variable types to be known in advance.
 
 % polymorphic typed variables in the same store!
 % trick using phantom types. See appendix (or put more of store.ml here?)
@@ -2146,6 +2414,17 @@ let save_buffer_hooks = define_option ["save_buffer_hooks"] ""
 
 \chapter{[[main()]]}
 
+%claude:
+The initialization sequence proceeds in a specific order:
+(1) parse command-line arguments, (2) load the [[.efunsrc]]
+configuration file (which sets Options), (3) create the editor
+instance with all its hash tables and stores, (4) run startup hooks
+(which register major modes, set up keybindings, etc.), (5) create
+the graphical top window, and (6) enter the event loop. The order
+matters: startup hooks must run after the editor exists but before
+the GUI, so modes can register themselves in time to be applied
+to the initial files.
+
 % there are actually no really main() in ocaml, instead
 % a list of toplevels doing stuff (in the order of the linking)
 %pad: but I reorganizeded the code to gather stuff in a main(), more readable.
@@ -2209,6 +2488,15 @@ let main (caps : < caps; .. >) (argv : string array) : Exit.t =
 
 \section{Configuration file: [[.efunsrc]]}
 % .efuns rc (but can be read as .efun src, so rename?)
+
+%claude:
+Efuns persists settings in a [[.efunsrc]] file, searched first along
+[[load_path]] then falling back to the home directory. The options
+(width, height, colors, font) are declared at the toplevel with
+[[define_option]] and sensible defaults, so [[!!]] returns usable
+values even before the file is loaded. The [[=:=]] operator writes
+back into an option, used below to let command-line flags override
+what [[.efunsrc]] set.
 
 <<[[main()]] set options>>=
 <<[[main()]] set options filename>>
@@ -2285,6 +2573,16 @@ let font = define_option ["font"] "" string_option "Monospace 20"
 
 \section{Arguments processing}
 
+%claude:
+Command-line flags like [[-width]] or [[-fg]] cannot be written directly
+into the Options because [[.efunsrc]] has not been loaded yet at
+argument-parsing time. Loading the file afterwards would silently
+overwrite whatever the user passed on the command line. The workaround
+is a set of intermediate [[ref None]] variables: arguments are captured
+there first, the configuration file is loaded, and then the
+[[adjust options]] chunk applies any [[Some]] values with [[=:=]],
+giving command-line flags the final say.
+
 <<constants [[Main.xxx_opt]]>>=
 let width_opt   = ref None
 let height_opt  = ref None
@@ -2343,6 +2641,15 @@ let check = ref false
 
 \section{The default [[editor]]}
 
+%claude:
+The {editor} record is the global singleton that owns all shared state:
+open buffers, open files, the list of top windows, the global keymap,
+and color/font registries. Colors and fonts are stored in fixed-size
+arrays (256 entries) because [<make_attr>] packs a color index and a
+font index into a single byte each. The [[edt_mutex]] protects this
+shared state from concurrent access by background threads (e.g.,
+shell commands launched with [[M-!]]).
+
 <<[[main()]] initial editor>>=
 let editor = { Efuns.
     edt_buffers = Hashtbl.create 13;
@@ -2377,6 +2684,15 @@ let editor = { Efuns.
 
 \section{Startup hooks}
 % hooks on editor creation, hence they take an editor in parameter
+
+%claude:
+Rather than hardwiring initialization into [[main]], efuns uses a
+{start hooks} pattern: each module (major modes, keybinding
+configurations, etc.) registers a closure via [<add_start_hook>]
+at toplevel evaluation time. When [<init_efuns>] runs, it drains the
+accumulated list and executes every hook. Crucially, it also clears
+[[start_hooks]] so hooks registered later (e.g., by code loaded from
+[[.efunsrc]]) can be collected and run in a second pass.
 
 <<[[main()]] initialize the world>>=
 init_efuns editor (* launch first hooks *);
@@ -2423,6 +2739,14 @@ let _ =
 
 \section{The graphical top window}
 
+%claude:
+The graphical layer is deliberately isolated behind a backend
+interface ([[Xdraw]]), so the core editor logic is portable across
+GTK, X11, or any future toolkit. [<Graphics_efuns.init>] is the
+non-portable entry point: it opens the display, creates a
+[[Top_window]], wires up the backend, performs an initial
+[[update_display]], and enters the event loop.
+
 <<[[main()]] run the UI>>=
 Graphics_efuns.init caps !initial_files;
 @
@@ -2437,6 +2761,14 @@ let backend top_window =
 @
 
 \subsection{[[Graphics.init()]]}
+
+%claude:
+The actual [[Graphics_efuns.init]] function is backend-specific and
+therefore not shown here directly, but the pseudocode in the comments
+below outlines the universal pattern: open the graphics system, create
+a [<Top_window>], attach a backend context via the [[graphics]] field,
+call [<update_display>] to paint the initial screen, and enter the
+event loop that dispatches to [<Top_window.handler>].
 
 % this is the not portable part!
 % but it looks approximately like that:
@@ -2460,6 +2792,17 @@ let backend top_window =
 % will see main functions called from init below
 
 \subsection{[[Top_window.create()]]}
+
+%claude:
+Creating a top window involves a mutual-recursion puzzle: a
+[[top_window]] needs an active frame, but a frame's [[win_up]] field
+needs to point back to the [[top_window]]. The solution is
+[<Window.create_at_top>], which uses OCaml's [[let rec]] to build a
+window with a temporary self-referencing [[win_up]], then
+[[Top_window.create]] patches it to [[TopWindow top_window]]
+after construction. Note the [[-1]] on height: one row is
+reserved for the minibuffer, which is not pre-created but
+allocated lazily on the first [[M-x]].
 
 % main -> Graphics_efuns.init -> <>
 <<function [[Top_window.create]]>>=
@@ -2625,6 +2968,15 @@ let create_at_top xpos ypos width height =
 \subsection{[[Top_window.update_display()]]}
 % or mv in  its own \section, redisplay engine? after the event loop
 
+%claude:
+The redisplay engine is invoked after every keystroke and during
+initialization. It iterates over all top windows, walks the window
+tree with [<Window.iter>] to repaint each frame via [<Frame.display>],
+then separately repaints the active minibuffer (if any), restores the
+cursor, and finally tells the graphics backend to flush its
+updates to screen. The [[\[@@profiling\]]] annotation reflects that
+this is a hot path worth measuring.
+
 % Graphics_xxx.init | (event loop -> handle_key) -> <>
 <<function [[Top_window.update_display]]>>=
 let update_display () =
@@ -2663,6 +3015,18 @@ let update_display () =
 
 \section{The event loop}
 
+%claude:
+The event loop is provided by the graphics backend (GTK or X11).
+On each event, [[Top_window.handler]] acquires the editor mutex
+(necessary because external processes like [[M-!]] run in separate
+threads) and dispatches based on event type. For key presses,
+[[handle_key]] is the critical path: it turns off the cursor, runs
+[[handle_key_start_hook]], computes the modifier (Control, Meta, or both),
+looks up the binding via [[Keymap.get_binding]] (cascading through
+minor $\to$ major $\to$ buffer $\to$ global maps), executes the
+action, runs [[handle_key_end_hook]], and finally calls
+[[update_display]] to repaint all affected frames.
+
 % again not portable part
 
 %  let rec loop () =
@@ -2675,9 +3039,21 @@ let update_display () =
 
 \subsection{[[Event]]}
 
+%claude:
+The event type ([[Xtypes.event]]) is defined in the graphics
+abstraction layer and is not shown here. The key variant is
+[[XTKeyPress]], which carries modifier bits and a keysym integer.
+
 % event type?
 
 \subsection{[[Top_window.handler()]]}
+
+%claude:
+Every event is handled under the editor mutex via [<with_lock>],
+which uses [[Fun.protect]] to guarantee the lock is released even
+if an exception escapes. The handler simply pattern-matches on the
+event type and dispatches; currently only [[XTKeyPress]] is shown,
+but resize and mouse events follow the same structure.
 
 % will see later why need mutex, when use threads
 % for external process (e.g. M-!) in which case
@@ -2704,6 +3080,18 @@ let with_lock f =
 
 
 \subsection{[[Top_window.handle_key()]]}
+
+%claude:
+The [[handle_key]] function is the heart of the keystroke pipeline.
+It first saves the raw keysym in [[keypressed]] (used by
+[<self_insert_command>] to avoid defining a separate action for
+every printable character), then turns off the cursor and clears
+any lingering message from the minibuffer. The start hook runs
+per-buffer (via [[Var.get_var]]) so modes like eshell can intercept
+keystrokes, while the end hook is global. Between the hooks,
+[<try_map>] does the actual keymap lookup and action execution.
+Finally, [[update_display]] repaints everything---meaning every
+single keystroke triggers a full redisplay pass.
 
 <<[[Top_window.handler()]] match event cases>>=
 | Xtypes.XTKeyPress (modifiers, _s, keysym) ->
@@ -2798,6 +3186,18 @@ match () with
 
 \chapter{Text Management}
 
+%claude:
+This chapter covers the internals of [[Text.t]]---the gap buffer
+implementation that is the foundation of all editing operations.
+The key insight is that a gap buffer makes sequential editing at the
+cursor position O(1), at the cost of O(n) for random-position edits
+(moving the gap). Since users typically type sequentially, this is
+an excellent trade-off. The complexity lies in keeping everything
+consistent: positions must be translated between ``user'' and
+``internal'' coordinates, all registered points must be updated
+when the gap moves, and the [[text_newlines]] array must be maintained
+after every insertion or deletion.
+
 % text.ml
 
 %How moe, sam, vi, emacs, gedit manage their textual data:
@@ -2810,6 +3210,20 @@ match () with
 % http://www.averylaird.com/programming/editor/2017/09/30/the-piece-table/
 
 \section{The gap buffer}
+
+%claude:
+The gap buffer is a classic data structure for text editors, also used
+by GNU Emacs.  The idea is to maintain a single contiguous byte array
+([[text_string]]) with an empty ``hole'' (the gap) at the cursor position.
+Inserting a character at the cursor is O(1)---just write into the gap
+and shrink it.  Inserting elsewhere requires first moving the gap to
+that position, which costs O(n) in the distance moved but is cheap
+for sequential edits.  The key fields are [[gpoint]] (where the gap
+starts), [[gsize]] (how many unused bytes the gap contains), and
+[[text_size]] (the total allocation including the gap).  The logical
+file size is [[text_size - gsize]].  Alternatives like piece tables
+or ropes exist, but gap buffers are simple and well-suited to the
+sequential nature of typing.
 
 %from guide.txt:
 %The Text.t type implements a gap-buffer. A gap-buffer is a buffer with
@@ -2910,7 +3324,23 @@ let get_char text point =
 
 \section{Positions}
 
+%claude:
+The gap buffer creates a fundamental distinction between two position
+systems. {User positions} are contiguous character offsets as the user
+sees them (0 to file length). {Internal positions} ([[position2]])
+are offsets into [[text_string]] that include the gap---so a position
+after the gap is shifted by [[gsize]]. [[Text.get_position]] converts
+internal $\to$ user (subtracting [[gsize]] if past the gap), and
+[[Text.set_position]] does the reverse.
+
 \subsection{User positions}
+
+%claude:
+A ``user position'' is what [[C-x =]] displays: a contiguous offset
+from 0 to the logical file length, as if the gap did not exist.
+[[Text.get_position]] converts from the internal [[point.pos]]
+to a user position by subtracting [[gsize]] when the point lies
+past the gap.
 
 % point.pos are actually not really the final charpos position;
 % the gap has to be taken care of.
@@ -2968,6 +3398,13 @@ let get_position text point =
 
 \subsection{Internal positions}
 
+%claude:
+Internal positions ([[position2]]) are raw offsets into [[text_string]],
+so they include the gap.  [[Text.set_position]] converts a user
+position to an internal one by adding [[gsize]] when the user position
+is past [[gpoint.pos]].  Most code outside [[Text]] works with user
+positions; internal positions appear only in the gap management
+internals.
 
 <<type [[Text.position2]]>>=
 type position2 = int
@@ -2989,6 +3426,16 @@ let set_position text point pos =
 % which makes points really dependent of the text it references.
 
 \section{Points}
+
+%claude:
+Points are mutable cursors registered with a [[Text.t]]. Whenever the
+gap moves or the buffer is modified, all registered points are adjusted
+to maintain their logical position in the text. This is why points must
+be created via [[Text.new_point]] (which adds them to [[text_points]])
+and cleaned up via [[Text.remove_point]]. The [[with_dup_point]]
+helper ensures cleanup even on exceptions---a critical resource
+management pattern since leaked points would be updated forever,
+wasting work and potentially causing bugs.
 
 % optimizing markers:
 % http://blog.atom.io/2015/06/16/optimizing-an-important-atom-primitive.html
@@ -3082,6 +3529,15 @@ let with_new_point text f =
 
 \section{Delta}
 
+%claude:
+A {delta} is a signed distance between two positions, in user
+coordinates.  [[Text.distance]] (and the internal [[low_distance]])
+must account for the gap: if the two positions straddle the gap, the
+raw difference [[p2 - p1]] would include the gap bytes, so [[gsize]]
+must be subtracted.  The four cases in [[low_distance]] cover every
+combination of both positions being before, after, or straddling
+the gap.
+
 <<type [[Text.delta]]>>=
 type delta = int
 @
@@ -3116,8 +3572,19 @@ let low_distance text p1 p2 =
 \section{Lines and columns}
 % coordinates?
 
-% already seen Text.text_newlines, Text.text_nlines, and 
+% already seen Text.text_newlines, Text.text_nlines, and
 % Text.line (very partial for now) type
+
+%claude:
+Beyond raw byte positions, the editor also needs line/column
+coordinates for the status line and for vertical movement commands.
+Each point carries a [[line]] field that is maintained alongside
+[[pos]] during every gap move and insertion.  Computing the column
+requires gap awareness: if the gap sits between the beginning of
+the line and the point, [[gsize]] must be subtracted from the raw
+offset difference.  Note that coordinates here are logical (text
+line and column); screen coordinates (pixel x/y) are a separate
+concern handled later by the line representation and frame layers.
 
 <<type [[Text.coord]]>>=
 type coord = {
@@ -3308,6 +3775,16 @@ let move text point n =
 
 \section{Inserting characters}
 
+%claude:
+Inserting text into the gap buffer is a multi-step process:
+(1) move the gap to the insertion point (which requires blitting
+bytes and updating all points and line records), (2) extend the gap
+if the string to insert is larger than the remaining gap space
+(doubling the buffer), (3) copy the string into the gap, (4) update
+the [[text_newlines]] array if the string contains newlines, and
+(5) advance the gap position past the inserted text. Each step must
+carefully maintain consistency of all registered points.
+
 % insert | ... -> <>
 <<function [[Text.low_insert]]>>=
 let low_insert text pos str =
@@ -3354,6 +3831,15 @@ let low_insert text pos str =
 % (insert, insert_res, ...)
 
 \subsection{Moving the gap}
+
+%claude:
+Moving the gap is the most expensive part of an insertion.
+[[move_gpoint_to]] blits the bytes between the old gap position
+and the target position, copies the corresponding attributes, adjusts
+[[text_newlines]] entries for any lines that crossed the gap boundary,
+and shifts every registered point whose internal position falls in the
+moved region.  The two cases (moving the gap forward vs.\ backward)
+are symmetric but use opposite blit directions.
 
 <<[[Text.low_insert()]] move gap to point>>=
 move_gpoint_to text pos;
@@ -3425,6 +3911,14 @@ text.gpoint <- { pos = pos - gsize; line = gline + delta_line }
 
 \subsection{extending the gap}
 
+%claude:
+When the gap is too small for the string being inserted,
+[[extend_gap]] allocates a new, larger [[text_string]] (and
+[[text_attrs]]) and copies the content around the gap into the new
+buffer, widening the gap by at least [[add_amount]] bytes (default
+200).  All [[text_newlines]] positions past the gap and all
+registered point positions must be shifted by the added size.
+
 <<[[Text.low_insert()]] extend gap if not enough space>>=
 if strlen > text.gsize 
 then extend_gap text strlen;
@@ -3477,6 +3971,15 @@ let extend_gap text amount =
 
 \subsection{Adjusting newlines information}
 
+%claude:
+When the inserted string contains newlines, the [[text_newlines]]
+array must be updated: existing entries after the insertion point
+are shifted right by [[nbr_newlines]] slots, and the new line
+positions are filled in by scanning the inserted text for
+[['\\n']] characters.  If the array is too small, it is grown
+first.  This is the bookkeeping that makes [[point_line]] and
+column calculations correct after multi-line insertions.
+
 <<[[Text.low_insert()]] adjust newlines when str contains newlines>>=
 if (Array.length text.text_newlines - text.text_nlines) < nbr_newlines then
   begin
@@ -3521,6 +4024,17 @@ text.text_newlines <- new_cache;
 %\subsection{Adjusting points}
 
 \section{Deleting characters}
+
+%claude:
+Deletion is the mirror of insertion: after moving the gap to the
+deletion point, we simply expand [[gsize]] by the number of bytes
+to delete---the ``deleted'' bytes are swallowed into the gap.  Any
+points that were inside the deleted region are snapped back to
+[[gpos]], and all points after the deletion have their [[line]]
+decremented by the number of newlines that were removed.  The
+actual bytes are not zeroed; they become part of the gap and will
+be overwritten by future insertions or cleaned up lazily by
+[[clean_text]].
 
 % delete | ... -> <>
 <<function [[Text.low_delete]]>>=
@@ -3577,6 +4091,18 @@ text.text_nlines <- text.text_nlines - nbr_newlines;
 % (delete_res, delete, ...)
 
 \section{Attributes}
+
+%claude:
+Each character in the buffer carries an {attribute} that encodes its
+foreground color, background color, font, and highlight status into a
+single [[int]].  This packed representation---8~bits for foreground,
+8~bits for background, 8~bits for font, and 1~bit for highlighting---is
+critical for efficiency because the [[text_attrs]] array has one entry
+per character.  Colors and fonts are stored as indices into global maps
+([[edt_colors]], [[edt_fonts]]) rather than as strings, which keeps
+attribute comparison and storage cheap.  The first two color indices
+(0~and~1) are conventionally reserved for foreground and background,
+echoing the stdin/stdout/stderr numbering convention.
 
 <<type [[Text.attribute]]>>=
 type attribute = int
@@ -3714,6 +4240,15 @@ let unset_attrs text =
 
 \subsection{Colors}
 
+%claude:
+Colors are stored as indices into a global palette
+([[edt_colors]]) rather than as color name strings.
+[[Window.get_color]] lazily allocates an index the first time a
+color name is seen, up to a maximum of 256.  By convention, index
+0 is the foreground color and index 1 is the background, established
+during initialization---a numbering convention reminiscent of
+stdin/stdout/stderr.
+
 % color map
 
 <<[[Efuns.editor]] other fields>>=
@@ -3765,6 +4300,16 @@ Attr.get_color !!highlight_color |> ignore;
 % will then trigger coloration of the buffer
 
 % makefile_color | ... -> <>
+
+%claude:
+The [<Simple.color>] function implements batch syntax coloring: it
+iterates through the buffer searching for a regexp, and for each match
+sets the attribute on the matched region.  The [[strict]] flag implements
+implicit word boundaries by checking the characters before and after the
+match against the buffer's [[buf_syntax_table]].  This is not
+incremental like Emacs's \texttt{font-lock-mode}---it recolorizes the
+entire buffer each time---but it is simple and sufficient for many uses.
+
 <<function [[Simple.color]]>>=
 let color buf regexp strict attr =
   let text = buf.buf_text in
@@ -3806,6 +4351,17 @@ let color buf regexp strict attr =
 %todo: have also a region variant, start/end
 
 \subsection{Highlights}
+
+%claude:
+Highlighting uses the spare bit~24 in the attribute integer
+([[highlight_bit]]).  [<Simple.highlight_region>] ORs this bit onto
+every character in a range; [<Simple.unhighlight_region>] ANDs it off.
+The highlighting is deliberately transient: [[handle_key_start_hook]]
+clears it on every keystroke, so the selection vanishes the moment the
+user types---matching Emacs's ``transient mark mode'' behavior.
+A separate [[highlighted_chars]] list tracks per-character highlights
+(used by [[paren_mode]] to flash the matching parenthesis), which are
+also cleaned up on the next key event.
 
 <<constant [[Main.highlight_color]]>>=
 let highlight_color = define_option ["highlight_color"] "" color_option "cyan"
@@ -4130,6 +4686,20 @@ Attr.get_font !!Globals.font |> ignore;
 % handles tabs, special ^M chars, and then the frame line representation
 % that handles overflow lines.
 
+%claude:
+Between the raw text bytes and the pixels on screen lies the
+{line representation} layer.  A single buffer character may occupy
+multiple screen columns (tabs expand to variable-width spaces, control
+characters display as \texttt{\^{}M}), so we need a mapping from text
+positions to display positions.  This is done via
+[<Text.compute_representation>], which walks a line's characters,
+expands special characters using [[buf_charreprs]], and groups
+consecutive characters that share the same attribute and character width
+into {boxes}.  The result is a [[repr_string]] (the expanded display
+bytes) and a list of [[box]] records that describe contiguous runs.
+This two-level representation lets the rendering code issue one
+[[draw_string]] call per box instead of per character.
+
 \subsection{Line boxes}
 % (cached) representation
 %less: mv later? Keep Text Management section to be only about text_string?
@@ -4245,6 +4815,20 @@ box_pos_repr : int;  (* pos of box in representation string *)
 
 
 \subsection{[[Text.compute_representation()]]}
+
+%claude:
+This is the core rendering function: it walks a line's characters,
+expands each one through [[charreprs]] (handling tabs and control
+characters), groups consecutive characters with the same attribute
+and character size into {boxes}, and stores the result in the line's
+[[repr_string]] and box list.  Two cursors run in parallel:
+[[text_cursor]] over [[text_string]] (skipping the gap) and
+[[repr_cursor]] over [[repr_string]] (the expanded display string).
+The inner loop accumulates characters into the current box as long
+as the attribute and character size match; when either changes, the
+box is closed and a new one started.  The [[\[@@profiling\]]]
+annotation reflects that this function is on the critical path of
+every redisplay.
 
 % most important is computing repr_string, and then the boxes
 % which contain the appropriate colors for the different subparts
@@ -4516,7 +5100,23 @@ let cancel_repr text _point n =
 % the code but they interstand the interface, so let's start
 % from that!
 
+%claude:
+This chapter presents the code by following the visual structure of the
+application window from top to bottom: menus, then the editing area
+(sub-windows and frames), then the status line, and finally the
+minibuffer at the very bottom.  This is also the order in which a user
+discovers the interface, making the code easier to follow than a
+bottom-up data-structure-first approach.
+
 \section{Menus}
+
+%claude:
+Menus are defined as configurable option lists of (label,~action-name)
+pairs.  The actual menu creation code (commented out below) used to
+call [[add_menu]] on the old X11 widget; now the backend handles
+rendering.  What matters here is that every menu entry resolves to a
+named action, so the entire menu bar is user-customisable via
+[[.efunsrc]].
 
 <<toplevel [[Config]] menu settings>>=
 let _ =
@@ -4551,6 +5151,14 @@ let _ =
 
 
 \subsection{File menu}
+
+%claude:
+The file menu covers the core file lifecycle: open, save, save-as,
+and exit.  The interesting design point is that
+[[load_buffer]] and [[write_buffer]] both delegate to
+[<Select.select_file_from_pwd>], which opens a minibuffer with
+filename completion---so these menu entries and \texttt{C-x C-f} share
+the exact same code path.
 
 <<constant [[Top_window.file_menu]]>>=
 let file_menu = define_option ["file_menu"] "" (list_option string2_option) []
@@ -4992,6 +5600,11 @@ let exit frame =
 
 \subsection{Edit menu}
 
+%claude:
+The edit menu mirrors standard clipboard operations (cut, paste, undo),
+again mapping each entry to a named action string that resolves through
+the global [[actions]] hash table.
+
 <<constant [[Top_window.edit_menu]]>>=
 let edit_menu = define_option ["edit_menu"] "" (list_option string2_option) []
 @
@@ -5012,9 +5625,19 @@ if !!Top_window.edit_menu =*= [] then begin
 
 \subsection{Buffers menu}
 
+%claude:
+The buffers menu is dynamically generated (seen later with the
+buffer-management code), so only a placeholder appears here.
+
 % will see later again
 
 \subsection{Help menu}
+
+%claude:
+Unlike the other menus, the help menu stores direct action closures
+rather than action-name strings, and uses a plain [[ref]] rather than
+an option.  Its entries open special buffers ([[*bindings*]],
+[[*help*]]) via [<Frame.change_buffer>], which we will see later.
 
 <<constant [[Top_window.help_menu]]>>=
 let help_menu = ref ([| |]: (string * action) array)
@@ -5056,7 +5679,21 @@ Top_window.help_menu := [|
 \section{Sub-windows}
 % Frames
 
+%claude:
+This section deals with splitting the editing area into panes and
+rendering their content.  Each pane is a [[Window.t]]/[[Frame.t]] pair:
+the window provides geometry, the frame provides the view of a buffer.
+The key function is [<Frame.display>], which decides what lines are
+visible and repaints only those that have changed.
+
 \subsection{Frames and windows creation}
+
+%claude:
+We already saw [<Frame.create_without_top>] in the Core Data Structures
+chapter.  Here we see [<Frame.install>], which binds a frame to a
+window: it kills any previous frame in that window, copies the window's
+geometry into the frame's fields, and marks it for redraw.  This is
+how [[C-x b]] (switch buffer) or window splitting takes effect.
 
 % have see create_without_top() in core DS chapter
 % and its use in Top_window.create in the main chapter.
@@ -5095,6 +5732,11 @@ let install window frame =
 
 \subsection{Windows display}
 
+%claude:
+We saw in the startup chapter how [<Top_window.update_display>] iterates
+over all windows via [[Window.iter]].  Here we focus on what happens
+inside each individual frame.
+
 % Seen before the iteration Window.iter in Top_window.update_display.
 % Will focus on one window (frame) display.
 
@@ -5105,6 +5747,17 @@ let install window frame =
 %later: tile-based opti
 % see http://blog.atom.io/2015/06/24/rendering-improvements.html
 
+%claude:
+[<Frame.display>] is the heart of the redisplay engine.  It is called
+once per frame by [<Top_window.update_display>] and decides whether
+anything needs repainting.  A redraw is triggered if the cursor has moved
+outside the visible region ([[frm_start]]..[[frm_end]]), if the buffer
+has been modified since the last paint, or if [[frm_redraw]] has been
+set explicitly (e.g., by a window resize or split).  When a redraw is
+needed, the function first adjusts offsets so that [[frm_start]] is at a
+beginning-of-line, calls [<update_table>] to fill [[frm_table]] with the
+lines that should appear on screen, and then iterates over the table,
+painting only lines whose box list has changed since last time.
 
 \subsubsection{[[Frame.display()]]}
 
@@ -5283,6 +5936,17 @@ frame.frm_redraw <- false
 % to multiple frm_line for one of text_newlines.
 
 % frame have a width!
+
+%claude:
+There are four coordinate spaces to keep straight: (1)~positions in
+[[text_string]], (2)~line/column in [[text_newlines]], (3)~positions in
+[[repr_string]] (after expanding tabs and control characters), and
+(4)~x/y in the frame (after wrapping long lines at [[frm_cutline]]).
+The [[frm_table]] bridges spaces~(3) and~(4): each [[frm_line]] entry
+holds a slice of a [[Text.line]]'s boxes, possibly starting partway
+through a box when a long line wraps.  A single text line can thus
+generate multiple [[frm_line]] entries, each terminated by a
+``\texttt{/}'' overflow marker.
 
 <<[[Efuns.frame]] other fields>>=
 (* where do we put a \ for overflowing lines *)
@@ -5541,6 +6205,18 @@ graphic.Xdraw.draw_string
 % we need to manage frm_cutline because we don't want to polluate
 % update_table with cursor issues I think.
 
+%claude:
+Cursor display is the reverse of line display: given the buffer point,
+find its x/y position in the frame.  This requires mapping through all
+four coordinate spaces (text position $\to$ line/column $\to$
+[[repr_string]] position $\to$ frame x/y with overflow wrapping).
+The cursor is drawn by saving the character and attribute under it
+([[frm_cursor]], [[frm_cursor_attr]]), then redrawing that character
+in [[inverse_attr]].  The ``cursor off'' phase restores the original.
+A secondary cursor ([[top_second_cursor]]) supports features like
+incremental search, where the minibuffer is active but the search
+result cursor should be visible in the main frame.
+
 \subsubsection{Cursor on}
 
 % Top_window.update_display -> Frame.display ; ...;  <>
@@ -5726,6 +6402,16 @@ let set_cursor_off top_window frame =
 @
 
 \subsection{Frame offsets}
+
+%claude:
+The {frame offsets} handle the gap between text lines and screen lines.
+Because a single text line may wrap into multiple screen lines (due to
+[[frm_cutline]]), simply setting [[frm_start]] to a text line is not
+enough to pin the viewport.  [[frm_y_offset]] tracks how many screen
+lines to skip (positive) or backtrack (negative) from [[frm_start]],
+while [[frm_x_offset]] provides horizontal scrolling when
+[[frm_cutline]] is disabled ([[max_int]]).  The [[recenter]] command
+(\texttt{C-l}) resets these offsets to center the cursor vertically.
 
 <<[[Efuns.frame]] other fields>>=
 (* offset(+/-) of screen-lines after frm_start *)
@@ -5937,6 +6623,11 @@ let scroll_to_frame ady top_window =
 
 \subsection{Top windows name}
 
+%claude:
+The OS-level window title is updated during [[cursor_on]] to reflect
+the active buffer's name, but only when it has actually changed
+(avoiding redundant backend calls).
+
 <<[[Efuns.top_window]] other fields>>=
 mutable top_name : string;
 @
@@ -5956,8 +6647,26 @@ end;
 %less: delete lots of the code below. My code in the end is simpler.
 %no need those blit stuff and modified opti cache.
 
+%claude:
+The status line is the inverse-video bar at the bottom of each frame,
+showing the buffer name, modification flag (\texttt{**} or
+\texttt{--}), cursor position, scroll percentage, and active modes.
+It is implemented as a fixed-width byte string ([[status_string]]) with
+a format table that maps each [[status_info]] variant to a
+(position,~max\_length) pair.  The [[status_print]] function blits
+updated values into the string at their designated positions, and the
+display code draws the whole string in one [[draw_string]] call with
+[[inverse_attr]].
+
 \subsection{Status line creation}
 
+%claude:
+Each frame carries its own [[status]] record, pre-filled at frame
+creation time.  The [[status_string]] is a 256-byte buffer initialised
+with dashes, into which the editor name (``Efuns:'') is blitted at a
+fixed offset.  The [[stat_modified]] flag tracks whether
+[[status_string]] has changed since the last repaint, and
+[[status_modified]] is the double-starred ``buffer modified'' indicator.
 
 <<[[Efuns.frame]] status field>>=
 mutable frm_status : status;    
@@ -6021,6 +6730,12 @@ let status_name frame name =
 
 \subsection{Status line format}
 
+%claude:
+The format is a list of ([[status_info]], (position, max\_length))
+pairs, giving each field a fixed column range in [[status_string]].
+This table-driven layout makes it easy to rearrange the status bar
+without touching the rendering code.
+
 <<[[Efuns.status]] other fields>>=
 (* the pair of int is a:   pos * max_len *)
 mutable status_format : (status_info * (int * int)) list;
@@ -6051,6 +6766,13 @@ let status_format = ref [
 
 \subsection{[[Frame.status_print()]]}
 
+%claude:
+[<status_print>] is the central update function: it looks up the
+stat type in the format table, blits the new value into
+[[status_string]] at the right position, and pads the rest with spaces.
+If the stat type is not in the format (e.g., a custom layout), the
+[[Not_found]] exception is silently caught.
+
 % status_name | status_modified | ... -> <>
 <<function [[Frame.status_print]]>>=
 let status_print status str stat_type =
@@ -6070,6 +6792,12 @@ mutable status_string : bytes;
 % this will then be the only thing used in the rendering
 
 \subsection{[[Frame.status_xxx()]]}
+
+%claude:
+Each [[status_xxx]] helper updates one field of the status line.  They
+all follow the same pattern: compare the new value against the cached
+one, and call [<status_print>] only when it has changed, avoiding
+redundant byte blits on every redisplay cycle.
 
 % Frame.display -> <>
 <<function [[Frame.status_modified]]>>=
@@ -6116,6 +6844,14 @@ let status_col frame col =
 % dead? status_name is used instead.
 
 \subsection{Status line display}
+
+%claude:
+The commented-out code shows the original approach: update each
+[[status_xxx]] field, then draw [[status_string]] if anything changed.
+The active code below takes a simpler path---it formats the entire
+status line as one [[spf]] string each time, including the
+\texttt{Top}/\texttt{Bot}/percentage indicator and the major+minor
+mode names, then draws it directly with [[inverse_attr]].
 
 <<[[Frame.display()]] draw status line>>=
 (*
@@ -6175,7 +6911,27 @@ graphic.Xdraw.draw_string
 % An advantage of the minibuffer is that it does not clutter your
 % main window.
 
+%claude:
+The {minibuffer} is Emacs's solution for prompting the user without
+opening a dialog box: a one-line editing area at the very bottom of the
+window.  In efuns, it is implemented as a real buffer/frame/window stack
+---the same machinery used for editing files---which means tab
+completion, history, and even recursive minibuffers come almost for free.
+Each call to [<Minibuffer.create>] pushes a new frame onto
+[[top_mini_buffers]]; \texttt{C-g} or pressing Return pops it via
+[<Minibuffer.kill>], restoring the previous active frame.  The request
+string (e.g., ``Find file:'') is drawn directly at the left of the
+bottom line, and the minibuffer's editable area occupies the remaining
+columns to its right.
+
 \subsection{Minubuffer creation}
+
+%claude:
+Each minibuffer invocation creates a fresh [[Text.t]], wraps it in a
+buffer with its own local keymap, and opens a tiny one-line window at the
+bottom of the screen.  The [[top_mini_buffers]] list acts as a stack, so
+recursive prompts (e.g., a save confirmation during exit) nest correctly.
+\texttt{C-g} is always bound to [<Minibuffer.kill>] as an escape hatch.
 
 % when it's created? each time enter M-x or use some Select.xxx functions.
 
@@ -6271,6 +7027,13 @@ end;
 
 \subsection{Minubuffer kill}
 
+%claude:
+Killing a minibuffer pops the stack, clears any secondary cursor left
+by isearch, and restores the previous active frame.  If that frame was
+killed while the minibuffer was active (e.g., its window was deleted),
+[<Frame.unkill>] re-installs it, duplicating its points so it can
+resume safely.
+
 <<function [[Minibuffer.kill]]>>=
 let kill mini_frame old_frame =
   let window = mini_frame.frm_window in
@@ -6316,6 +7079,12 @@ frame.frm_killed <- true;
 
 \subsection{Minibuffer display}
 
+%claude:
+The request string (``Find file:'', ``M-x'', etc.) is drawn at the
+left of the bottom line using [[direct_attr]] (normal video), while
+the minibuffer frame---which occupies the columns to its right---is
+painted by the regular [<Frame.display>] path like any other frame.
+
 <<[[Frame.display()]] draw minibuffer request string>>=
 graphic.Xdraw.draw_string
  0 (top_window.top_height-1)  
@@ -6341,6 +7110,12 @@ let clear_message top_window =
 
 % (even though it's actually not really a minibuffer thing;
 % it's just located at the same place than the minibuffer)
+
+%claude:
+[<Top_window.message>] displays a transient notification (like Emacs's
+``Wrote foo.ml'') at the bottom line.  If a minibuffer is active, it
+forces an immediate display update and marks the minibuffer frame for
+redraw so the message does not permanently overwrite the prompt.
 
 <<function [[Top_window.message]]>>=
 (* note: I could get rid of the top_window parameter and compute top_window
@@ -6377,6 +7152,17 @@ let message top_window msg =
 
 % see before Map, event loop, handle_key, keypressed global,
 % and start of key dispatch where finally call try_map!
+
+%claude:
+We saw in the event loop chapter how GTK events arrive and get converted
+to key codes.  Here we see the other end of the pipeline: how a key (or
+key sequence) is resolved to an action function.  The central function
+is [<Top_window.try_map>], which accumulates prefix keys in
+[[frm_prefix]] and looks up the completed sequence through the cascading
+keymap chain (buffer map $\to$ minor mode maps $\to$ major mode map
+$\to$ global map).  If the sequence is a [[Prefix]], the key is stored
+and the user is prompted for the next key; if it is a [[Function]], the
+action is dispatched immediately.
 
 \subsection{Keys to action: [[try_map()]]}
 
@@ -6662,6 +7448,15 @@ let rec print_key_list key_list =
 
 \section{Mouse}
 
+%claude:
+Mouse events are handled by the same key dispatch machinery as keyboard
+events: button presses and drags are mapped to synthetic keysyms
+([[xk_Pointer_Button1]], [[xk_Pointer_Drag1]], etc.) and routed through
+[<handle_key>].  The mouse x/y coordinates are stored in globals so
+that the action function (e.g., [<mouse_set_frame>]) can access them.
+This uniform treatment means mouse bindings can be customized exactly
+like key bindings.
+
 <<constant [[Top_window.mouse_x]]>>=
 let mouse_x = ref 0
 @
@@ -6685,6 +7480,17 @@ let mouse_y = ref 0
 @
 
 \subsection{Mouse navigation}
+
+%claude:
+Clicking in the editor must convert pixel coordinates to a buffer
+position---the reverse of the display pipeline.  [<Frame.move_point>]
+takes screen (x,y), subtracts the frame's origin, and calls
+[<Frame.cursor_to_coord>] which walks the frame table's boxes
+backwards: starting from the row at screen~y, it iterates through
+the row's box list accumulating widths until it finds which box
+contains screen~x, then divides by [[box_charsize]] to get the column
+within that box.  The click also sets a mark at the old position, so
+subsequent mouse drags can select a region.
 
 <<[[Config.init_global_map()]] mouse keys setup>>=
 Keymap.add_global_key [NormalMap, XK.xk_Pointer_Button1] Mouse.mouse_set_frame;
@@ -7137,6 +7943,17 @@ key |> Option.iter (fun key_list ->
 
 \subsection{[[Select.select()]]}
 
+%claude:
+[<Select.select>] is the workhorse behind all prompting operations
+that need completion (open file, switch buffer, execute command, etc.).
+It creates a minibuffer with a custom keymap that intercepts Tab for
+completion and up/down for history navigation.  On Tab, it computes the
+common suffix of all completions; if there are multiple matches, it
+displays them in a ``\texttt{*completions*}'' buffer.  The
+[[incremental_mini_buffer]] variant additionally calls an
+[[incremental_action]] callback on every keystroke, which is how
+incremental search (\texttt{C-s}) provides live feedback.
+
 <<function [[Select.select]]>>=
 let select frame request history start completion_fun prefix_fun action =
   let map = Keymap.create () in
@@ -7407,6 +8224,11 @@ let set_global_variable frame =
 
 \subsection{Characters}
 
+%claude:
+Character movement is the simplest case: move the point forward or
+backward by a delta, returning how far it actually moved (which may be
+less at buffer boundaries thanks to [[fmove_res]]/[[bmove_res]]).
+
 <<function [[Simple.move_backward]]>>=
 let move_backward frame delta =
   let (_buf, text, point) = Frame.buf_text_point frame in
@@ -7424,6 +8246,18 @@ let move_forward frame delta =
 
 
 \subsection{Words and the syntax table}
+
+%claude:
+A {syntax table} is a 256-entry boolean array indicating which byte
+values are ``word constituents.''  By default only letters and digits
+qualify, but major modes customize this---for instance, OCaml mode
+adds [[_]] and [[']] so that identifiers like [[my_var']] are treated
+as single words.  The word movement functions ([[backward_word]],
+[[forward_word]]) use two helper loops: [[in_prev_word]] skips
+non-word characters, then [[to_begin_of_word]] walks backward through
+word characters.  Emacs's syntax table is richer (it distinguishes
+punctuation, string delimiters, comment starters, etc.), but this
+simpler boolean version suffices for word-level operations.
 
 %\section{Syntax table}
 % was in core DS but better here I think
@@ -7536,6 +8370,19 @@ let beginning_of_word buf point =
 
 
 \subsection{Lines}
+
+%claude:
+Vertical movement is trickier than it looks because of the {goal
+column} problem.  When you press Down repeatedly, Emacs keeps the
+cursor at the column where the run of vertical moves started, even if
+intermediate lines are shorter.  The author's comments record the
+struggle to implement this: a naive approach (save column, move,
+restore) breaks when other commands intervene.  The solution, borrowed
+from Microemacs, uses [[frm_last_action]]: if the previous action was
+[[forward_line]] or [[backward_line]], reuse the saved
+[[temporary_goal_column]]; otherwise, compute a fresh one.  The
+[[forward_line]] and [[backward_line]] functions are mutually recursive
+with [[goal_column]] because they all reference each other.
 
 <<function [[Simple.beginning_of_line]]>>=
 let beginning_of_line frame =
@@ -7682,6 +8529,15 @@ let forward_paragraph buf point =
 @
 
 \subsection{Screens}
+
+%claude:
+Page-up and page-down do not move the buffer point at all---they
+adjust [[frm_y_offset]], a virtual scroll displacement that
+[<Frame.display>] uses to shift which text line corresponds to the
+top of the frame.  Setting [[frm_force_start]] tells the display
+engine to honor the new offset rather than auto-centering on the
+cursor.  The ``$-2$'' overlap keeps two lines of context visible
+across pages, matching standard Emacs behavior.
 
 <<function [[Simple.backward_screen]]>>=
 let backward_screen frame =
@@ -7857,6 +8713,18 @@ let point_to_line text point line =
 
 
 \subsection{Positions history}
+
+%claude:
+Undoing a page scroll is easy (just scroll back), but undoing a jump
+like [[M->]] or \texttt{C-s} is not---the user has no idea where they
+came from.  The {position history} solves this: commands that perform
+large jumps (goto-line, search, begin/end of file) call
+[[save_current_pos]] first, which pushes a duplicate point onto a
+fixed-size ring buffer ([[buf_history_pos]]).  \texttt{C-u~C-SPC}
+pops the most recent entry and moves back.  The ring is capped at
+10~entries, and old points must be explicitly [[remove_point]]ed to
+avoid leaking registered points in the text layer.
+
 % meta!
 % could be in advanced topic
 
@@ -8090,6 +8958,17 @@ let kill_end_of_line frame =
 
 \section{Copying and pasting}
 \n was Moving, but can be confused as moving as in navigating
+
+%claude:
+Copy and paste revolves around the {kill ring}, a circular array of
+recently killed (cut) strings.  \texttt{C-w} ([[kill_region]]) deletes
+the text between point and mark and pushes it onto the ring;
+\texttt{M-w} ([[copy_region]]) copies without deleting.
+\texttt{C-y} ([[insert_killed]]) yanks the most recent entry, and
+\texttt{M-y} ([[insert_next_killed]]) cycles through older entries by
+replacing the just-yanked text.  This is possible because [[last_insert]]
+records the frame, position, and length of the last yank, so
+\texttt{M-y} can delete it before inserting the next ring entry.
 
 <<moving keys>>=
 [ControlMap, Char.code ' '], Copy_paste.mark_at_point;
@@ -8359,6 +9238,16 @@ let point_at_mark frame =
 
 %todo: and redo?
 
+%claude:
+Undo in efuns is built into the text layer: every [[low_insert]] and
+[[low_delete]] appends an [[Insertion]] or [[Deletion]] action to the
+[[text_history]] list, recording the position, content, and modification
+counter.  [<Text.undo>] pops the most recent action and applies the
+inverse operation (delete undoes an insertion, insert undoes a deletion).
+The [[Session]] variant groups multiple actions so that a compound
+operation (e.g., a search-and-replace step) can be undone as a single
+unit.
+
 <<undoing keys>>=
 [ControlMap, Char.code '_'], Edit.undo;
 @
@@ -8488,6 +9377,18 @@ let with_session f text =
 
 \chapter{Search and Replace}
 
+%claude:
+Search uses the [<incremental_mini_buffer>] mechanism: each keystroke
+in the search minibuffer triggers an immediate search from the saved
+starting point ([[spoint]]), moving the main cursor to the match.
+Pressing \texttt{C-s} again within the search advances [[spoint]] past
+the current match to find the next occurrence.
+%claude:
+Replace comes in four flavours: literal or regexp, with or without
+interactive confirmation ([[Query]] vs [[NoQuery]]).  The [[replace]]
+function wraps all modifications in a [[Text.session]] so the entire
+replace operation can be undone as one unit.
+
 \section{Searching}
 
 %later: do like in firefox, display in a scrollbar or minimap
@@ -8547,6 +9448,14 @@ let isearch_backward_regexp = isearch Regexp Backward
 
 \subsection{Gap management}
 
+%claude:
+OCaml's [[Str]] regex library operates on flat strings and knows
+nothing about the gap.  Before any search, [[clean_text]] must move
+the gap to the end of the buffer (via [[move_gpoint_to]]) and fill
+the gap bytes with [['\000']] so that the regex engine sees a
+contiguous, clean string.  The [[text_clean]] flag avoids repeating
+this work when multiple searches happen without intervening edits.
+
 <<[[Text.t]] other fields>>=
 mutable text_clean : bool;
 @
@@ -8577,6 +9486,18 @@ let clean_text text =
 % the Str function will work?
 
 \subsection{Helpers}
+
+%claude:
+[<Search.isearch>] implements incremental search using the
+[[incremental_mini_buffer]] mechanism.  It saves the starting point
+in [[spoint]], then on every keystroke recompiles the search string
+into a regex and calls [[Text.search_forward]] (or backward) from
+[[spoint]].  Pressing \texttt{C-s}/\texttt{C-r} within the search
+advances [[spoint]] to the current match and searches again---this
+is the ``repeat'' behavior.  \texttt{C-w} grabs the word at point
+and appends it to the search string, a feature that makes it easy
+to search for the identifier under the cursor.  If the search string
+is empty when repeating, [[set_last]] inserts the previous search.
 
 <<constant [[Search.last_search]]>>=
 let last_search = ref ""
@@ -8913,6 +9834,18 @@ let query_replace_regexp frame =
 
 \subsection{Helpers}
 
+%claude:
+The [<Search.replace>] function handles four cases (literal vs.\ regexp
+$\times$ query vs.\ no-query) in a single function dispatched by
+pattern matching.  The no-query branches loop with
+[[Text.search_forward]], delete the match, insert the replacement, and
+advance---all wrapped in a [[Text.session]] so the entire operation
+is one undo step.  A [[last_pos]] guard prevents infinite loops when
+the replacement matches the search pattern (e.g., replacing ``a'' with
+``ab'').  The query branches use a recursive mini-frame prompting
+``y/n/!/q'' for each match, where ``!'' switches to no-query mode for
+the rest.
+
 <<function [[Text.replace_matched]]>>=
 let replace_matched text repl =
   Str2.replace_matched repl text.text_string
@@ -9038,6 +9971,16 @@ let replace flag frame query str repl =
 %  - C-x k to kill the current buffer (which in effect switch to next one)
 %  - cycling
 
+%claude:
+Buffers are identified by unique names (derived from the filename's
+basename, with a \texttt{<N>} suffix for duplicates) and stored in
+[[edt_buffers]] and [[edt_files]] hash tables.  Buffer names starting
+with~\texttt{*} (like \texttt{*scratch*}) are treated as special and
+excluded from ``save modified?'' prompts.  Killing a buffer decrements
+its [[buf_shared]] reference count; the actual cleanup only happens
+when no frame references it, at which point [[Ebuffer.kill]] removes
+the buffer from the global tables and sets [[buf_shared]] to~$-1$ as
+a tombstone.
 
 <<function [[Simple.buffer_list]]>>=
 let buffer_list () =
@@ -9158,6 +10101,15 @@ let change_buffer (caps : < frame_caps ; ..>) (window : Window.t) (name : string
 % so that it gets a change to kill its associated buffer too
 
 \section{Killing the buffer}
+
+%claude:
+Killing a buffer is subtler than it sounds because a buffer is always
+displayed in at least one frame.  \texttt{C-x~k} first switches the
+frame to the next buffer (from [[prev_buffers]] or via [[next_buffer]]),
+then checks [[buf_shared]]: if no other frame references the buffer,
+[<Ebuffer.kill>] removes it from the editor's hash tables, runs
+[[buf_finalizers]], and sets [[buf_shared]] to~$-1$ as a tombstone.
+If other frames still show the buffer, it stays alive.
 
 % how kill a buffer? it's connected to a frame, so need
 % to kill the frame? but then buffer is gc'ed?
@@ -9354,6 +10306,15 @@ let active frame =
 
 \section{Creating sub windows}
 
+%claude:
+Splitting a window is like [[fork]]: the current leaf window gets a
+[[VComb]] (or [[HComb]]) with two children, each half the original size.
+The existing frame is moved into one child via [<Frame.install>]; a
+fresh frame on the same buffer is created in the other.
+[<cut_frame>] is the shared helper that does the geometry: it divides
+the window height (or width) in two, creates two child windows, wires
+[[win_down]], and returns the empty child for the caller to populate.
+
 <<[[edit_menu]] entries>>=
 "Cut Frame", "vertical_cut_frame";
 @
@@ -9424,6 +10385,16 @@ let cut_frame frame =
 @
 
 \section{Deleting sub windows}
+
+%claude:
+\texttt{C-x~1} ([[one_frame]]) collapses back to a single frame by
+re-installing the active frame directly into the top-level window,
+discarding the split tree.  \texttt{C-x~0} ([[delete_frame]]) removes
+only the current pane by re-installing the active frame into the
+parent window---effectively replacing the [[HComb]]/[[VComb]] with
+just the surviving child.  Both operations call [<Frame.kill>] on the
+displaced frames, which decrements their buffers' [[buf_shared]]
+counts.
 
 <<[[edit_menu]] entries>>=
 "One Frame", "one_frame";
@@ -9595,6 +10566,17 @@ let rec prev f window =
 % search/replace. Now we will see more specific features. File
 % specific features!
 
+%claude:
+A {major mode} customizes the editor for a particular file type: it
+provides a dedicated keymap, syntax coloring, indentation rules, and
+mode-specific variables.  Each buffer has exactly one major mode
+(stored in [[buf_major_mode]]), which is auto-detected by matching the
+filename against [[modes_alist]]---a list of regexp/mode pairs
+populated by each mode's start hook.  The flow is always the same:
+an action like ``ocaml\_mode'' calls [<Ebuffer.set_major_mode>], which
+stores the mode record and executes its [[maj_hooks]] to install
+coloring, key bindings, and variables.
+
 <<[[Efuns.buffer]] other fields>>=
 mutable buf_major_mode : major_mode;
 @
@@ -9649,6 +10631,13 @@ mutable stat_mode : major_mode;
 
 \section{Fundamental mode}
 
+%claude:
+The {fundamental mode} is the default major mode---the one every buffer
+starts with before auto-detection kicks in.  Note the French spelling
+``Fondamental'' (the author is French), mirroring Emacs's
+``Fundamental'' mode.  The mode record is created with no hooks,
+meaning it installs no syntax coloring or special key bindings.
+
 <<function [[Ebuffer.fondamental_mode]]>>=
 let fondamental_mode frame =
   set_major_mode frame.frm_buffer fondamental__mode
@@ -9673,6 +10662,17 @@ let fondamental__mode = new_major_mode "Fondamental" None (* no hooks *)
 % "xxx_mode" action -> xxx_mode func -> xxx_mode variable -> hooks (install)
 
 \section{Auto detection}
+
+%claude:
+When a buffer is created, the [[create_buf_hook]] calls
+[<Ebuffer.set_buffer_mode>], which walks [[modes_alist]]---a list of
+(regexp, major\_mode) pairs---looking for a match against the buffer's
+filename.  Each language mode registers its own entry at startup
+(e.g., [["\\.ml$"]] for OCaml mode).  The regexp list is compiled lazily
+and cached in [[regexp_alist]] to avoid recompiling on every buffer
+creation.  The somewhat ugly [[raise Exit]] pattern is used to
+short-circuit [[List.iter]] on the first match, since OCaml's
+standard library lacks a [[List.find_map]] equivalent.
 
 <<constant [[Ebuffer.modes_alist]]>>=
 let modes_alist = Store.create_abstr "modes_alist"
@@ -9746,6 +10746,14 @@ let _ =
 
 \section{Status line}
 
+%claude:
+The status line displays the active major mode name followed by any
+minor mode names in parentheses, e.g., ``(OCaml Abbrev)''.
+[<Frame.status_major_mode>] uses physical equality checks
+([[Eq.phys_equal]]) to avoid redrawing the status line when the mode
+has not actually changed---a small but important optimization since
+status rendering is called on every display cycle.
+
 <<[[Frame.create_without_top()]] adjust status of frame>>=
 status_major_mode frame;
 @
@@ -9806,6 +10814,14 @@ Store.get buf.buf_major_mode.maj_vars var
 
 \section{Customization examples}
 
+%claude:
+Beyond variables and keymaps, major modes customize many other
+aspects of the editing experience.  The subsections below sketch
+the main extension points: syntax coloring (via a lexer), indentation
+rules, abbreviation tables, code templates (``structures''),
+compilation error parsing, outline folding, and context-sensitive
+completion.
+
 % the variable and keymap seen before is already the way
 % to have some customization. But there are more.
 
@@ -9825,6 +10841,13 @@ Store.get buf.buf_major_mode.maj_vars var
 % external program.
 
 \subsection{Colors}
+
+%claude:
+Syntax coloring is driven by the text attribute system described in
+the Text chapter.  Each major mode provides a colorization function
+(typically an ocamllex-generated lexer) that walks the buffer and
+sets character attributes for keywords, strings, comments, etc.
+
 % Attributes.
 
 % see section on colors in Text chapter
@@ -9835,9 +10858,31 @@ Store.get buf.buf_major_mode.maj_vars var
 
 \subsection{Indentation}
 
+%claude:
+Indentation is typically bound to \texttt{TAB} in each major mode's
+keymap.  The indentation function examines the current and preceding
+lines to compute the correct indentation level, often using the
+syntax table to recognize keywords, braces, or other structural
+markers.
+
 \subsection{Abbrevs}
 
+%claude:
+Abbreviation tables map short strings to their expansions (e.g.,
+``fn'' to ``function'').  When a word-ending character like space is
+typed, [<Abbrevs.expand_sabbrev>] checks whether the word before the
+cursor matches an entry in the buffer's [[abbrev_table]] and, if so,
+replaces it in place.
+
 \subsection{Structures}
+
+%claude:
+{Structures} are a form of code template: a key sequence inserts a
+multi-line skeleton containing ``holes'' marked by consecutive
+\verb|^^| characters, and \texttt{C-c~-} ([<Simple.next_hole>]) jumps
+the cursor to the next hole, deleting the marker.  This provides a
+lightweight snippet system without requiring a full template engine.
+
 %less: merge with abbrevs?
 
 %ex: data passed to install_structures
@@ -9890,14 +10935,35 @@ let install_structures buf list =
 
 \subsection{Compilation and errors}
 
+%claude:
+Major modes can customize how compilation errors are parsed by
+setting the [[find_error]] variable, which controls how error lines
+in the \texttt{*Compile*} buffer are matched to filenames and line
+numbers.  This is used by [<Compil.next_error>] to jump to the
+source of each error.
+
 % next error variable
 
 \subsection{Outline}
+
+%claude:
+Outline support lets a major mode define which lines are ``headings''
+(e.g., function definitions, section markers) so the user can fold
+or navigate the buffer at a structural level.  Each mode customizes
+what counts as a heading, much like [[paren_mode]] customizes which
+characters are matchable.
 % or put with minor mode? after all it's a bit similar
 % to paren_mode where each major mode can customize what
 % is a paren-able character.
 
 \subsection{Completion}
+
+%claude:
+Major modes can provide context-sensitive completion by setting a
+completion variable that drives \texttt{TAB} or \texttt{M-TAB}
+behavior---for instance, completing identifiers from an index of
+the current project.
+
 % simple completion, smart (contextual) completion
 
 \chapter{Minor Modes}
@@ -9905,6 +10971,15 @@ let install_structures buf list =
 % diff with major mode? can have multi minor mode, but
 % could unify and have multi major mode? or major mode
 % is just the one to display first?
+
+%claude:
+Unlike major modes, a buffer can have multiple {minor modes} active
+simultaneously (e.g., [[paren_mode]] for matching-parenthesis
+highlighting together with [[abbrev_mode]] for abbreviation expansion).
+Each minor mode has its own keymap and variables, and the key lookup
+chain checks all active minor mode maps before falling through to the
+major mode and global maps.  Minor modes are toggled on and off per
+buffer via [<Ebuffer.set_minor_mode>] and [<Ebuffer.del_minor_mode>].
 
 <<[[Efuns.buffer]] other fields>>=
 mutable buf_minor_modes : minor_mode list;
@@ -9969,6 +11044,16 @@ mutable stat_modes : minor_mode list;
 
 
 \section{Example}
+
+%claude:
+This section shows the boilerplate for creating a minor mode:
+allocate a [[minor_mode]] record with [<Ebuffer.new_minor_mode>],
+add key bindings to its [[min_map]], and register a toggle action
+so the user can enable or disable the mode with \texttt{M-x}.
+The sample here is intentionally skeletal---a real minor mode like
+[[paren_mode]] would populate the install hook and key bindings
+with actual behavior.
+
 %less: maybe better to use paren mode as example, more concrete
 % instead of all those empty functions, harder to understand.
 
@@ -10072,11 +11157,31 @@ iter buf.buf_minor_modes
 \chapter{Extra Features}
 %******************************************************************************
 
+%claude:
+This chapter covers the features that make efuns a practical
+development environment rather than just a text editor: running
+shell commands and compilation inside buffers, a client-server
+protocol for opening files from the command line, dynamic
+abbreviation expansion, text transformations, and various
+smaller conveniences.
+
 %todo: implement more features! especially the good one in Atom/Sublime/VsCode/...
 % - multiple cursors (but does not work well with gap buffer?)
 %   http://emacsrocks.com/e13.html
 
 \section{Running external commands}
+
+%claude:
+\texttt{M-!} runs a shell command and captures its output in a
+\texttt{*Command*} buffer, embodying the Emacs philosophy that
+``everything is a buffer''---the output can then be searched,
+copied, or further manipulated with all the usual editing commands.
+Under the hood, [<System.system>] forks a child process with
+redirected pipes and uses [<Concur.add_reader>] to poll the
+output asynchronously, feeding it into a [[Text.t]] buffer.
+Unlike GNU Emacs (which is single-threaded and must use
+non-blocking I/O or sub-processes), efuns can use OCaml threads,
+making the implementation more straightforward.
 
 % and get result in a buffer! "everything is a buffer"
 % so can then use all the tools in emacs to manipulate the output
@@ -10227,6 +11332,13 @@ let insert_at_end text str =
 
 \subsection{Threads and mutex}
 
+%claude:
+Because external commands run in separate threads that write into
+shared [[Text.t]] buffers, efuns needs a global mutex
+([[edt_mutex]]) to protect buffer mutations from data races.
+The reader callback in [<System.system>] acquires this lock before
+inserting output and releases it after triggering a display update.
+
 <<[[Efuns.editor]] other fields>>=
 edt_mutex : Mutex.t;
 @
@@ -10235,6 +11347,14 @@ edt_mutex : Mutex.t;
 % (also maybe need that too have multiple top_windows).
 
 \subsection{Finalizers}
+
+%claude:
+When a buffer attached to a running process is killed (e.g., the
+user closes the \texttt{*Command*} window), the child process must
+be cleaned up.  The [[buf_finalizers]] list holds cleanup closures
+that are called when the buffer is destroyed---here, sending
+\texttt{SIGKILL} to the subprocess and removing the reader from the
+event loop.
 
 <<[[Efuns.buffer]] other fields>>=
 mutable buf_finalizers : (unit -> unit) list;
@@ -10256,6 +11376,14 @@ buf.buf_finalizers <- (fun () ->
 
 \subsection{Synchronous buffers}
 
+%claude:
+A {synchronous buffer} ([[buf_sync = true]]) automatically scrolls
+to the end of the text on every display update, so the user always
+sees the latest output---essential for command and compilation
+buffers where new lines arrive asynchronously from a child process.
+Without this flag, the frame would stay at whatever scroll position
+the user last had.
+
 <<[[Efuns.buffer]] other fields>>=
 mutable buf_sync : bool;
 @
@@ -10270,12 +11398,28 @@ then Text.set_position text point (Text.size text);
 
 \section{Compilation and grep mode}
 
+%claude:
+\texttt{M-x~compile} and \texttt{M-x~grep} both reuse the same
+infrastructure as \texttt{M-!}: they spawn a child process and
+capture output in a buffer (\texttt{*Compile*} or \texttt{*Grep*}).
+The key addition is an [[end_action]] callback that colorizes the
+output buffer when the process finishes, and the [[compilation_frame]]
+global that remembers the compilation window so that successive
+compilations reuse the same frame rather than splitting new ones.
+
 <<file menu entries>>=
 "Compile", "compile";
 @
 
 
 \subsection{[[M-x grep]]}
+
+%claude:
+[<Compil.grep>] prompts for a grep command, spawns it, and stores
+the resulting frame and an [[error_point]] in [[compilation_frame]]
+so that \texttt{C-x~\`{}} can step through the matches.  If a
+previous compilation buffer exists, it is killed and its window
+reused---avoiding an ever-growing stack of split frames.
 
 <<constant [[Compil.grep_command]]>>=
 let grep_command = define_option ["compil"; "grep_command"] "" string_option
@@ -10339,6 +11483,15 @@ let current_dir frame =
 %  active frame (or the cwd of efuns when it was started)
 
 \subsection{[[M-x compile]]}
+
+%claude:
+[<Compil.compile>] works like grep but with an extra trick: if the
+compile command starts with ``make'', it walks up the directory tree
+looking for a \texttt{Makefile} so the build runs from the project
+root rather than the current file's directory.  After spawning the
+process, it propagates error-parsing variables ([[find_error]],
+[[find_error_location_regexp]]) from the source buffer to the
+compilation buffer, and sets a dedicated compilation major mode.
 
 %<<function Config.compile>>=
 %(*
@@ -10425,6 +11578,14 @@ let compilation_frame = ref None
 
 \subsection{Finding the makefile automatically}
 
+%claude:
+The Makefile search walks from the current directory upward via
+[[Filename.dirname]] until it finds a \texttt{Makefile},
+\texttt{makefile}, or \texttt{GNUmakefile}.  If none is found
+(i.e., [[dirname]] returns the same directory), it falls back to
+the original directory.  This is controlled by the
+[[compile_find_makefile]] option, which defaults to [[true]].
+
 <<constant [[Compil.compile_find_makefile]]>>=
 let compile_find_makefile = define_option ["compil";"find_makefile"] ""
     bool_option true
@@ -10456,6 +11617,15 @@ in
 @
 
 \subsection{Go to next error}
+
+%claude:
+\texttt{C-x~\`{}} ([<Compil.next_error>]) advances the
+[[error_point]] through the compilation buffer, calling the
+mode-specific [[find_error]] parser to extract the filename, line,
+and column.  It then opens (or finds) the error file in a separate
+frame and positions the cursor at the error location.  If the
+compilation frame was killed, it is ``unkilled'' into a new split
+window so the user can continue stepping through errors.
 
 <<misc keys>>=
 [c_x;NormalMap, Char.code '`' ], Compil.next_error;
@@ -10642,6 +11812,12 @@ let start (caps : < frame_caps; ..>) =
 
 \subsection{The client: [[efuns_client]]}
 
+%claude:
+The client is a small standalone program that connects to the
+server socket, marshals a [[LoadFile]] command with the filename,
+position, line, and search string, and exits.  It converts relative
+paths to absolute before sending, since the server may be running
+in a different working directory.
 
 <<constant [[Efuns_client.pos]]>>=
 let pos = ref 0
@@ -10716,6 +11892,13 @@ let _ =
 
 
 \section{[[M-x eval]]}
+
+%claude:
+This section would allow the user to evaluate arbitrary OCaml
+expressions at runtime, much like Emacs's \texttt{M-x eval-expression}
+for Emacs Lisp.  The implementation is currently commented out
+because it requires OCaml's dynamic linking / toplevel evaluation
+facilities, which add significant complexity.
 
 % <<constant [[Complex.eval_history]]>>=
 % let eval_history = ref []
@@ -10928,10 +12111,26 @@ let escaped s =
 @
 
 \section{Colored filenames}
+
+%claude:
+This section would colorize filenames in directory listings using
+the same color scheme as \texttt{ls --color} (driven by
+\texttt{dircolors.ml}), so that executables, directories, symlinks,
+etc.\ are visually distinguished in file-selection buffers.
+
 % and directories
 % dircolors.ml
 
 \section{Transforming}
+
+%claude:
+Text transformations operate on characters, words, or paragraphs.
+\texttt{C-t} transposes two characters, \texttt{M-t} transposes two
+words, \texttt{M-l}/\texttt{M-u}/\texttt{M-c} change word case,
+and \texttt{M-q} fills a paragraph to 75 columns.  These all use
+[[Text.with_session]] so the entire transformation can be undone in
+a single step.
+
 % maybe move in extra features?
 
 <<transforming keys>>=
@@ -10970,6 +12169,11 @@ let escaped s =
 
 \subsection{Characters}
 
+%claude:
+[<Edit.transpose_chars>] swaps the character before the cursor with the
+one after it and advances the cursor, so repeated invocations
+``bubble'' a character forward through the line.
+
 % exchange
 <<function [[Simple.transpose_chars]]>>=
 let transpose_chars buf point =
@@ -10985,6 +12189,14 @@ let transpose_chars buf point =
 @
 
 \subsection{Words}
+
+%claude:
+Word transposition is more involved: it must find the boundaries of
+two adjacent words using the syntax table, extract both, delete them,
+and re-insert them in swapped order.  [<Edit.on_word>] is a helper
+that extracts the word under the cursor, applies a string function
+(e.g., [[String.lowercase_ascii]]), and replaces the original in place.
+
 %\subsection{Case changing}
 
 <<function [[Simple.transpose_words]]>>=
@@ -11026,6 +12238,15 @@ let on_word buf point f =
 @
 
 \subsection{Filling}
+
+%claude:
+\texttt{M-q} ([<Transform.fill_paragraph>]) reflows a paragraph to
+fit within 75 columns.  It first calls [<Simple.simplify>] to
+collapse all whitespace (spaces, tabs, newlines) into single spaces,
+then walks the resulting single line and inserts newlines at the last
+space before column 75.  The [[line_comment]] variable would
+eventually allow filling to preserve comment prefixes, but this is
+not yet implemented.
 
 %less: mv to fill_mode.ml?
 
@@ -11097,6 +12318,14 @@ let simplify text start point =
 
 \subsection{Electric}
 
+%claude:
+An {electric} command is one that performs extra processing beyond
+simple character insertion.  Here, [[electric_insert_space]] inserts
+a space and then checks whether the line exceeds 75 columns; if so,
+it searches backward for a word boundary and inserts a newline there,
+providing automatic line wrapping as the user types---useful in
+fill-mode or when editing comments.
+
 % for fill_mode
 <<function [[Simple.electric_insert_space]]>>=
 let electric_insert_space frame =
@@ -11116,6 +12345,14 @@ let electric_insert_space frame =
 @
 
 \subsection{Hungry}
+
+%claude:
+\texttt{C-Backspace} ([<Electric.hungry_electric_delete>]) deletes
+backward through contiguous whitespace in one shot, collapsing it
+to a single space.  This is handy for reformatting code where
+indentation has gotten out of hand---one keypress removes an
+entire run of spaces, tabs, and newlines.
+
 % advanced topic?
 
 <<deleting keys>>=
@@ -11199,7 +12436,22 @@ let toggle_readonly text =
 
 \chapter{Advanced Topics}
 
+%claude:
+This chapter collects features that add complexity but are not central
+to understanding the editor's architecture: tab handling (variable-width
+character representation that complicates the box model), Unicode
+and accent support, signal handling, and dynamic linking of mode plugins.
+
 \section{Tabs}
+
+%claude:
+Tab characters have variable-width display: a tab at column 3
+renders as 6 spaces (to reach the next multiple of 9), while a tab
+at column 8 renders as a single space.  This is handled by the
+[[tabreprs]] array, which is indexed by [[repr_cursor mod 9]] to
+select the right-width string.  The author considers this
+unnecessary complexity---it complicates the box model and rendering
+code throughout the editor.
 
 % This should not exist I think. It complicates stuff.
 % Which is why I put it in advanced topics.
@@ -11262,9 +12514,23 @@ let _ =
 
 \section{Unicode}
 
+%claude:
+Unicode support would require replacing the byte-indexed [[Text.t]]
+with a representation that handles multi-byte characters, and
+extending the 256-entry [[charreprs]] array to support arbitrary
+code points.  This section is currently a placeholder.
+
 % charreprs?
 
 \section{Accents and AZERTY}
+
+%claude:
+French AZERTY keyboards produce accented characters (e, e, c, etc.)
+via dedicated keys.  [<Edit.char_insert_command>] wraps the insertion
+of a specific character, bypassing the normal [[self_insert_command]]
+path which uses the X11 key event's character code.  The actual key
+mappings are left as an empty list here and would be populated with
+the appropriate X11 keysyms in a startup hook.
 
 % Simple.toplevel for add_start_hook for azerty keys -> <>
 <<function [[Simple.char_insert_command]]>>=
@@ -11290,15 +12556,15 @@ let char_insert_command char frame =
 %  Keymap.add_global_key editor [NormalMap, XK.xk_dead_circumflex]
 %    "circumflex" (char_insert_command '^');
 %- (*
-%-         (XK.xk_eacute, 'é');
-%-         (XK.xk_egrave, 'è');
-%-         (XK.xk_ccedilla, 'ç');
-%-         (XK.xk_agrave, 'à');
-%-         (XK.xk_ugrave, 'ù');
-%-         (XK.xk_mu, 'µ'); 
-%-         (XK.xk_sterling, '£');
-%-         (XK.xk_section, '§');
-%-         (XK.xk_degree,  '°');
+%-         (XK.xk_eacute, 'ï¿½');
+%-         (XK.xk_egrave, 'ï¿½');
+%-         (XK.xk_ccedilla, 'ï¿½');
+%-         (XK.xk_agrave, 'ï¿½');
+%-         (XK.xk_ugrave, 'ï¿½');
+%-         (XK.xk_mu, 'ï¿½'); 
+%-         (XK.xk_sterling, 'ï¿½');
+%-         (XK.xk_section, 'ï¿½');
+%-         (XK.xk_degree,  'ï¿½');
 
 \section{Mini maps}
 
@@ -11369,6 +12635,11 @@ let _ =
 @
 
 \section{Misc}
+
+%claude:
+This section collects commented-out or vestigial code for X11
+resource handling, multiple top-level windows (what Emacs calls
+``frames''), and other features that are not currently active.
 
 %\section{X11}
 
@@ -11502,7 +12773,22 @@ let _ =
 
 \chapter{Conclusion}
 
-
+%claude:
+You now know how efuns works: a gap buffer stores the text, a hierarchy
+of frames, windows, and top windows provides the display, and an
+event-driven loop dispatches keys through cascading keymaps to action
+functions.  The redisplay engine automatically repaints only what
+changed, freeing actions from having to manage the screen.
+%claude:
+The architecture is remarkably faithful to GNU Emacs's design---buffers,
+frames, modes, the minibuffer, the kill ring---but written in OCaml
+rather than C~+~Emacs Lisp.  OCaml's type system catches many errors
+at compile time that would be runtime surprises in Emacs Lisp, and
+features like pattern matching and algebraic types make the code more
+concise (compare the [[window_down]] variant type to Emacs's C struct
+gymnastics).  On the other hand, the lack of a built-in extension
+language means users must recompile to add features, unless dynamic
+linking is used.
 
 
 
