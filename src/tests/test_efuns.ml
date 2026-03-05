@@ -19,5 +19,6 @@ let () =
       Unit_text.tests ();
       Unit_frame.tests ();
       Unit_search.tests ();
+      Unit_magit.tests ();
     ]
   )

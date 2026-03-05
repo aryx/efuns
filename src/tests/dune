@@ -4,6 +4,8 @@
    testo
    efuns_core
    efuns_features
+   efuns_major_modes
+   git_wrapper
  )
  ; -40-42: allow type-directed field disambiguation without open
  (ocamlopt_flags (:standard -w -40-42))
