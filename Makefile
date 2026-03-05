@@ -27,6 +27,9 @@ install:
 
 .PHONY: all clean install test
 
+efuns.opam: dune-project
+	dune build $@
+
 build-docker:
 	docker build -t "efuns" .
 build-docker-ocaml5:
