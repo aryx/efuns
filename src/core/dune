@@ -3,7 +3,7 @@
  (wrapped false)
  (libraries
    profiling
-   lib_parsing
+   parsing_core
    efuns_commons efuns_graphics
  )
  (preprocess (pps ppx_deriving.show profiling.ppx))
