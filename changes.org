@@ -1,16 +1,32 @@
 
-* 0.26 (Q1 2026) (bugfixes)
+* 0.26 (Q1 2026) (bugfixes, configure)
 # start to use Claude Code
 
 ** bugfixes
 - fix stale top_second_cursor after C-g cancel in isearch/query-replace
   (Minibuffer.kill now clears top_second_cursor)
+ (thx Claude)
 - fix array out of bounds in Frame.set_cursor when long wrapped lines
   push the cursor y-coordinate past the frame height
+ (thx Claude)
+
+** build infra
+- new configure (mostly copied from osemgrep) script
+  (thx Claude)
 
 ** test infra
 - added tests/bugfixes/ with manual reproduction steps for bug reports
-- plan for Testo-based automated test suite (headless editor tests)
+  (thx Claude)
+- Testo-based automated test suite (headless editor tests)
+  (thx Claude)
+
+** docs
+- resume efuns.nw
+  (thx Claude)
+
+** internals
+- switch to semgrep-libs and semgrep-pfff-langs submodules instead
+  of relying on ~/.opam or external/ and fragile OPAM_DIR symlinks
 
 * -----------------------------------------------------------
 
@@ -42,7 +58,7 @@
 
 * -----------------------------------------------------------
 
-* 0.25 (Q4 2019)
+* 0.25 (Q4 2019) (Mode:Python)
 
 ** languages
 - a new Python mode based on the Python parser and highlighter in Pfff.
@@ -51,31 +67,31 @@
 especially useful for Python and Javascript code
 update: removed as bento got deprecated at r2c
 
-* 0.24 (Q3 2019)
+* 0.24 (Q3 2019) ()
 
-* 0.23 (Q2 2019)
+* 0.23 (Q2 2019) (Mode:Javascript)
 
 ** languages
 - a new Javascript mode based on the Javascript parser and highlighter in Pfff.
 
-* 0.22 (Q1 2019)
+* 0.22 (Q1 2019) (Macros!, cairo2)
 
 ** features
 - macros!
   (finally deserve to be called an Emacs clone)
 
 ** bugfixes
--correct exception backtrace in *backtrace*
- and report it also for Failure exn
+- correct exception backtrace in *backtrace*
+  and report it also for Failure exn
 - reset modifier when focus back in window
- otherwise it's like Alt is still on
+  otherwise it's like Alt is still on
 
 ** internals
 - full switch to cairo2, opam 2.0, and ocaml 4.07.1
 
 * -----------------------------------------------------------
 
-* 0.21 (Q3 2018)
+* 0.21 (Q3 2018) (Merlin, Mode:Noweb, Shell history)
 
 ** features
 - a new Merlin minor mode
