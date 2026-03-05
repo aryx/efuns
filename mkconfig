@@ -6,7 +6,7 @@ BACKENDDIR=src/graphics/ocamlgraphics
 # limit to just stdcompat!
 EXTERNAL_INCLUDES=-I `ocamlfind query stdcompat` -I `ocamlfind query graphics`
 EXTERNAL_LIBS=stdcompat.cma graphics.cma
-# we need xix/lib_core/ if we can't depend on semgrep-libs/libs/commons
+# we need xix/lib_core/ if we can't depend on semgrep-pfff-libs/libs/commons
 XIX=../xix
 
 #TODO: call ppx.sh like I did in xix for ppx_profiling and ppx_interactive!

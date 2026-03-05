@@ -107,7 +107,7 @@ SRC=\
 # graphics/libdraw/graphics_efuns.ml \
 #COBJS=commons/realpath.$O graphics/libdraw/draw.$O
 
-# we need xix-libs when we don't use semgrep-libs
+# we need xix-libs when we don't use semgrep-pfff-libs
 INCLUDES=\
  -I $XIX/lib_core/collections -I $XIX/lib_core/commons \
  -I libs/commons \

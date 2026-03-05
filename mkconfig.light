@@ -5,7 +5,7 @@ LIBDIR=/usr/local/lib/ocaml
 BACKENDDIR=src/graphics/ocamlgraphics
 EXTERNAL_INCLUDES=-I +graphics
 EXTERNAL_LIBS=graphics.cma
-# we need xix/lib_core/ if we can't depend on semgrep-libs/libs/commons
+# we need xix/lib_core/ if we can't depend on semgrep-pfff-libs/libs/commons
 XIX=../xix
 
 OCAMLC=ocamlc

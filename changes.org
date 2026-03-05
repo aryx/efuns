@@ -25,7 +25,7 @@
   (thx Claude)
 
 ** internals
-- switch to semgrep-libs and semgrep-pfff-langs submodules instead
+- switch to semgrep-pfff-libs and semgrep-pfff-langs submodules instead
   of relying on ~/.opam or external/ and fragile OPAM_DIR symlinks
 
 * -----------------------------------------------------------

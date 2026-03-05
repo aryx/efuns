@@ -17,9 +17,9 @@ Claude Code integration?
 
 * Last
 
-**  maybe copy the non-tree-sitter parsers in separate semgrep-libs repo that
+**  maybe copy the non-tree-sitter parsers in separate semgrep-pfff-libs repo that
 is easier to install in opam? and link with efuns!
-or make configure --no-tree-sitter in semgrep-libs
+or make configure --no-tree-sitter in semgrep-pfff-libs
 
 ** Last4
 

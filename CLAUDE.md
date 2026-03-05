@@ -35,7 +35,7 @@ make check
 make build-docker
 ```
 
-Before building, run `./configure` to set up OPAM dependencies. See `Dockerfile` for the full dependency chain (requires semgrep-libs and codemap to be installed first).
+Before building, run `./configure` to set up OPAM dependencies. See `Dockerfile` for the full dependency chain (requires semgrep-pfff-libs and codemap to be installed first).
 
 ## Architecture
 
