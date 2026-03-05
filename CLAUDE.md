@@ -68,7 +68,6 @@ modes/prog_modes/    OCaml, C, Lisp, Makefile modes (with ocamllex lexers)
 modes/text_modes/    Plain text modes
 modes/pfff_modes/    pfff program analysis integration (for smart navigation)
 ppx_interactive/ Custom PPX rewriter (see below)
-external/        Symlinks to external OPAM packages (semgrep-libs, codemap, etc.)
 tests/           Test data files by language (ml/, c/, lisp/, etc.) used for indent/highlight tests
 ```
 

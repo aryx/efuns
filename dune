@@ -9,4 +9,4 @@
  (release
   (flags (:standard -O3))))
 
-(dirs :standard \ docs external)
+(dirs :standard \ docs)
