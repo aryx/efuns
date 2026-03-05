@@ -21,3 +21,5 @@ Yoann Padioleau: a few contributions
 Claude Code:
   * bugfixes
   * test infra (src/tests/)
+  * magit mode
+

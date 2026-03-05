@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "WebFetch(domain:ocaml.org)"
+      "WebFetch(domain:ocaml.org)",
+      "Bash(grep:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(dune build:*)",
+      "Bash(make test:*)"
     ]
   }
 }
