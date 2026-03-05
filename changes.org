@@ -1,6 +1,10 @@
 
-* 0.26 (Q1 2026) (bugfixes, configure)
+* 0.26 (Q1 2026) (bugfixes, configure, magit)
 # start to use Claude Code
+
+** major modes
+- new magit mode, port of Emacs magit mode
+  (thx Claude)
 
 ** bugfixes
 - fix stale top_second_cursor after C-g cancel in isearch/query-replace
@@ -50,9 +54,9 @@
 
 * 0.26 (Q1 2022) (Mode:Jsonnet, generic highlighters)
 
-** a new Jsonnet mode (based on ojsonnet parser in semgrep)
-
-** added a generic highlighter using the generic AST in semgrep
+** languages
+- a new Jsonnet mode (based on ojsonnet parser in semgrep)
+- added a generic highlighter using the generic AST in semgrep
 
 * Maintenance mode in 2020/2021/2022/2023/2024 as I was working on semgrep
 
@@ -144,10 +148,10 @@ update: removed as bento got deprecated at r2c
 
 * 0.20 (Q2 2015) (Mode:Org/Outline/..., minimap, pad's stuff)
 
-** a new Org mode
-
-** a new Outline mode
-with special support for pfff-based modes
+** major modes
+- a new Org mode
+- a new Outline mode
+  with special support for pfff-based modes
 
 ** code navigation a la Tags (M-.) 
 but using pfff code database instead of TAGS file
@@ -176,7 +180,7 @@ blinking cursor (using a simple thread)
 scroll other windows
 buffer menu C-M-Tab, C-M-l and right order
 
-** refactoring
+** internals
 - split efuns.ml and simple.ml in many more modules
 - add more .mli
 - more use of with_dup_point, with_new_point, with_session
@@ -187,12 +191,11 @@ buffer menu C-M-Tab, C-M-l and right order
 ** fork Efuns (after 15 years), and port it to gtk/cairo
 also use pfff/h_visualization/simple_color.ml for emacs style color names
 
-** a new Dircolors module
+** major modes
+- a new Dircolors module
 (based on my dircolors.el plugin for Emacs)
-
-** a new Buffer_menu mode
-
-** a new (eshell inspired) Shell mode
+- a new Buffer_menu mode
+- a new (eshell inspired) Shell mode
 
 ** new programming language major modes using pfff for parsing
 for Caml, C/C++, and TeX/Noweb, with correct and more highlightings
@@ -201,7 +204,7 @@ for identifiers (e.g. differentiate fields from parameters from locals).
 ** adjustments to Emacs behavior
 - maintain a "goal column" when goes up and down in a file, similar to Emacs
 
-** refactoring
+** internals
 - files and directories reorganization, pad's style
 - LPization (literate programming restructuring, with help from syncweb)
 - removed many opens
