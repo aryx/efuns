@@ -23,3 +23,5 @@ Claude Code:
   * bugfixes
   * test infra (src/tests/)
   * magit mode
+  * markdown mode
+

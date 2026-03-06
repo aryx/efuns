@@ -6,7 +6,8 @@
       "Bash(grep:*)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(dune build:*)",
-      "Bash(make test:*)"
+      "Bash(make test:*)",
+      "Bash(make:*)"
     ]
   }
 }

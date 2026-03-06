@@ -1,11 +1,13 @@
 
-* 0.26 (Q1 2026) (bugfixes, configure, magit, Haskell/Zig/Yaml/Dockerfile)
+* 0.26 (Q1 2026) (bugfixes, configure, magit, Haskell/Zig/Yaml/Dockerfile/Markdown)
 # start to use Claude Code
 
 ** major modes
 - new magit mode, port of Emacs magit mode
   (thx Claude)
 - support Haskell, Zig, Yaml, Docker via semgrep-based tree-sitter parsers
+- support Markdown via recursive descent parser
+  (thx Claude)
 
 ** bugfixes
 - fix stale top_second_cursor after C-g cancel in isearch/query-replace
