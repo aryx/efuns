@@ -1,25 +1,25 @@
 Fabrice Le Fessant: most of the code
 
 Yoann Padioleau: a few contributions
+  * Emacs's macro! (C-x (, C-x ), C-x e)
   * dircolors (see C-x C-f TAB)
   * buffer_menu (C-M-Tab and C-M-l)
   * eshell (poor's man version, M-1, M-2, ...)
   * outline (poor's man version, C-M-1, C-M-2, ...)
   * org mode (poor's man version)
-  * semgrep-pfff-based modes for OCaml/C/noweb/Tex/Jsonnet
-    (with many colors and outlines)
+  * semgrep-pfff-based modes for OCaml/C/Noweb-Tex/Jsonnet/Bash (what I use)
+    (with many colors and outlines) and later
+    Rust/Zig/Haskell/Scala/Python/Javascript as well as Yaml/Dockerfile
   * minimap instead of scrollbar (a la Sublime Text), with bigger font
     for important (outline) stuff (a la Code Thumbnails)
   * merlin minor mode for OCaml (C-c C-t, C-c C-d, ...)
   * Emacs's default behavior port: goal column, C-s C-w, M-w, Top|Bot|%, ...
   * Emacs's misc port: M-x align_char, rectangles (C-x r t, C-x r k)
   * pad's stuff: M-down/up/right/left scrolling, M-x gtd
-  * Emacs's macro! (C-x (, C-x ), C-x e)
   * plan9 port
-  * ..., more, see changes.org
+  * and more (see changes.org)
 
 Claude Code:
   * bugfixes
   * test infra (src/tests/)
   * magit mode
-
