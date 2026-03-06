@@ -462,6 +462,12 @@ let normal_name curdir filename =
 
         
         
+let chop_dirsymbol s =
+  let len = String.length s in
+  if len > 1 && s.[len - 1] = '/'
+  then String.sub s 0 (len - 1)
+  else s
+
 (*[to_regexp_string] replace a string with * and ? (shell regexps) to
   a string for Emacs regexp library *)
 let to_regexp_string s =

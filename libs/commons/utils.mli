@@ -58,6 +58,7 @@ val is_link : string -> bool
 val list_dir : string -> string list
 val load_directory : string -> string
 val normal_name : string -> string -> string
+val chop_dirsymbol : string -> string
 val to_regexp_string : string -> string
 
 val hashtbl_mem : ('a, 'b) Hashtbl.t -> 'a -> bool
