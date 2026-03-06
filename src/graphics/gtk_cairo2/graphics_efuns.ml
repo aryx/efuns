@@ -19,7 +19,7 @@ open World
 open Efuns
 
 (* floats are the norm in cairo *)
-open Common2_.ArithFloatInfix
+open Common2.ArithFloatInfix
 
 module Color = Simple_color
 module CH = Cairo_helpers
