@@ -99,12 +99,13 @@ Gosling Emacs
   SY:2
 
 neovim
-  2015
+  2014
   vim
 
 
 
-Pico 
+Pico
+  1989
   # pine composer
 
 *Nano
@@ -125,10 +126,10 @@ GNU Nano
 #--------------------------------------------------------------------------
 
 *Sam
-  1982
+  1987
   ed
   SY:2
-  # no precise date
+  # Rob Pike, structural regular expressions, paper in 1987
 
 *Acme
   1993
@@ -165,7 +166,7 @@ GNU Nano
 
 
 Lucid Emacs
-  
+  1991
 *XEmacs
   GNU Emacs
   1991
@@ -191,22 +192,33 @@ JOVE
 #--------------------------------------------------------------------------
 
 stevie
+  1987
+  vi
+  # Tim Thompson, ST Editor for VI Enthusiasts, Atari ST
 
 elvis
   1990
-  # syntax higlighting
+  vi
+  # Steve Strjkworth, syntax highlighting
 
 nvi
-  elvis
+  1994
+  vi
+  # Keith Bostic, BSD vi rewrite
 
 busybox vi
-
+  1999
+  vi
 
 vile
+  1990
   vi,MicroEMACS
+  # Paul Fox, vi like emacs
 
 vis
+  2014
   vi,Sam
+  # Marc André Tanner, structural regex from sam + vi keybindings
 
 
 
@@ -216,6 +228,8 @@ vis
 #--------------------------------------------------------------------------
 
 kilo
+  2016
+  # antirez (Salvatore Sanfilippo), ~1000 LOC editor in C
 
 
 #--------------------------------------------------------------------------
@@ -239,11 +253,13 @@ IBM VisualAge
 *Eclipse
   2001
   IBM VisualAge
-  # ACM software award in 20011
+  # ACM software award in 2011
 Eclipse 3.0
   2003
 
 Intellij IDEA
+  2001
+  SY:6
 
 
 
@@ -289,6 +305,8 @@ TextEdit
   # light word processor too
 
 Xcode
+  2003
+  SY:6
 
 # ------------
 # Microsoft
@@ -314,6 +332,8 @@ WordPad
   1995
 
 *Visual Studio C++
+  1997
+  SY:6
 
 *Visual Studio Code
   2015
@@ -348,6 +368,7 @@ UltraEdit
   SY:6
 
 Source Insight
+  1996
   SY:6
   # program editor and analyzer (to help understand large codebase)
 
@@ -357,6 +378,31 @@ Source Insight
 # Recent
 #--------------------------------------------------------------------------
 
+Notepad++
+  2003
+  SY:6
+  # Don Ho, Windows editor, Scintilla-based
+
+Kakoune
+  2014
+  vim,Sam
+  # Maxime Coste, modal editor, selection-first design
+
+Micro
+  2016
+  Nano
+  # Zachary Yedidia, modern terminal editor, Go
+
+Helix
+  2021
+  Kakoune
+  # Rust, tree-sitter built-in, modal selection-first
+
+Zed
+  2022
+  Atom
+  SY:6
+  # Nathan Sobo (ex-Atom), Rust, very fast, collaborative
 
 #--------------------------------------------------------------------------
 # Exotic
