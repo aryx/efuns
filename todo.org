@@ -10,12 +10,60 @@ better merlin support
   automatic case-analysis code generation boilerplate (using merlin)
 Claude Code integration?
 
-
 ** Overview
 
 ** Later
 
 * Last
+
+** Last5
+
+*** a configure --no-tree-sitter
+like for syncweb, with less dependencies
+in theory just pfff_modes/ should move out?
+and need also semgrep-pfff-libs/ ? is there a way to be
+independent of it? (we should, when compiling from xix)
+
+*** efuns: restore CI check with ocaml-light
+
+*** fix more second cursor bugs, and out_of_bound bugs
+but have to use efuns more first! to expose the bugs!
+
+*** add generalized support for LSP?
+and reuse and refine osemgrep/languages/xxx/lsp/
+
+*** ------------------------------------------------------
+
+*** FUN integrate with Claude Code?
+#update: actually Claude Code does not need IDE/editor integration really
+maybe just similar to M-|  but send region to LLM instead of shell command :)
+and replace region by (processed) output from LLM
+
+https://github.com/steveyegge/efrit
+
+*** fix efuns Dockerfile.light with latest xix code
+maybe add compilation of efuns in xix CI?
+
+had CI failure since 3 weeks
+
+
+** Last5 bis
+
+*** SEMI efuns: resume mk pdf, add basic intro at least
+
+*** still? fix deadlock when running mk from xix under efuns
+still issue with efuns 4.14.0?
+
+*** fix big long-standing out of bound array big bug
+
+*** why does not highlight C code in goken?
+
+*** bash mode
+use semgrep-libs!
+
+*** change color of special comment of syncweb in OCaml, .mll, .mly
+
+
 
 **  maybe copy the non-tree-sitter parsers in separate semgrep-pfff-libs repo that
 is easier to install in opam? and link with efuns!
