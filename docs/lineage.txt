@@ -34,9 +34,15 @@ em
   ed
   # editor for mortal (ed was considered for immortal as it was very unfriendly)
   # use raw keyboard mode and can visualize whole line!
+
 en
+  1975
+  ed
+  # George Coulouris, UCL, screen editing on a video terminal
+
 ex
   1976
+  ed
   # extended ed, Bill Joy
 
 
@@ -47,6 +53,7 @@ ex
 
 WordStar
   1979
+  # MicroPro, dominant word processor on CP/M and early DOS
 
 #--------------------------------------------------------------------------
 # Historical (Unix/Multics)
@@ -67,6 +74,7 @@ WordStar
 
 Gosling Emacs
   1981
+  Emacs
 
 
 *vi
@@ -85,6 +93,7 @@ Gosling Emacs
   Emacs,Multics Emacs,Gosling Emacs
   1984
   SY:2
+  # Stallman, Emacs Lisp extension language, self-documenting
 
 *JED
   1992
@@ -101,6 +110,7 @@ Gosling Emacs
 neovim
   2014
   vim
+  # Lua-first config, async plugins, built-in LSP and tree-sitter
 
 
 
@@ -114,6 +124,8 @@ Pico
   # original TIP (Tip is not Pine)
 GNU Nano
   2001
+  Nano
+  # adopted by GNU project
 
 
 
@@ -167,13 +179,18 @@ GNU Nano
 
 Lucid Emacs
   1991
+  GNU Emacs
+  # Jamie Zawinski at Lucid Inc., diverged from GNU Emacs over GUI toolkit
+
 *XEmacs
   GNU Emacs
   1991
+  # renamed from Lucid Emacs, multi-display, package system
 
 XSEmacs
   XEmacs
   2004
+  # SXEmacs fork, experimental features
 
 
 Aquamacs
@@ -185,6 +202,7 @@ Aquamacs
 JOVE
   1983
   Gosling Emacs
+  # Jonathan's Own Version of Emacs, very lightweight
 
 
 #--------------------------------------------------------------------------
@@ -199,7 +217,7 @@ stevie
 elvis
   1990
   vi
-  # Steve Strjkworth, syntax highlighting
+  # Steve Kirkendall, syntax highlighting
 
 nvi
   1994
@@ -209,6 +227,7 @@ nvi
 busybox vi
   1999
   vi
+  # minimal vi for embedded Linux systems
 
 vile
   1990
@@ -240,9 +259,12 @@ kilo
 #Turbo Pascal/Delphi see later
 
 Fabrik
-
-NeXT interface Builder 
   1988
+  # Dan Ingalls, visual programming environment at Apple
+
+NeXT interface Builder
+  1988
+  # first GUI builder IDE, became Xcode Interface Builder
 
 IBM VisualAge
   1985
@@ -256,6 +278,7 @@ IBM VisualAge
   # ACM software award in 2011
 Eclipse 3.0
   2003
+  # OSGi-based plugin architecture (Rich Client Platform)
 
 Intellij IDEA
   2001
@@ -272,6 +295,10 @@ Epsilon
   1984
   SY:6
 
+BBEdit
+  1992
+  SY:6
+  # Bare Bones Software, macOS text editor, "It doesn't suck"
 
 *Textmate
   2004
@@ -296,11 +323,20 @@ Textmate open source
 # Apple
 # ------------
 Edit Application
+  1984
+  # original Macintosh text editor
+
 TeachText
+  1986
+  # simple Mac text viewer/editor, shipped with System Software
+
 SimpleText
+  1993
+  TeachText
   #RTF
 TextEdit
   2001
+  SimpleText
   SY:6
   # light word processor too
 
@@ -314,6 +350,7 @@ Xcode
 Edlin
   1980
   ed
+  # Tim Paterson, line editor for MS-DOS
 
 MS-DOS Editor
   1991
@@ -330,6 +367,7 @@ MicrosoftWrite
   # light Word processor
 WordPad
   1995
+  MicrosoftWrite
 
 *Visual Studio C++
   1997
@@ -348,11 +386,14 @@ WordPad
   SY:6
 Turbo C
   1987
+  # Borland, integrated editor + C compiler
 Turbo C++
   1990
+  # added C++ and OOP support
 
 Delphi
   1995
+  Turbo Pascal
   #RAD
 
 # ------------
@@ -404,6 +445,18 @@ Zed
   SY:6
   # Nathan Sobo (ex-Atom), Rust, very fast, collaborative
 
+Cursor
+  2023
+  Visual Studio Code
+  SY:6
+  # Anysphere, AI-native fork of VS Code
+
+Windsurf
+  2024
+  Visual Studio Code
+  SY:6
+  # Codeium, AI-native fork of VS Code
+
 #--------------------------------------------------------------------------
 # Exotic
 #--------------------------------------------------------------------------
@@ -417,16 +470,24 @@ Zed
 #--------------------------------------------------------------------------
 Kate
   2000
+  # KDE Advanced Text Editor, plugins, terminal, syntax highlighting
 
 KWrite
   2000
+  # KDE, lighter than Kate, shares Kate's editing component
 
 gedit
   2000
+  # GNOME default text editor, plugins
 
 #--------------------------------------------------------------------------
 # Other
 #--------------------------------------------------------------------------
+
+Xi
+  2016
+  # Raph Levien (Google), Rust backend, CRDT-based, influential architecture
+  # discontinued but inspired Zed and others
 
 Yi
   2005
