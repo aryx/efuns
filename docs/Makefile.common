@@ -45,6 +45,10 @@ sync:
 	set -e; for i in $(SRC_VIEWS) $(EXTRA_VIEWS); do $(SYNCWEB) $(SYNCFLAGS) $(SRC_ORIG) $$i ; done
 
 
+lineage.pdf: lineage.txt
+	./latex/language-study.list2dot lineage.txt > lineage.dot
+		dot -Tpdf lineage.dot -o lineage.pdf
+
 
 clean: clean2
 
