@@ -48,8 +48,28 @@ ex
   1974
   # modal editor, full-screen, bitmap, first WYSIWYG word processor, for Alto
 
+*Smalltalk browser
+  1976
+  # Xerox PARC, Kay/Ingalls, originated the code browser/IDE concept
+
+Cedar
+  1983
+  Bravo
+  # Xerox PARC, successor to Bravo/Mesa, structure editor, tiling
+
+Squeak
+  1996
+  Smalltalk browser
+  # Ingalls/Kay, open source Smalltalk with integrated browser/IDE
+
+Pharo
+  2008
+  Squeak
+  # modern fork of Squeak, active community, live programming
+
 WordStar
   1979
+  SY:6
   # MicroPro, dominant word processor on CP/M and early DOS
 
 #--------------------------------------------------------------------------
@@ -59,9 +79,15 @@ WordStar
 *Emacs
   1975
   TECO
+  SY:2
   #Editor Macros, originally implemented in TECO
   # Emacs stallman paper 1981, but also tech report in 1979 AI memo ???
   # programmability and modelessness (2 things Bill Joy says he missed in vi)
+
+Zmacs
+  1980
+  Emacs
+  # MIT Lisp Machine editor, full Lisp integration
 
 *Multics Emacs
   1978
@@ -99,9 +125,10 @@ Gosling Emacs
   #,elvis,stevie
   SY:2
 
-neovim
+*neovim
   2014
   vim
+  SY:2
   # Lua-first config, async plugins, built-in LSP and tree-sitter
 
 Pico
@@ -111,13 +138,14 @@ Pico
 *Nano
   1999
   Pico
+  SY:2
   # original TIP (Tip is not Pine)
 GNU Nano
   2001
   Nano
   # adopted by GNU project
 
-*JOE
+JOE
   1988
   #WordStar,Turbo C
 
@@ -128,12 +156,12 @@ GNU Nano
 *Sam
   1987
   ed
-  SY:2
   # Rob Pike, structural regular expressions, paper in 1987
 
 *Acme
   1993
   Sam
+  SY:2
 
 #--------------------------------------------------------------------------
 # Emacs clones
@@ -186,6 +214,11 @@ JOVE
   Gosling Emacs
   # Jonathan's Own Version of Emacs, very lightweight
 
+Hemlock
+  1987
+  Emacs
+  # CMU, Emacs written in Common Lisp, part of CMU CL
+
 #--------------------------------------------------------------------------
 # Vi/vim clones
 #--------------------------------------------------------------------------
@@ -235,16 +268,35 @@ kilo
 
 #Turbo Pascal/Delphi see later
 
+Cornell Program Synthesizer
+  1981
+  # Tim Teitelbaum, pioneered syntax-directed/structured editing
+
+Oberon
+  1992
+  Cedar
+  # Wirth + Gutknecht, integrated editor in Oberon OS, tiled windows
+
+DrScheme
+  1995
+  # PLT, Matthias Felleisen, teaching IDE for Scheme
+
+DrRacket
+  2010
+  DrScheme
+  # renamed from DrScheme when Scheme became Racket
+
 Fabrik
   1988
   # Dan Ingalls, visual programming environment at Apple
 
-NeXT interface Builder
+*NeXT interface Builder
   1988
   # first GUI builder IDE, became Xcode Interface Builder
 
 IBM VisualAge
   1985
+  Smalltalk browser
   #No precise date
   #NeXT interface Builder
   #In Smalltalk
@@ -257,7 +309,11 @@ Eclipse 3.0
   2003
   # OSGi-based plugin architecture (Rich Client Platform)
 
-Intellij IDEA
+NetBeans
+  1996
+  # Sun Microsystems, Java IDE, open source, later Oracle
+
+*Intellij IDEA
   2001
   SY:6
 
@@ -316,8 +372,9 @@ TextEdit
   SY:6
   # light word processor too
 
-Xcode
+*Xcode
   2003
+  NeXT interface Builder
   SY:6
 
 # ------------
@@ -326,11 +383,13 @@ Xcode
 Edlin
   1980
   ed
+  SY:6
   # Tim Paterson, line editor for MS-DOS
 
 MS-DOS Editor
   1991
   Edlin
+  SY:6
   # aka edit
 
 *Notepad
@@ -340,10 +399,12 @@ MS-DOS Editor
 
 MicrosoftWrite
   1985
+  SY:6
   # light Word processor
 WordPad
   1995
   MicrosoftWrite
+  SY:6
 
 *Visual Studio C++
   1997
@@ -351,7 +412,8 @@ WordPad
 
 *Visual Studio Code
   2015
-  Atom
+  Atom,Visual Studio C++
+  SY:6
 
 # ------------
 # Borland
@@ -367,9 +429,10 @@ Turbo C++
   1990
   # added C++ and OOP support
 
-Delphi
+*Delphi
   1995
   Turbo Pascal
+  SY:6
   #RAD
 
 # ------------
@@ -389,14 +452,18 @@ Source Insight
   SY:6
   # program editor and analyzer (to help understand large codebase)
 
+*Xi
+  2016
+  # Raph Levien (Google), Rust backend, CRDT-based, influential architecture
+  # discontinued but inspired Zed and others
+
 #--------------------------------------------------------------------------
 # Recent
 #--------------------------------------------------------------------------
 
 Notepad++
   2003
-  SY:6
-  # Don Ho, Windows editor, Scintilla-based
+  # Don Ho, Windows editor, Scintilla-based, open source
 
 Kakoune
   2014
@@ -413,9 +480,9 @@ Helix
   Kakoune
   # Rust, tree-sitter built-in, modal selection-first
 
-Zed
+*Zed
   2022
-  Atom
+  Atom,Xi
   SY:6
   # Nathan Sobo (ex-Atom), Rust, very fast, collaborative
 
@@ -430,6 +497,11 @@ Windsurf
   Visual Studio Code
   SY:6
   # Codeium, AI-native fork of VS Code
+
+Theia
+  2017
+  Eclipse,Visual Studio Code
+  # Eclipse Foundation, VS Code-compatible, open source alternative
 
 #--------------------------------------------------------------------------
 # Exotic
@@ -457,11 +529,6 @@ gedit
 #--------------------------------------------------------------------------
 # Other
 #--------------------------------------------------------------------------
-
-Xi
-  2016
-  # Raph Levien (Google), Rust backend, CRDT-based, influential architecture
-  # discontinued but inspired Zed and others
 
 Yi
   2005
