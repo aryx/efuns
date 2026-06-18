@@ -39,6 +39,7 @@
 # Literate stuff
 /docs/efuns-*.pdf
 /docs/efuns.tex
+/docs/lineage.dot
 
 # pfff and tools
 /TAGS

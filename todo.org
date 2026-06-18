@@ -221,6 +221,27 @@ use LSP protocol client format?
 also minimap useful when reading gtd.org, code, latex
 omnibar search!
 
+* Efuns.nw
+
+*** understanding, lpize
+
+**** put more of mli files in Efuns.nw; they help to understand
+redundant sometimes, but redundancy is good
+but actually need to split things first, so can actually
+have some .mli. There is no efuns.mli for instance now.
+
+**** less: ctor xxx, action xxx
+can maybe make clearer that API vs helper
+
+*** cover at least basic features?
+
+**** http://tuhdo.github.io/emacs-tutor.html
+
+**** look at the 7 habits of effective editing talk,
+can implement all the necessary features!
+
+**** there is similar video for sublime!
+
 * Features
 
 ** important (and not too long to implement)
