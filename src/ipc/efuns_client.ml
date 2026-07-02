@@ -64,7 +64,11 @@ let socket_name =
   (* (Xlib.getWholeProperty display root atom).gp_value *)
 (*e: constant [[Efuns_client.socket_name]] *)
 (*s: toplevel [[Efuns_client._2]] *)
-let _ =  if not (Sys.file_exists socket_name) then raise Not_found
+let _ =  if not (Sys.file_exists socket_name) 
+         then begin
+           Printf.eprintf "could not find %s" socket_name;
+           raise Not_found
+         end
 (*e: toplevel [[Efuns_client._2]] *)
 (*s: toplevel [[Efuns_client._3]] *)
 let (_inc,outc) = Unix.open_connection (Unix.ADDR_UNIX socket_name)

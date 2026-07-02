@@ -2,6 +2,9 @@
 %alt: 12pt, twocolumn, landscape
 %coupling: see Config.tex
 
+%last:
+% - https://ki-editor.org structural editor
+
 \input{latex/Packages}
 \input{latex/Noweb}
 \input{latex/Config}
