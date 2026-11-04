@@ -1,6 +1,8 @@
 * Big plan
 
 ** TODO changes.txt
+#CLAUDE: release on opam v1 without tree-sitter and semgrep-pfff-libs! improve configure! use and fix bugs!
+# add LSP (type, goto def) and even SCIP, add Claude integration
 
 *** package
 first public release on OPAM
@@ -15,6 +17,17 @@ Claude Code integration?
 ** Later
 
 * Last
+
+** Last6
+
+*** add a configure so can build without big dependencies
+and one where can build with tree-sitter and all of semgrep-xxx submodules
+
+*** Resume Efuns.nw
+
+*** Release Efuns on opam! (for Lefessant)
+with capabilities! and pdf manual!
+
 
 ** Last5
 
