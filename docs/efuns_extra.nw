@@ -1070,6 +1070,18 @@ open Efuns
 
 <<function [[Ebuffer.create]]>>
 
+(* claude: edt_files is keyed by the realpath of the file, which may have
+ * changed since the buffer was added (e.g., a new file saved or a symlink
+ * modified), so we look for the buffer itself rather than recomputing the key.
+ *)
+let remove_from_edt_files buf =
+  let edt = Globals.editor() in
+  let keys = 
+    Hashtbl.fold (fun k b acc -> if Eq.phys_equal b buf then k :: acc else acc)
+      edt.edt_files []
+  in
+  List.iter (fun k -> Hashtbl.remove edt.edt_files k) keys
+
 <<function [[Ebuffer.kill]]>>
 
 open Options
