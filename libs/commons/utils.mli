@@ -58,6 +58,9 @@ val is_link : string -> bool
 val list_dir : string -> string list
 val load_directory : string -> string
 val normal_name : string -> string -> string
+(* claude: [realpath curdir filename] is like [normal_name] but also
+ * resolves symlinks (portable replacement for Unix.realpath) *)
+val realpath : string -> string -> string
 val chop_dirsymbol : string -> string
 val to_regexp_string : string -> string
 

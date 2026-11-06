@@ -155,13 +155,23 @@ let create name filename text local_map =
   buf
 (*e: function [[Ebuffer.create]] *)
 
+(* claude: edt_files is keyed by the realpath of the file, which may have
+ * changed since the buffer was added (e.g., a new file saved or a symlink
+ * modified), so we look for the buffer itself rather than recomputing the key.
+ *)
+let remove_from_edt_files buf =
+  let edt = Globals.editor() in
+  let keys = 
+    Hashtbl.fold (fun k b acc -> if Eq.phys_equal b buf then k :: acc else acc)
+      edt.edt_files []
+  in
+  List.iter (fun k -> Hashtbl.remove edt.edt_files k) keys
+
 (*s: function [[Ebuffer.kill]] *)
 let kill buf =
   let edt = Globals.editor() in
   Hashtbl.remove edt.edt_buffers buf.buf_name;
-  buf.buf_filename |> Option.iter (fun filename ->
-    Hashtbl.remove edt.edt_files filename
-  );
+  remove_from_edt_files buf;
   List.iter (fun f -> f () ) buf.buf_finalizers;
 (* TODO Gc.compact (); this cause some segfault under plan9 with ocaml light *)
   buf.buf_shared <- -1
@@ -201,8 +211,11 @@ let save buf =
 let read filename local_map =
   let edt = Globals.editor() in
   let filename = Utils.normal_name edt.edt_dirname filename in
+  (* claude: key by realpath so the same file opened through two different
+   * paths (e.g., via a symlink) shares the same buffer *)
+  let key = Utils.realpath edt.edt_dirname filename in
   try
-    Hashtbl.find edt.edt_files filename
+    Hashtbl.find edt.edt_files key
   with Not_found ->
     let text =
       try
@@ -215,7 +228,7 @@ let read filename local_map =
         Text.create ""
     in
     let buf = create filename (Some filename) text local_map in
-    Hashtbl.add edt.edt_files filename buf;
+    Hashtbl.add edt.edt_files key buf;
     buf
 (*e: function [[Ebuffer.read]] *)
 
@@ -261,20 +274,19 @@ exception BufferAlreadyOpened
 let change_name buf filename =
   let edt = Globals.editor() in
   Hashtbl.remove edt.edt_buffers buf.buf_name;
-  buf.buf_filename |> Option.iter (fun filename ->
-    Hashtbl.remove edt.edt_files filename
-  );
+  remove_from_edt_files buf;
   let filename = 
     if Filename.is_relative filename 
     then Filename.concat edt.edt_dirname filename
     else filename
   in
-  if Utils.hashtbl_mem edt.edt_files filename
+  let key = Utils.realpath edt.edt_dirname filename in
+  if Utils.hashtbl_mem edt.edt_files key
   then raise BufferAlreadyOpened;
   let filename = Utils.normal_name edt.edt_dirname filename in
   let name = get_unique_name filename in
   Hashtbl.add edt.edt_buffers name buf;
-  Hashtbl.add edt.edt_files filename buf;
+  Hashtbl.add edt.edt_files key buf;
   buf.buf_filename <- Some filename;
   buf.buf_name <- name
 (*e: function [[Ebuffer.change_name]] *)

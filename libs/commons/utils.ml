@@ -456,12 +456,64 @@ let normal_name curdir filename =
   | [] -> "/"
   | _ -> 
       let name = List.fold_left (fun s name -> s ^ "/" ^ name ) "" list in
-      if is_directory name 
-      then name ^ "/" 
+      if is_directory name
+      then name ^ "/"
       else name
 
-        
-        
+(* claude: like normal_name but also resolves symlinks, so that two
+ * different paths to the same file give the same result. Used as the key
+ * of edt_files to avoid opening the same file in two buffers.
+ * We can't use Unix.realpath because ocaml-light (and plan9) don't have it,
+ * so we resolve the path component by component with Unix.readlink.
+ * Components that do not exist (e.g., a new file) are kept as is, and ".."
+ * is resolved after following symlinks (like the real realpath()).
+ *)
+let realpath curdir filename =
+  let fullname =
+    if Filename.is_relative filename
+    then Filename.concat curdir filename
+    else filename
+  in
+  let split s =
+    let len = String.length s in
+    let rec aux start i acc =
+      if i >= len
+      then List.rev (if i > start then String.sub s start (i - start) :: acc
+                     else acc)
+      else if s.[i] = '/'
+      then aux (i+1) (i+1)
+             (if i > start then String.sub s start (i - start) :: acc else acc)
+      else aux start (i+1) acc
+    in
+    aux 0 0 []
+  in
+  let concat dir b = if dir = "/" then "/" ^ b else dir ^ "/" ^ b in
+  (* claude: protection against symlink loops, same limit as Linux *)
+  let max_links = 40 in
+  let rec resolve resolved comps nlinks =
+    match comps with
+    | [] -> resolved
+    | ("" | ".") :: rest -> resolve resolved rest nlinks
+    | ".." :: rest -> resolve (Filename.dirname resolved) rest nlinks
+    | b :: rest ->
+        let path = concat resolved b in
+        let target =
+          if nlinks >= max_links then None
+          else try Some (Unix.readlink path) with _ -> None
+        in
+        (match target with
+        | None -> resolve path rest nlinks
+        | Some target ->
+            let base = if Filename.is_relative target then resolved else "/" in
+            resolve base (split target @ rest) (nlinks + 1)
+        )
+  in
+  let name = resolve "/" (split fullname) 0 in
+  if name <> "/" && is_directory name
+  then name ^ "/"
+  else name
+
+
 let chop_dirsymbol s =
   let len = String.length s in
   if len > 1 && s.[len - 1] = '/'

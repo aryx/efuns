@@ -1,4 +1,14 @@
 
+* 0.27 (Q4 2026) (bugfixes)
+
+** bugfixes
+- fix the same file being opened in two different buffers when accessed
+  through two different paths (e.g., via a symlink, as with M-x compile
+  errors): edt_files is now keyed by a portable Utils.realpath
+  (thx Claude)
+
+* -----------------------------------------------------------
+
 * 0.26 (Q1 2026) (bugfixes, configure, magit, Haskell/Zig/Yaml/Dockerfile/Markdown)
 # start to use Claude Code
 
