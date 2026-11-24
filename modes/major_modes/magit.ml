@@ -74,7 +74,7 @@ let commit_hist = ref []
 (* claude: run a git command and return stdout lines, using capabilities *)
 let git_lines (caps : < Efuns.frame_caps; .. >) root args =
   let cmd = spf "cd %s && git %s" (Filename.quote root) args in
-  CapExec.cmd_to_list caps#exec cmd
+  CapExec.cmd_to_list caps cmd
 
 let git_string caps root args =
   String.concat "\n" (git_lines caps root args)
@@ -83,7 +83,7 @@ let git_string caps root args =
 let find_repo_root (caps : < Efuns.frame_caps; .. >) dir =
   let cmd = spf "cd %s && git rev-parse --show-toplevel 2>/dev/null"
       (Filename.quote dir) in
-  CapExec.with_open_process_in caps#exec cmd (fun ic ->
+  CapExec.with_open_process_in caps cmd (fun ic ->
     try Some (input_line ic) with End_of_file -> None
   )
 
